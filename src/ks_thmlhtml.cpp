@@ -126,7 +126,7 @@ bool ks_ThMLHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 					if (!refList.length())
 						refList = u->lastTextNode;
 					SWBuf version = tag.getAttribute("version");
-					buf += "&nbsp;<a href=\"sword:/?modtype=bible";
+					buf += "<a href=\"sword:/?modtype=bible";
 					if (version.length()) {
 						buf += "&version=";
 						buf += version;
@@ -136,7 +136,7 @@ bool ks_ThMLHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 					buf += refList.c_str();
 					buf += "\">";
 					buf += u->lastTextNode.c_str();
-					buf += "</a>&nbsp";
+					buf += "</a>";
 				}
 				// FIXME for Kio-Sword
 				else {
