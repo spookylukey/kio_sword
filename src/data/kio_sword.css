@@ -89,7 +89,7 @@ table.swordsettings {
 table.swordsettings td,
 table.swordsettings th {  
 	border-right: 1px solid black; 
-	border-bottom: 1px solid black; 
+	border-bottom: 1px solid black;
 	margin: 0px;
 }
 
@@ -105,6 +105,7 @@ table.swordsettings td {
 	padding: 2pt 5pt 2pt 5pt;
 	vertical-align: top;
 	text-align: left;
+	background-color: white;
 }
 
 
