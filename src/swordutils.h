@@ -1,5 +1,5 @@
 /***************************************************************************
-    File:         cswordoptions.h
+    File:         swordutils.h
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
  ***************************************************************************/
@@ -21,46 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef CSWORDOPTIONS_H
-#define CSWORDOPTIONS_H
+#ifndef SWORDUTILS_H
+#define SWORDUTILS_H
 
-#include <qstring.h>
+#include <versekey.h>
 
-struct CSwordOptions {
-	bool persist;		// Allow options set in one 'get' command to persist to later 'get' commands
-
-	bool snippet;
-	bool verseNumbers;
-	bool verseLineBreaks;
-	bool wholeBook; 	// Allows whole book to be printed - otherwise 'Genesis' will give an index of chapters
-	QString styleSheet;	// FIXME IMPLEMENT
-
-	bool footnotes; 	// FIXME IMPLEMENT
-	bool headings;  	// FIXME IMPLEMENT
-	bool strongs;
-	bool morph;
-	bool cantillation; 
-	bool hebrewVowelPoints;
-	bool greekAccents;
-	bool lemmas; 		// FIXME IMPLEMENT
-	bool crossRefs; 	// FIXME IMPLEMENT
-	bool redWords;
-	int variants;
-	
-	bool doBibleIndex;	// Create an index for for Bibles/Commentaries
-	bool doFullTreeIndex;	// Create a full index for 'tree' books, not just first level
-	bool doDictIndex;	// Create an index for all items in a Lexicon/Dictionary
-	bool doOtherIndex;	// Create an index for other books
-	
-	QString defaultBible;
-	QString defaultGreekStrongs;
-	QString defaultHebrewStrongs;
-	QString defaultGreekMorph;
-	QString defaultHebrewMorph;
-	
-	bool simplePage;
-
-
-};
+bool entireBook(const sword::VerseKey *vk);
+bool singleChapter(const sword::VerseKey *vk);
 
 #endif

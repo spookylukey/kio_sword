@@ -27,6 +27,7 @@
 
 #include <swmgr.h>
 #include <swmodule.h>
+#include <versekey.h>
 
 #include <qstring.h>
 #include <qstringlist.h>
@@ -78,6 +79,9 @@ protected:
 	QString indexBook(sword::SWModule *module);
 	QString indexTree(sword::SWModule *module, bool fromTop, const int depth = -1);
 	QString renderText(sword::SWModule *module);
+	QString chapterList(const QString &modname, const sword::VerseKey *vk);
+	QString chapterLink(const QString &modname, const sword::VerseKey *vk);
+	QString chapterLink(const QString &modname, const sword::SWKey *sk);
 	
 	sword::SWFilter *m_osisfilter;
 	sword::SWFilter *m_gbffilter;

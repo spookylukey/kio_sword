@@ -1,5 +1,5 @@
 /***************************************************************************
-    File:         cswordoptions.h
+    File:         swordutils-.cpp
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
  ***************************************************************************/
@@ -21,46 +21,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef CSWORDOPTIONS_H
-#define CSWORDOPTIONS_H
+#include "swordutils.h"
+#include <versekey.h>
 
-#include <qstring.h>
+/* \brief Return true if the verse key specifies an entire book of the Bible
+ *
+ */
+using sword::VerseKey;
 
-struct CSwordOptions {
-	bool persist;		// Allow options set in one 'get' command to persist to later 'get' commands
+bool entireBook(const VerseKey *vk) {
+	if (vk->LowerBound().Chapter() == 1 &&
+	    vk->LowerBound().Verse() == 1) {
+	    // lower bound is first verse in book
+		VerseKey cp(vk->UpperBound());
+		cp++;
+		if (cp._compare(vk->UpperBound()) == 0 ||
+		    cp.Error() ||
+		    cp.Book() != vk->UpperBound().Book()) {
+			// reached end of module, or
+			// another book
+			return true;
+		}
+	}
+	return false;
+}
 
-	bool snippet;
-	bool verseNumbers;
-	bool verseLineBreaks;
-	bool wholeBook; 	// Allows whole book to be printed - otherwise 'Genesis' will give an index of chapters
-	QString styleSheet;	// FIXME IMPLEMENT
-
-	bool footnotes; 	// FIXME IMPLEMENT
-	bool headings;  	// FIXME IMPLEMENT
-	bool strongs;
-	bool morph;
-	bool cantillation; 
-	bool hebrewVowelPoints;
-	bool greekAccents;
-	bool lemmas; 		// FIXME IMPLEMENT
-	bool crossRefs; 	// FIXME IMPLEMENT
-	bool redWords;
-	int variants;
+bool singleChapter(const VerseKey *vk) {
+	if (!vk) return false;
 	
-	bool doBibleIndex;	// Create an index for for Bibles/Commentaries
-	bool doFullTreeIndex;	// Create a full index for 'tree' books, not just first level
-	bool doDictIndex;	// Create an index for all items in a Lexicon/Dictionary
-	bool doOtherIndex;	// Create an index for other books
-	
-	QString defaultBible;
-	QString defaultGreekStrongs;
-	QString defaultHebrewStrongs;
-	QString defaultGreekMorph;
-	QString defaultHebrewMorph;
-	
-	bool simplePage;
-
-
-};
-
-#endif
+	if (vk->LowerBound().Verse() == 1 && 
+	    vk->LowerBound().Chapter() == vk->UpperBound().Chapter()) {
+		VerseKey cp(vk->UpperBound());
+		cp++;
+		if (cp._compare(vk->UpperBound()) == 0 ||
+		    cp.Error() ||
+		    cp.Chapter() != vk->UpperBound().Chapter()) {
+			// either reached end of module, or
+			// another chapter
+			return true;
+		}
+	}
+	return false;
+}
