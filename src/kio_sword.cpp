@@ -457,7 +457,7 @@ QString SwordProtocol::saveUserConfig()
 void SwordProtocol::parseURL(const KURL& url) 
 {
 	QMap<QString, QString>::iterator it;
-	QMap<QString, QString> items = url.queryItems(KURL::CaseInsensitiveKeys, 0);
+	QMap<QString, QString> items = url.queryItems(KURL::CaseInsensitiveKeys);
 	QString val;
 	const char *key;
 	
