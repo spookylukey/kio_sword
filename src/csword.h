@@ -83,7 +83,6 @@ protected:
 	QString indexBible(sword::SWModule *module);
 	QString indexBook(sword::SWModule *module);
 	QString indexTree(sword::SWModule *module, bool fromTop, const int depth = -1);
-	QString renderText(sword::SWModule *module);
 	
 	QString verseQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
 			   ModuleType modtype, QString &navlinks);
@@ -92,19 +91,27 @@ protected:
 	QString normalQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
 			   ModuleType modtype, QString &navlinks);
 	
-	QString chapterList(const QString &modname, const sword::VerseKey *vk);
+	static QString renderText(sword::SWModule *module);
+	static QString chapterList(const QString &modname, const sword::VerseKey *vk);
 	
-	QString chapterLink(const QString &modname, const sword::VerseKey *vk);
-	QString chapterLink(const QString &modname, const sword::SWKey *sk);
+	static QString chapterLink(const QString &modname, const sword::VerseKey *vk);
+	static QString chapterLink(const QString &modname, const sword::SWKey *sk);
 	
-	QString bookChapter(const sword::SWKey *sk);
-	QString bookChapter(const sword::VerseKey *vk);
+	static QString bookLink(const QString &modname, const sword::VerseKey *vk);
+	static QString bookLink(const QString &modname, const sword::SWKey *sk);
+	
+	static QString bookChapter(const sword::SWKey *sk);
+	static QString bookChapter(const sword::VerseKey *vk);
+	
+	static QString bookName(const sword::SWKey *sk);
+	static QString bookName(const sword::VerseKey *vk);
 	
 	sword::SWFilter *m_osisfilter;
 	sword::SWFilter *m_gbffilter;
 	sword::SWFilter *m_thmlfilter;
 	sword::SWFilter *m_plainfilter;
 	sword::SWFilter *m_rtffilter;
+	
 	std::set<sword::SWModule *, std::less<sword::SWModule *> > m_modset;
 	std::vector<const char *> m_moduleTypes;
 	std::vector<QString> m_moduleTypeNames;

@@ -25,11 +25,14 @@
 
 #include "ks_gbfhtml.h"
  
-#include <stdlib.h>
 #include <swmodule.h>
 #include <utilxml.h>
 #include <versekey.h>
 #include <ctype.h>
+
+#include <stdlib.h>
+
+using namespace sword;
 
 ks_GBFHTML::ks_GBFHTML() {
 	setTokenStart("<");
@@ -88,13 +91,13 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 					*valto++ = *num;
 				*valto = 0;
 				if (atoi((!isdigit(*val))?val+1:val) < 5627) {
-					buf += " &lt;<a class='sword_strongs' href=\"sword:/?modtype=greekstrongs&query=";
+					buf += " <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=";
 					for (tok = val; *tok; tok++)
 							buf += *tok;
 					buf += "\">";
 					for (tok = (!isdigit(*val))?val+1:val; *tok; tok++)
 							buf += *tok;
-					buf += "</a>&gt; ";
+					buf += "</a>&gt;</span> ";
 					//cout << buf;
 					
 				}
@@ -112,7 +115,7 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 				for (num+=18; ((*num) && (*num != '\"')); num++)
 					*valto++ = *num;
 				*valto = 0;
-				buf += " (<a class='sword_strongs' href=\"sword:/?modtype=greekmorph&query=";
+				buf += " <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=";
 				for (tok = val; *tok; tok++)
 				// normal robinsons tense
 						buf += *tok;
@@ -120,12 +123,12 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 				for (tok = val; *tok; tok++)				
 					//if(*tok != '\"') 			
 						buf += *tok;		
-				buf += "</a>) ";					
+				buf += "</a>)</span> ";					
 			}
 		}
 		
 		else if (!strncmp(token, "WG", 2) || !strncmp(token, "WH", 2)) { // strong's numbers
-			buf += " &lt;<a class='sword_strongs' href=\"sword:/?modtype=greekstrongs&query=";
+			buf += " <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=";
 			for (tok = token+1; *tok; tok++)
 				//if(token[i] != '\"')
 					buf += *tok;
@@ -133,11 +136,11 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 			for (tok = token + 2; *tok; tok++)
 				//if(token[i] != '\"')
 					buf += *tok;
-			buf += "</a>&gt; ";
+			buf += "</a>&gt;</span> ";
 		}
 
 		else if (!strncmp(token, "WTG", 3) || !strncmp(token, "WTH", 3)) { // strong's numbers tense
-			buf += " (<<a class='sword_strongs' href=\"sword:/?modtype=greekstrongs&query=";
+			buf += " <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=";
 			for (tok = token + 2; *tok; tok++)
 				if(*tok != '\"')
 					buf += *tok;
@@ -145,11 +148,11 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 			for (tok = token + 3; *tok; tok++)
 				if(*tok != '\"')
 					buf += *tok;
-			buf += "</a>) ";
+			buf += "</a>)</span> ";
 		}
 
 		else if (!strncmp(token, "WT", 2) && strncmp(token, "WTH", 3) && strncmp(token, "WTG", 3)) { // morph tags
-			buf += " (<a class='sword_strongs' href=\"sword:/?modtype=greekmorph&query=";
+			buf += " <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=";
 			for (tok = token + 2; *tok; tok++)
 				if(*tok != '\"')
 					buf += *tok;
@@ -157,11 +160,11 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 			for (tok = token + 2; *tok; tok++)				
 				if(*tok != '\"') 			
 					buf += *tok;		
-			buf += "</a>)";
+			buf += "</a>)</span>";
 		}
 
 		else if (!strcmp(tag.getName(), "RX")) {
-			buf += "<a href=\"";
+			buf += "<a href=\"sword:/?modtype=bible?query=";
 			for (tok = token + 3; *tok; tok++) {
 			  if(*tok != '<' && *tok+1 != 'R' && *tok+2 != 'x') {
 			    buf += *tok;
@@ -172,6 +175,8 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 			}
 			buf += "\">";
 		}
+		
+		// FIXME - modify for kio-sword
 		else if (!strcmp(tag.getName(), "RF")) {
 			SWBuf type = tag.getAttribute("type");
 			SWBuf footnoteNumber = tag.getAttribute("swordFootnote");

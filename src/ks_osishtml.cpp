@@ -23,11 +23,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <stdlib.h>
-#include <ks_osishtml.h>
+#include "ks_osishtml.h"
+
 #include <utilxml.h>
 #include <versekey.h>
 #include <swmodule.h>
+
+#include <stdlib.h>
 
 using namespace sword;
 
@@ -94,9 +96,9 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 						val = strchr(attrib, ':');
 						val = (val) ? (val + 1) : attrib;
 						if (*val == 'G') {
-							buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val+1, val+1);
+							buf.appendFormatted(" <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\">%s</a>&gt;</span> ", val+1, val+1);
 						} else if (*val == 'H') {
-							buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val+1, val+1);
+							buf.appendFormatted(" <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\">%s</a>&gt;</span> ", val+1, val+1);
 						}
 					} while (++i < count);
 				}
@@ -109,12 +111,12 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 						val = strchr(attrib, ':');
 						val = (val) ? (val + 1) : attrib;
 						if (!strncmp(attrib, "x-Robinson",10)) { //robinson codes
-							buf.appendFormatted(" (<a href=\"sword:/?modtype=greekmorph&query=%s\" class=\"sword_strongs\">%s</a>) ", val, val);
+							buf.appendFormatted(" <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span> ", val, val);
 						} else if ((*val == 'T'))  {
 							if (val[1] == 'G') {
-								buf.appendFormatted(" (<a href=\"sword:/?modtype=greekmorph&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, val+1);
+								buf.appendFormatted(" <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span> ", val+1, val+1);
 							} else if (val[1] == 'H') {
-								buf.appendFormatted(" (<a href=\"sword:/?modtype=hebrewmorph&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, val+1);
+								buf.appendFormatted(" <span class='sword_morph'>(<a href=\"sword:/?modtype=hebrewmorph&query=%s\">%s</a>)</span> ", val+1, val+1);
 							}
 						}
 					} while (++i < count);
@@ -128,7 +130,7 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 		}
 
 		// <note> tag
-		// FIXME - unmodified for kiosword
+		// FIXME - needs to be modified for kio-sword
 		else if (!strcmp(tag.getName(), "note")) {
 			if (!tag.isEndTag()) {
 				if (!tag.isEmpty()) {
@@ -170,6 +172,7 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 			}
 		}
 
+		// FIXME - needs to be modified for kio-sword
 		// <reference> tag
 		else if (!strcmp(tag.getName(), "reference")) {
 			if ((!tag.isEndTag()) && (!tag.isEmpty())) {
@@ -250,9 +253,9 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 					buf += (level % 2) ? '\"' : '\'';
 				
 				if (who == "Jesus")
-					buf += "<span class=\"sword_jesusquote\">";
+					buf += "<span class='sword_jesusquote'>";
 				else 
-					buf += "<span class=\"sword_quote\">";
+					buf += "<span class='sword_quote'>";
 			}
 			else if (tag.isEndTag()) {
 				buf += "</span>";
@@ -286,6 +289,7 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 			}
 		}
 
+		// FIXME - remove for kio-sword?
 		// image
 		else if (!strcmp(tag.getName(), "figure")) {
 			const char *src = tag.getAttribute("src");

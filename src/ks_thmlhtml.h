@@ -1,9 +1,9 @@
 /***************************************************************************
-    File:         ks_osishtml.h
+    File:         ks_thmlhtml.cpp
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
-                  and CrossWire Bible Society 2003
-                  (file based on osishtmlhref.h)
+                  and CrossWire Bible Society 2001
+                  (file based on thmlhtmlhref.cpp)
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,36 +23,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef KS_OSISHTML_H
-#define KS_OSISHTML_H
+#ifndef KS_THMLHTML_H
+#define KS_THMLHTML_H
 
 #include <swbasicfilter.h>
+#include <utilxml.h>
 #include <swkey.h>
 #include <swmodule.h>
 
-using namespace sword;
-
-/** this filter converts OSIS text to HTML text with hrefs
+/** this filter converts ThML text to HTML text with hrefs
  */
-class ks_OSISHTML : public sword::SWBasicFilter {
-private:
+class ks_ThMLHTML : public sword::SWBasicFilter {
 protected:
 	class MyUserData : public sword::BasicFilterUserData {
 	public:
-		bool osisQToTick;
-		bool inBold;
-		sword::SWBuf lastTransChange;
-		sword::SWBuf w;
-		sword::SWBuf fn;
-		MyUserData(const sword::SWModule *module, const sword::SWKey *key);
+		MyUserData(const sword::SWModule *module, const sword::SWKey *key);//: BasicFilterUserData(module, key) {}
+		sword::SWBuf inscriptRef;
+		bool SecHead;
+		bool BiblicalText;
+		sword::SWBuf version;
+		sword::XMLTag startTag;
 	};
-	virtual BasicFilterUserData *createUserData(const sword::SWModule *module, const sword::SWKey *key) {
+	virtual sword::BasicFilterUserData *createUserData(const sword::SWModule *module, const sword::SWKey *key) {
 		return new MyUserData(module, key);
 	}
 	virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
 public:
-	ks_OSISHTML();
+	ks_ThMLHTML();
 };
 
-
-#endif
+#endif /* KS_THMLHTML_H */

@@ -82,6 +82,14 @@ table.sword_settings  td.sword_settings_category {
                                                    background-color: #e0e0e0;
 }
 
+h1.sword_searchform { text-align: center }
+
+div.sword_searchform { text-align: center }
+div.sword_searchform table { margin: auto }
+
+
+
+
 div.sword_navbottom { border-top: solid #808080 1px;
 		      font-size: 0.9em; 
 		      text-align: right;

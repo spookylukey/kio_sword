@@ -8,6 +8,7 @@ kio_sword_la_SOURCES = kio_sword.cpp \
 	csword.cpp \
 	ks_osishtml.cpp \
 	ks_gbfhtml.cpp \
+	ks_thmlhtml.cpp \
 	utils.cpp \
 	swordutils.cpp
 
@@ -23,4 +24,5 @@ protocoldir = $(kde_servicesdir)
 messages: rc.cpp
 	$(XGETTEXT) *.cpp -o $(podir)/kio_sword.pot
 
-noinst_HEADERS =  kio_sword.h csword.h cswordoptions.h ks_osishtml.h ks_gbfhtml.h utils.h swordutils.h
+noinst_HEADERS =  kio_sword.h csword.h cswordoptions.h ks_osishtml.h \
+	ks_gbfhtml.h ks_thmlhtml.h utils.h swordutils.h

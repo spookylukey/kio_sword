@@ -26,25 +26,20 @@
 #include "cswordoptions.h"
 #include "ks_osishtml.h"
 #include "ks_gbfhtml.h"
+#include "ks_thmlhtml.h"
 #include "utils.h"
 #include "swordutils.h"
 
 // Sword
 #include <swmgr.h>
-//#include <swfilter.h>
 #include <swkey.h>
 #include <versekey.h>
 #include <treekey.h>
 #include <treekeyidx.h>
 
-// FIXME - remove
-#include <thmlhtmlhref.h>
 #include <plainhtml.h>
 #include <rtfhtml.h>
 #include <encfiltmgr.h>
-
-
-//#include <utilstr.h>
 
 
 // KDE
@@ -235,7 +230,7 @@ void CSword::setModuleFilter(SWModule *module) {
 			
 		case FMT_THML :
 			if (!m_thmlfilter)
-				m_thmlfilter = new ThMLHTMLHREF();
+				m_thmlfilter = new ks_ThMLHTML();
 			filter = m_thmlfilter;
 			break;
 			
@@ -394,7 +389,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 		for (int i = 0; i < lk.Count(); ++i) {
 			QString ref;
 			ref = module->isUnicode() ? QString::fromUtf8(lk.getElement(i)->getText())
-						: QString::fromLatin1(lk.getElement(i)->getText());
+						: QString::fromLocal8Bit(lk.getElement(i)->getText());
 			output += QString("<li><a href='%2'>%1</a></li>")
 					.arg(ref)
 					.arg(swordUrl(modname, ref));
@@ -406,7 +401,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 
 QString CSword::renderText(SWModule *module) {
 	return module->isUnicode() ?  QString::fromUtf8(module->RenderText()) 
-				   :  QString::fromLatin1(module->RenderText());
+				   :  QString::fromLocal8Bit(module->RenderText());
 }
 
 /* return formatted text for the query of a verse based module
@@ -434,14 +429,14 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 		}
 		lk = vk->ParseVerseList(ref, "Gen1:1", true);
 		if (lk.Count() == 0) {
-			text += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
+			text += "<p class=\"sword_error\">" + i18n("Couldn't find reference '%1'.").arg(ref) + "</p>";
 			doindex = true;
 			break;
 		}
 		char book = 0;
 		char testament = 0;
 		int chapter = 0;
-		for (int i = 0; i < lk.Count(); i++) {
+		for (int i = 0; i < lk.Count(); ++i) {
 			VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
 			if (element) {
 				char err = 0;
@@ -474,7 +469,13 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 									      .arg(chapterLink(modname, module->getKey()));
 							}
 							module->Key(element->LowerBound());
+							navlinks += genlink
+									.arg(bookName(element))
+									.arg(bookLink(modname, element));
 						} else {
+							navlinks += genlink
+									.arg(bookName(element))
+									.arg(bookLink(modname, element));
 							navlinks += genlink
 								      .arg(bookChapter(element))
 								      .arg(chapterLink(modname, element));
@@ -582,10 +583,10 @@ QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOpti
 		doindex = true;
 	} else {
 		tk->Error(); // clear
-		tk->setText(ref.utf8());  // FIXME - sync this to other usages of setText()
+		tk->setText(ref.local8Bit());  // FIXME is this correct?
 		doindex = false;
 		if (tk->Error()) {
-			output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find section '%1'.")).arg(ref) + "</p>";
+			output += "<p class=\"sword_error\">" + i18n("Couldn't find section '%1'.").arg(ref) + "</p>";
 			output += "<hr>";
 			doindex = true;
 		} else {
@@ -650,7 +651,7 @@ QString CSword::normalQuery(SWModule *module, const QString &ref, const CSwordOp
 		doindex = true;
 	} else {
 		skey->Error(); // clear
-		skey->setText(ref.utf8()); // FIXME - should this be .latin1() or local8bit() or utf8()?
+		skey->setText(ref.local8Bit());
 		doindex = false;
 		if (skey->Error()) {
 			output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
@@ -752,7 +753,7 @@ QString CSword::indexBook(SWModule *module) {
 	output += "<ul>\n";
 	do {
 		ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
-					  :  QString::fromLatin1(module->KeyText());
+					  :  QString::fromLocal8Bit(module->KeyText());
 		output += QString("<li><a href=\"%2\">%1</a>")
 				.arg(ref)
 				.arg(swordUrl(module->Name(), ref));
@@ -791,7 +792,8 @@ QString CSword::indexTree(SWModule *module, bool fromTop, const int depth) {
 	do {
 		if (!gonext) {
 			ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
-						:  QString::fromLatin1(module->KeyText());
+						  :  QString::fromLocal8Bit(module->KeyText());
+
 			output += QString("<li><a href=\"%2\">%1</a>\n")
 					.arg(ref.section('/', -1))
 					.arg(swordUrl(module->Name(), ref));
@@ -854,6 +856,18 @@ QString CSword::chapterLink(const QString &modname, const SWKey *sk) {
 		return QString::null;
 }
 
+QString CSword::bookLink(const QString &modname, const VerseKey *vk) {
+	return swordUrl(modname, bookName(vk));
+}
+
+QString CSword::bookLink(const QString &modname, const SWKey *sk) {
+	const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
+	if (vk)
+		return bookLink(modname, vk);
+	else
+		return QString::null;
+}
+
 QString CSword::bookChapter(const VerseKey *vk)  {
 	return QString("%1 %2").arg(vk->getBookName()).arg(vk->Chapter());
 }
@@ -862,6 +876,18 @@ QString CSword::bookChapter(const SWKey *sk)  {
 	const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
 	if (vk)
 		return bookChapter(vk);
+	else
+		return QString::null;
+}
+
+QString CSword::bookName(const VerseKey *vk)  {
+	return QString(vk->getBookName());
+}
+
+QString CSword::bookName(const SWKey *sk)  {
+	const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
+	if (vk)
+		return bookName(vk);
 	else
 		return QString::null;
 }

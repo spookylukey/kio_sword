@@ -28,22 +28,22 @@
 #define KS_GBFHTML_H
 
 #include <swbasicfilter.h>
-
-using namespace sword;
+#include <swkey.h>
+#include <swmodule.h>
 
 /** this filter converts GBF  text to HTML text with hrefs
  */
-class ks_GBFHTML : public SWBasicFilter {
+class ks_GBFHTML : public sword::SWBasicFilter {
 protected:
-	class MyUserData : public BasicFilterUserData {
+	class MyUserData : public sword::BasicFilterUserData {
 	public:
-		MyUserData(const SWModule *module, const SWKey *key) : BasicFilterUserData(module, key) {}
+		MyUserData(const sword::SWModule *module, const sword::SWKey *key) : BasicFilterUserData(module, key) {}
 		bool hasFootnotePreTag;
 	};
-	virtual BasicFilterUserData *createUserData(const SWModule *module, const SWKey *key) {
+	virtual sword::BasicFilterUserData *createUserData(const sword::SWModule *module, const sword::SWKey *key) {
 		return new MyUserData(module, key);
 	}
-	virtual bool handleToken(SWBuf &buf, const char *token, BasicFilterUserData *userData);
+	virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
 public:
 	ks_GBFHTML();
 };
