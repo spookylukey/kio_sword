@@ -1,3 +1,22 @@
+2004-06-05	Version 0.1
 
-First public release: 0.0.1
+	o  removed nulls in HTML output
+	o  make umlauts display properly in GerSch (for example)
+	o  removed some debug code
+	o  HTML/CSS changes:
+		o if you've made a customised version of the 
+		  kio_sword.css file, you'll need to remove 
+		  it or merge changes in by hand for things 
+		  to look right
+		o added <div class='sword_text'> around
+	          all the main body of text returned from 
+		  a module
+		o navigation links formatted as inline list
+		o changed class names sword_xxx to swordxxx
+		  for CSS2 correctness
+
+
+2004-06-01	Version 0.0.1 
+
+	o  First release (test before the first real release, 0.1)
  
