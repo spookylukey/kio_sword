@@ -1,7 +1,12 @@
 /***************************************************************************
- *   Copyright (C) 2004 by Luke Plant                                      *
- *   L.Plant.98@cantab.net                                                 *
- *                                                                         *
+    File:         kio_sword.cpp
+    Project:      kio-sword  -- An ioslave for SWORD and KDE
+    Copyright:    Copyright (C) 2004 Luke Plant
+ 
+    File info:    
+ ***************************************************************************/
+
+/***************************************************************************
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -18,18 +23,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qcstring.h>
-#include <qsocket.h>
-#include <qdatetime.h>
-#include <qbitarray.h>
+// Standard C++ /C
 
+// FIXME - do we need all these?
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+ 
 
+// Qt 
+#include <qcstring.h>
+#include <qmap.h>
+
+// FIXME don't need all these	
+#include <qsocket.h>
+#include <qdatetime.h>
+#include <qbitarray.h>
+
+
+// KDE
 #include <kapplication.h>
 #include <kdebug.h>
 #include <kmessagebox.h>
@@ -40,68 +55,512 @@
 #include <kurl.h>
 #include <ksock.h>
 
+// Mine
 #include "kio_sword.h"
+#include "cswordoptions.h"
+#include "csword.h"
 
 using namespace KIO;
 
+// HTML fragment that will be initialised at run time
+static QString html_start_output;
+static QString html_end_output;
 
-kio_kio_swordProtocol::kio_kio_swordProtocol(const QCString &pool_socket, const QCString &app_socket)
-    : SlaveBase("kio_kio_sword", pool_socket, app_socket)
+// static HTML 
+static const QString html_head("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
+				"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+				"<html><head>\n"
+				"<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>\n"
+				"<title>%2</title>\n"
+				"<link rel=\"StyleSheet\" href=\"file:%1\" TYPE=\"text/css\">\n"		// kio_sword.css
+				"</head>\n");
+			
+static const QString html_start("<body><div class=\"sword_page\">\n"
+				"<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n"
+  				"  <tr>\n"
+				"    <td><img src=\"file:%1\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// header_tl.png
+				"    <td background=\"file:%2\">\n"						// header_t.png
+				"      <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n"
+				"        <tr>\n"
+				"          <td width=\"100%\"></td>\n"
+				"          <td><img src=\"file:%3\" class=\"sword_tableimg\" alt=\"\"></td>\n" 	// header_caption.png
+				"      </tr></table>\n"
+				"    </td>\n"
+				"    <td><img src=\"file:%4\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// header_tr.png
+				"  </tr>\n"
+				"  <tr>\n"
+				"    <td background=\"file:%5\"></td>\n"					// border_l.png
+				"    <td class=\"sword_text\" width=\"100%\">\n"
+				"      <div class=\"sword_text\">\n");
+
+static const QString html_end(  "      </div>\n"
+				"      <hr>\n"
+				"      <div class=\"sword_links\">\n"
+				"        <a href=\"sword:/\">%6</a> | <a href=\"sword:/?search\">%7</a> | <a href=\"sword:/?settings\">%8</a> | <a href=\"sword:/?help\">%9</a>"
+				"      </div>\n"
+				"    </td>\n"
+				"    <td background=\"file:%1\" alt=\"\"></td>\n"				// border_r.png
+				"  </tr>\n"
+				"  <tr>\n"
+				"    <td><img src=\"file:%2\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// footer_bl.png
+				"    <td background=\"file:%3\">\n"						// footer_b.png
+				"      <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n"
+				"        <tr>\n"
+				"          <td><img src=\"file:%4\" class=\"sword_tableimg\" alt=\"\"></td>\n" 	// footer_sword.png
+				"          <td width=\"100%\"></td>\n"
+				"        </tr>\n"
+				"      </table>\n"
+				"    </td>\n"
+				"    <td><img src=\"file:%5\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// footer_br.png
+				"  </tr>\n"
+				"</table>\n"
+				"</div>\n"
+				"</body>\n");
+
+static const QString html_tail("</head>\n</html>\n");
+
+QString debugprint(const CSwordOptions &options, CSword &mysword);
+
+// NB SwordProtocol::SwordProtocol() does not necessarily get called
+// before *each* call to the 'get' method - konqueror keeps the slave alive
+// so we have to be careful where initialisation gets done.
+
+SwordProtocol::SwordProtocol(const QCString & pool_socket,
+				     const QCString & app_socket)
+  : SlaveBase("kio_sword", pool_socket, app_socket)
 {
-    kdDebug() << "kio_kio_swordProtocol::kio_kio_swordProtocol()" << endl;
+	KStandardDirs* dirs = KGlobal::dirs();
+	// Reduce number of file access ops by only looking up two things:
+	//   - where is the style sheet
+	//   - where are the images
+	QString imgdir = dirs->findResourceDir("data", "kio_sword/header_tl.png") + "kio_sword/";
+	QString cssdir = dirs->findResourceDir("data", "kio_sword/kio_sword.css") + "kio_sword/";
+
+	kdDebug() << "SwordProtocol::SwordProtocol()" << endl;
+	// Just set the persist option:
+	m_options.persist = false;
+	html_start_output = html_head.arg(cssdir + "kio_sword.css")
+			+ html_start.arg(imgdir + "header_tl.png")
+				.arg(imgdir + "header_t.png")
+				.arg(imgdir + "header_caption.png")
+				.arg(imgdir + "header_tr.png")
+				.arg(imgdir + "border_l.png");
+	html_end_output = html_end.arg(imgdir + "border_r.png")
+				.arg(imgdir + "footer_bl.png")
+				.arg(imgdir + "footer_b.png")
+				.arg(imgdir + "footer_sword.png")
+				.arg(imgdir + "footer_br.png")
+				.arg(i18n("Module list"))
+				.arg(i18n("Search"))
+				.arg(i18n("Settings"))
+				.arg(i18n("Help"))
+			+ html_tail;
+				
 }
 
 
-kio_kio_swordProtocol::~kio_kio_swordProtocol()
+SwordProtocol::~SwordProtocol()
 {
-    kdDebug() << "kio_kio_swordProtocol::~kio_kio_swordProtocol()" << endl;
+	kdDebug() << "SwordProtocol::~SwordProtocol()" << endl;
 }
 
 
-void kio_kio_swordProtocol::get(const KURL& url )
-{
-    kdDebug() << "kio_kio_sword::get(const KURL& url)" << endl ;
-    
-    kdDebug() << "Seconds: " << url.query() << endl;
-    QString remoteServer = url.host();
-    int remotePort = url.port();
-    kdDebug() << "myURL: " << url.prettyURL() << endl;
-    
-    infoMessage(i18n("Looking for %1...").arg( remoteServer ) );
-    // Send the mimeType as soon as it is known
-    mimeType("text/plain");
-    // Send the data
-    QString theData = "This is a test of kio_kio_sword";
-    data(QCString(theData.local8Bit()));
-    data(QByteArray()); // empty array means we're done sending the data
-    finished();
+extern "C" {
+	int kdemain(int argc, char **argv) {
+		KInstance instance("kio_sword");
+		
+		kdDebug(7101) << "*** Starting kio_sword " << endl;
+		
+		if (argc != 4) {
+			kdDebug(7101) <<
+			"Usage: kio_sword  protocol domain-socket1 domain-socket2"
+			<< endl;
+			exit(-1);
+		}
+		
+		SwordProtocol slave(argv[2], argv[3]);
+		slave.dispatchLoop();
+		
+		kdDebug(7101) << "*** kio_sword Done" << endl;
+		return 0;
+	}
 }
 
 
-void kio_kio_swordProtocol::mimetype(const KURL & /*url*/)
+void SwordProtocol::get(const KURL & url)
 {
-    mimeType("text/plain");
-    finished();
+	QString modname;
+	QString query;
+	kdDebug() << "SwordProtocol::get(const KURL& url)" << endl;
+	
+	/*    kdDebug() << "Seconds: " << url.query() << endl;
+	QString remoteServer = url.host();
+	int remotePort = url.port();
+	kdDebug() << "myURL: " << url.prettyURL() << endl; */
+	
+	// Send the mimeType as soon as it is known
+	mimeType("text/html");
+	
+	
+	// Set user defaults from user config file
+	
+	// Parse the URL
+	// Possible actions:
+	//   - list of modules  - listModules()
+	//   - module index \_  both handled by printText()
+	//   - module text  /
+	//   - search ??
+	//   - help ??
+	//   - save a setting ??
+	//   - display a search form ??
+	
+	m_path = QString::null;
+	
+
+	setInternalDefaults();
+		// setUserDefaults();  // read from a system/user config file
+	
+	// Get options/actions from URL
+	parseURL(url);
+	
+	// Set the CSword options from ours
+	m_sword.setOptions(m_options);
+
+	if (!m_path.isEmpty() && m_path != "/") {
+		modname = m_path.section('/', 0, 0, QString::SectionSkipEmpty);
+		query = m_path.section('/', 1, -1, QString::SectionSkipEmpty);
+	}
+	
+	// handle redirections first
+	if (m_action == REDIRECT_QUERY) {
+		if (!m_redirect.module.isEmpty())
+			modname = m_redirect.module;
+		if (!m_redirect.query.isEmpty())
+			query = m_redirect.query;
+			
+		if (modname.isEmpty()) {
+			// invalid syntax
+			data(QCString("<p class='sword_usererror'>") + i18n("No module specified.").utf8() + QCString("</p><hr>"));
+			m_action = QUERY;
+		} else {
+			KURL newurl = url;
+			newurl.removeQueryItem("module");
+			newurl.removeQueryItem("query");
+			newurl.setPath('/' + modname + '/' + query);
+			redirection(newurl);
+			finished();
+			return;
+		}
+	}
+	
+	
+	// Send the data
+	
+	
+	data(header());
+	
+	// FIXME - fix the encoding according to user preferences ??
+	
+	switch (m_action) {
+		case QUERY:
+			if (!modname.isEmpty()) {
+				data(m_sword.moduleQuery(modname, query, m_options).utf8());
+			} else {		
+				data(m_sword.listModules(m_options).utf8());
+			}
+			break;
+		
+		
+		case SEARCH:
+			data(QCString("<p><span class='sword_fixme'>SEARCH: unimplemented</span></p>"));
+			break;
+			
+		case SETTINGS:
+			data(QCString("<p><span class='sword_fixme'>SETTINGS: unimplemented</span></p>"));
+			break;
+			
+		case SAVESETTINGS:
+			data(QCString("<p><span class='sword_fixme'>SAVESETTINGS: unimplemented</span></p>"));
+			break;
+			
+		case RESET:
+			m_options.persist = false;
+			setInternalDefaults();
+			data(i18n("<p>Formatting options reset.</p>").utf8());
+			break;
+			
+		case HELP:
+			data(helppage().utf8());
+			break;
+			
+		default:
+			break;
+	}
+		
+		
+		
+	if (debug1) data(debugprint(m_options, m_sword).utf8());
+	data(footer());
+	data(QByteArray());		// empty array means we're done sending the data
+	finished();
 }
 
-
-extern "C"
+void SwordProtocol::mimetype(const KURL & /*url */ )
 {
-    int kdemain(int argc, char **argv)
-    {
-        KInstance instance( "kio_kio_sword" );
-        
-        kdDebug(7101) << "*** Starting kio_kio_sword " << endl;
-        
-        if (argc != 4) {
-            kdDebug(7101) << "Usage: kio_kio_sword  protocol domain-socket1 domain-socket2" << endl;
-            exit(-1);
-        }
-        
-        kio_kio_swordProtocol slave(argv[2], argv[3]);
-        slave.dispatchLoop();
-        
-        kdDebug(7101) << "*** kio_kio_sword Done" << endl;
-        return 0;
-    }
-} 
+	mimeType("text/html");
+	finished();
+}
+
+QCString SwordProtocol::header() {
+	return html_start_output.arg("KioSword").utf8();
+}
+
+QCString SwordProtocol::footer() {
+	return html_end_output.utf8();
+}
+
+QString debugprint(const CSwordOptions &options, CSword &mysword) {
+	QString output;
+	output += QString("<p>options.strongs: %1").arg(options.strongs);
+	output += "<p>getGlobalOption(\"Strong's Numbers\"):";
+	output += mysword.getGlobalOption("Strong's Numbers");
+	return output;
+}
+
+void SwordProtocol::setInternalDefaults() 
+{
+	// Set up defaults for options
+	
+	m_action = QUERY;
+	
+	// If the persist option has been set, we allow formatting settings
+	// set in previous 'get' commands to persist, i.e. don't reset
+	// them.
+	if (!m_options.persist) {
+		m_options.verseNumbers = true;
+		m_options.verseLineBreaks = true;
+		m_options.footnotes = false;
+		m_options.headings = true;
+		m_options.strongs = false;
+		m_options.morph = false;
+		m_options.cantillation = true;
+		m_options.hebrewVowelPoints = true;
+		m_options.greekAccents = true;
+		m_options.lemmas = true;
+		m_options.crossRefs = true;
+		m_options.redWords = true;
+		m_options.styleSheet = "kio_sword.css";
+	}
+	m_options.doBibleIndex = true;
+	m_options.doDictIndex = false;
+	m_options.doOtherIndex = true;
+	m_options.wholeBook = true;
+	m_options.snippet = false;
+	m_options.variants = 1;
+	
+	m_redirect.query  = QString::null;
+	m_redirect.module = QString::null;
+	
+	debug1 = false;
+	debug2 = false;
+}
+
+void SwordProtocol::parseURL(const KURL& url) 
+{
+	QMap<QString, QString>::iterator it;
+	QMap<QString, QString> items = url.queryItems(KURL::CaseInsensitiveKeys, 0);
+	QString val;
+	const char *key;
+	
+	if (url.hasPath()) 
+		m_path = url.path();
+		
+	for(it = items.begin(); it != items.end(); it++) {
+		key = it.key().latin1();
+		val = it.data();
+		if (!strcasecmp(key, "snippet")) {
+			if (val == "0")
+				m_options.snippet = false;
+			else if (val == "1")
+				m_options.snippet = true;
+				
+		} else if (!strcasecmp(key, "vn") || 
+		    	   !strcasecmp(key, "versenumbers")) {
+			if (val == "0")
+				m_options.verseNumbers = false;
+			else if (val == "1")
+				m_options.verseNumbers = true;
+				
+		} else if (!strcasecmp(key, "lb") || 
+		    	   !strcasecmp(key, "linebreaks")) {
+			if (val == "0")
+				m_options.verseLineBreaks = false;
+			else if (val == "1")
+				m_options.verseLineBreaks = true;
+				
+		} else if (!strcasecmp(key, "wb") || 
+		    	   !strcasecmp(key, "wholebook")) {
+			if (val == "0")
+				m_options.wholeBook = false;
+			else if (val == "1")
+				m_options.wholeBook = true;
+				
+		} else if (!strcasecmp(key, "bi") || 
+		    	   !strcasecmp(key, "bibleindex")) {
+			if (val == "0")
+				m_options.doBibleIndex = false;
+			else if (val == "1")
+				m_options.doBibleIndex = true;
+		
+		} else if (!strcasecmp(key, "di") || 
+		    	   !strcasecmp(key, "dictindex")) {
+			if (val == "0")
+				m_options.doDictIndex = false;
+			else if (val == "1")
+				m_options.doDictIndex = true;
+		
+		} else if (!strcasecmp(key, "oi") || 
+		    	   !strcasecmp(key, "otherindex")) {
+			if (val == "0")
+				m_options.doOtherIndex = false;
+			else if (val == "1")
+				m_options.doOtherIndex = true;
+		
+		} else if (!strcasecmp(key, "ss") || 
+			   !strcasecmp(key, "stylesheet")) {
+			if (!val.isEmpty())
+				m_options.styleSheet = val;
+				
+		} else if (!strcasecmp(key, "rw") || 
+			   !strcasecmp(key, "redwords")) {
+			if (val == "0")
+				m_options.redWords = false;
+			else if (val == "1")
+				m_options.redWords = true;
+		
+		} else if (!strcasecmp(key, "fn") || 
+			   !strcasecmp(key, "footnotes")) {
+			if (val == "0")
+				m_options.footnotes = false;
+			else if (val == "1")
+				m_options.footnotes = true;
+		
+		} else if (!strcasecmp(key, "hd") || 
+			   !strcasecmp(key, "headings")) {
+			if (val == "0")
+				m_options.headings = false;
+			else if (val == "1")
+				m_options.headings = true;
+		
+		} else if (!strcasecmp(key, "sn") || 
+			   !strcasecmp(key, "strongs")) {
+			if (val == "0")
+				m_options.strongs = false;
+			else if (val == "1")
+				m_options.strongs = true;
+				
+		} else if (!strcasecmp(key, "mt") || 
+			   !strcasecmp(key, "morph")) {
+			if (val == "0")
+				m_options.morph = false;
+			else if (val == "1")
+				m_options.morph = true;
+				
+		} else if (!strcasecmp(key, "hc") || 
+			   !strcasecmp(key, "cantillation")) {
+			if (val == "0")
+				m_options.cantillation = false;
+			else if (val == "1")
+				m_options.cantillation = true;
+		
+		} else if (!strcasecmp(key, "hvp") || 
+			   !strcasecmp(key, "vowelpoints")) {
+			if (val == "0")
+				m_options.hebrewVowelPoints = false;
+			else if (val == "1")
+				m_options.hebrewVowelPoints = true;
+		
+		} else if (!strcasecmp(key, "ga") || 
+			   !strcasecmp(key, "accents")) {
+			if (val == "0")
+				m_options.greekAccents = false;
+			else if (val == "1")
+				m_options.greekAccents = true;
+		
+		} else if (!strcasecmp(key, "persist")) {
+			if (val == "0")
+				m_options.persist = false;
+			else if (val == "1")
+				m_options.persist = true;
+				
+		} else if (!strcasecmp(key, "debug1")) {
+			if (val == "0")
+				debug1 = false;
+			else if (val == "1")
+				debug1 = true;
+				
+		} else if (!strcasecmp(key, "debug2")) {
+			if (val == "0")
+				debug2 = false;
+			else if (val == "1")
+				debug2 = true;
+		
+		// Actions
+		} else if (!strcasecmp(key, "reset")) {
+			m_action = RESET;		
+		} else if (!strcasecmp(key, "help")) {
+			m_action = HELP;
+		} else if (!strcasecmp(key, "search")) {
+			m_action = SEARCH;
+		} else if (!strcasecmp(key, "settings")) {
+			m_action = SETTINGS;
+		} else if (!strcasecmp(key, "savesettings")) {
+			m_action = SAVESETTINGS;
+		// redirection
+		} else if (!strcasecmp(key, "query")) {
+			m_action = REDIRECT_QUERY;
+			m_redirect.query = val;
+		} else if (!strcasecmp(key, "module")) {
+			m_action = REDIRECT_QUERY;
+			m_redirect.module = val;
+		}
+	}
+}
+
+QString SwordProtocol::helppage() {
+	QString output;
+	KStandardDirs* dirs = KGlobal::dirs();
+	QString htmldir = dirs->findResourceDir("html", "kio_sword"); // FIXME - how does this work with different locales?
+	
+	output += i18n("<h1>Help</h1>");
+	
+	if (htmldir.isEmpty())
+		output += i18n("<p>(Full documentation cannot be found)</p>");
+	else
+		output += i18n("<p>For full documentation, please see your <a href='file:%1'>online documentation</a>.</p>");
+	
+	// Breif help
+	output += i18n(
+	"<p>Kio-Sword allows you to view installed SWORD modules (such as Bibles and commentaries) from Konqueror.\n"
+	"  These modules must already be installed - you can download them from <a href='http://www.crosswire.org/'>"
+	"crosswire.org</a> or you can use a program such as <a href='http:/www.bibletime.info'>BibleTime</a> to help"
+	" install them."
+	"<h3>Quick help</h3>\n"
+	"<ul>\n"
+	"  <li>To start, simply type <b><a href='sword:/'>sword:/</a></b> in the location bar, and follow the links like any normal web page<br /><br />\n"
+	"  <li>You can type the exact reference in the Location bar, instead of browsing to it, e.g.<br />\n"
+	"      <b>sword:/KJV/Hebrews 1:3-5</b> will look up Hebrews chapter 1 verses 3 to 5 in the King James Bible.<br /><br />\n"
+	"  <li>You can specify various formatting options in the URL - see <a href='sword:/?settings'>Settings</a> for more info.<br /><br />\n"
+	"  <li>To use a default Bible, the easiest way is to <a href='exec:/kcmshell ebrowsing'>add a web shortcut</a>. For example, \n"
+	"       if you set<br/>"
+	"       Search URI: <b>sword:/KJV/\\{@}</b><br/>"
+	"       URI shortcut: <b>bible</b><br/>"
+	"       then <b>bible:Hebrews 1:3-5</b> will take\n"
+	"       you straight to Hebrews 1:3-5 in the King James Version<br /><br />\n"
+	"  <li>You can bookmark Kio-Sword pages just like any other web page.<br /><br />\n"
+	"</ul>\n"
+	"<p>Problems, comments, feature requests? Email the author: "
+	"<a href='mailto:L.Plant.98@cantab.net'>L.Plant.98@cantab.net</a>"
+	"<p>Website: <a href='http://kiosword.lukeplant.me.uk'>kiosword.lukeplant.me.uk</a>. (FIXME)");
+	return output;
+}

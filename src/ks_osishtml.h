@@ -1,7 +1,12 @@
 /***************************************************************************
- *   Copyright (C) 2004 by Luke Plant                                      *
- *   L.Plant.98@cantab.net                                                 *
- *                                                                         *
+    File:         ks_osishtml.h
+    Project:      kio-sword -- An ioslave for SWORD and KDE
+    Copyright:    Copyright (C) 2004 Luke Plant
+                  and CrossWire Bible Society 2003
+                  (file based on osishtmlhref.h)
+ ***************************************************************************/
+
+/***************************************************************************
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -18,52 +23,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _kio_sword_H_
-#define _kio_sword_H_
+#ifndef _ks_OSISHTMLHREF_H
+#define _ks_OSISHTMLHREF_H
 
-#include <qstring.h>
-#include <qcstring.h>
+#include <swbasicfilter.h>
 
-#include <kurl.h>
-#include <kio/global.h>
-#include <kio/slavebase.h>
+SWORD_NAMESPACE_START
 
-#include "cswordoptions.h"
-#include "csword.h"
-
-class SwordProtocol : public KIO::SlaveBase {
-
-
-public:
-	SwordProtocol(const QCString & pool_socket,
-			  const QCString & app_socket);
-	virtual ~ SwordProtocol();
-	virtual void mimetype(const KURL & url);
-	virtual void get(const KURL & url);
-    
+/** this filter converts OSIS text to HTML text with hrefs
+ */
+class SWDLLEXPORT ks_OSISHTML : public SWBasicFilter {
+private:
 protected:
-	void parseURL(const KURL & url);
-	void setInternalDefaults();
-	
-	//void readUserDefaults();
-	QCString header();
-	QCString footer();
-	QString helppage();
-	
-	typedef enum { QUERY, REDIRECT_QUERY, SEARCH, SETTINGS, SAVESETTINGS, RESET, HELP } ActionType;
-	ActionType m_action;
-	QString m_path;
-	
-	struct {
-		QString query;
-		QString module;
-	} m_redirect;
-	
-	CSwordOptions m_options;
-	CSword m_sword;
-	bool debug1;
-	bool debug2;
-    
+	class MyUserData : public BasicFilterUserData {
+	public:
+		bool osisQToTick;
+		bool inBold;
+		SWBuf lastTransChange;
+		SWBuf w;
+		SWBuf fn;
+		MyUserData(const SWModule *module, const SWKey *key);
+	};
+	virtual BasicFilterUserData *createUserData(const SWModule *module, const SWKey *key) {
+		return new MyUserData(module, key);
+	}
+	virtual bool handleToken(SWBuf &buf, const char *token, BasicFilterUserData *userData);
+public:
+	ks_OSISHTML();
 };
+
+SWORD_NAMESPACE_END
 
 #endif

@@ -1,0 +1,13 @@
+[Protocol]
+exec=kio_sword
+protocol=sword
+input=none
+output=filesystem
+reading=true
+defaultMimetype=text/html
+Icon=kio_sword
+Description=A kioslave for quick access to Bible texts within Konqueror
+DocPath=kio_sword/index.html
+determineMimetypeFromExtension=false
+Class=:local
+URIMode=uri
