@@ -1,24 +1,29 @@
-<?xml version="1.0"?>
+<?xml version = '1.0'?>
 <kdevelop>
- <general>
-  <author>Luke Plant</author>
-  <email>L.Plant.98@cantab.net</email>
-  <version>0.1</version>
-  <projectmanagement>KDevKDEAutoProject</projectmanagement>
-  <primarylanguage>C++</primarylanguage>
-  <keywords>
-   <keyword>C++</keyword>
-   <keyword>Code</keyword>
-   <keyword>Qt</keyword>
-   <keyword>KDE</keyword>
-   <keyword>kioslave</keyword>
-  </keywords>
- </general>
- <kdevautoproject>
   <general>
-   <activetarget>src/libkio_sword.la</activetarget>
-   <useconfiguration>debug</useconfiguration>
+    <author>Luke Plant</author>
+    <email>L.Plant.98@cantab.net</email>
+    <version>0.1</version>
+    <projectmanagement>KDevKDEAutoProject</projectmanagement>
+    <primarylanguage>C++</primarylanguage>
+    <keywords>
+      <keyword>C++</keyword>
+      <keyword>Code</keyword>
+      <keyword>Qt</keyword>
+      <keyword>KDE</keyword>
+      <keyword>kioslave</keyword>
+    </keywords>
+    <projectdirectory>.</projectdirectory>
+    <absoluteprojectpath>false</absoluteprojectpath>
+    <description/>
+    <ignoreparts/>
+    <secondaryLanguages/>
   </general>
+  <kdevautoproject>
+    <general>
+      <activetarget>src/kio_sword.la</activetarget>
+      <useconfiguration>default</useconfiguration>
+    </general>
     <configurations>
       <optimized>
         <builddir>optimized</builddir>
@@ -35,16 +40,57 @@
         <f77compiler>kdevg77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
       </debug>
+      <default>
+        <configargs>--enable-debug=full</configargs>
+        <builddir/>
+        <topsourcedir/>
+        <cppflags/>
+        <ldflags/>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevg77options</f77compiler>
+        <ccompilerbinary/>
+        <cxxcompilerbinary/>
+        <f77compilerbinary/>
+        <cflags/>
+        <cxxflags>-O0 -g3</cxxflags>
+        <f77flags/>
+      </default>
     </configurations>
- </kdevautoproject>
- <kdevfileview>
-  <groups>
-   <group pattern="*.cpp;*.cxx;*.h" name="Sources" />
-   <group pattern="*.po;*.ts" name="Translations" />
-   <group pattern="*" name="Others" />
-  </groups>
- </kdevfileview>
- <kdevdoctreeview>
+    <make>
+      <envvars>
+        <envvar value="1" name="WANT_AUTOCONF_2_5" />
+        <envvar value="1" name="WANT_AUTOMAKE_1_6" />
+      </envvars>
+      <abortonerror>false</abortonerror>
+      <numberofjobs>1</numberofjobs>
+      <dontact>false</dontact>
+      <makebin/>
+    </make>
+    <run>
+      <directoryradio>executable</directoryradio>
+      <customdirectory>/</customdirectory>
+      <mainprogram/>
+      <programargs/>
+      <terminal>false</terminal>
+      <autocompile>true</autocompile>
+      <envvars/>
+    </run>
+  </kdevautoproject>
+  <kdevfileview>
+    <groups>
+      <group pattern="*.cpp;*.cxx;*.h" name="Sources" />
+      <group pattern="*.po;*.ts" name="Translations" />
+      <group pattern="*" name="Others" />
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidenonlocation>false</hidenonlocation>
+    </groups>
+    <tree>
+      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+    </tree>
+  </kdevfileview>
+  <kdevdoctreeview>
     <ignoretocs>
       <toc>bash</toc>
       <toc>bash_bugs</toc>
@@ -82,12 +128,24 @@
       <toc>Qt Designer Manual</toc>
       <toc>Qt Reference Documentation</toc>
     </ignoreqt_xml>
- </kdevdoctreeview>
- <kdevdebugger>
-  <general>
-   <dbgshell>libtool</dbgshell>
-  </general>
- </kdevdebugger>
+  </kdevdoctreeview>
+  <kdevdebugger>
+    <general>
+      <dbgshell>libtool</dbgshell>
+      <programargs/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
+      <breakonloadinglibs>true</breakonloadinglibs>
+      <separatetty>false</separatetty>
+      <floatingtoolbar>false</floatingtoolbar>
+    </general>
+    <display>
+      <staticmembers>false</staticmembers>
+      <demanglenames>true</demanglenames>
+    </display>
+  </kdevdebugger>
   <kdevfilecreate>
     <filetypes/>
     <useglobaltypes>
@@ -95,4 +153,25 @@
       <type ext="h" />
     </useglobaltypes>
   </kdevfilecreate>
+  <cppsupportpart>
+    <filetemplates>
+      <interfacesuffix>.h</interfacesuffix>
+      <implementationsuffix>.cpp</implementationsuffix>
+    </filetemplates>
+  </cppsupportpart>
+  <kdevcppsupport>
+    <codecompletion>
+      <includeGlobalFunctions>true</includeGlobalFunctions>
+      <includeTypes>true</includeTypes>
+      <includeEnums>true</includeEnums>
+      <includeTypedefs>false</includeTypedefs>
+      <automaticCodeCompletion>true</automaticCodeCompletion>
+      <automaticArgumentsHint>true</automaticArgumentsHint>
+      <automaticHeaderCompletion>true</automaticHeaderCompletion>
+      <codeCompletionDelay>250</codeCompletionDelay>
+      <argumentsHintDelay>400</argumentsHintDelay>
+      <headerCompletionDelay>250</headerCompletionDelay>
+    </codecompletion>
+    <references/>
+  </kdevcppsupport>
 </kdevelop>

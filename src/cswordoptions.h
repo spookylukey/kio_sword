@@ -53,8 +53,11 @@ struct CSwordOptions {
 	bool doOtherIndex;	// Create an index for other books
 	
 	QString defaultBible;
-	QString defaultStrongsGreek;
-	QString defaultStrongsHebrew;
+	QString defaultGreekStrongs;
+	QString defaultHebrewStrongs;
+	QString defaultGreekMorph;
+	QString defaultHebrewMorph;
+	
 	
 	
 	bool simplePage;

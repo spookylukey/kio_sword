@@ -125,7 +125,7 @@ static const QString &page_end(  "      </div>\n"
 				"</div>\n"
 				"</body>\n");
 
-static const QString &page_end_simple("</div></body>");
+static const QString &page_end_simple("%1</div></body>"); // %1 = page links
 				
 static const QString &html_tail("</html>\n");
 
@@ -170,35 +170,6 @@ SwordProtocol::SwordProtocol(const QCString & pool_socket,
 }
 
 
-void SwordProtocol::setHTML() {
-	KStandardDirs* dirs = KGlobal::dirs();
-	// Reduce number of file access ops by only looking up two things:
-	//   - where is the style sheet
-	//   - where are the images
-	QString imgdir = dirs->findResourceDir("data", "kio_sword/header_tl.png") + "kio_sword/";
-	QString cssdir = dirs->findResourceDir("data", "kio_sword/kio_sword.css") + "kio_sword/";
-	html_start_output = html_head.arg(cssdir + "kio_sword.css")
-			+ page_start.arg(imgdir + "header_tl.png")
-				.arg(imgdir + "header_t.png")
-				.arg(imgdir + "header_caption.png")
-				.arg(imgdir + "header_tr.png")
-				.arg(imgdir + "border_l.png");
-	html_end_output = page_end.arg(imgdir + "border_r.png")
-				.arg(imgdir + "footer_bl.png")
-				.arg(imgdir + "footer_b.png")
-				.arg(imgdir + "footer_sword.png")
-				.arg(imgdir + "footer_br.png")
-				.arg(page_links
-					.arg(i18n("Module list"))
-					.arg(i18n("Search"))
-					.arg(i18n("Settings"))
-					.arg(i18n("Help")))
-				+ html_tail;
-	
-	html_start_output_simple = html_head.arg(cssdir + "kio_sword.css") + page_start_simple;
-	html_end_output_simple = page_end_simple + html_tail;
-}
-
 SwordProtocol::~SwordProtocol()
 {
 	kdDebug() << "SwordProtocol::~SwordProtocol()" << endl;
@@ -218,20 +189,9 @@ void SwordProtocol::get(const KURL & url)
 	// Send the mimeType as soon as it is known
 	mimeType("text/html");
 	
-	
 	// Set user defaults from user config file
-	
-	// Parse the URL
-	// Possible actions:
-	//   - list of modules  - listModules()
-	//   - module index \_  both handled by printText()
-	//   - module text  /
-	//   - search ??
-	//   - help ??
-	//   - save a setting ??
-	//   - display a search form ??
-		
-	// Reset options
+	// (with internal defaults supplied if any options
+	//  are missing from users config file)
 	readUserConfig(); 
 	 
 	// Get options/actions from URL
@@ -261,13 +221,21 @@ void SwordProtocol::get(const KURL & url)
 					modname = m_options.defaultBible;
 					error = i18n("No default bible has been specified.");
 					break;
-				case STRONGSGREEK:
-					modname = m_options.defaultStrongsGreek;
-					error = i18n("No default Strongs Greek module has been specified.");
+				case GREEKSTRONGS:
+					modname = m_options.defaultGreekStrongs;
+					error = i18n("No default Greek Strongs module has been specified.");
 					break;
-				case STRONGSHEBREW:
-					modname = m_options.defaultStrongsHebrew;
-					error = i18n("No default Strongs Hebrew module has been specified.");
+				case HEBREWSTRONGS:
+					modname = m_options.defaultHebrewStrongs;
+					error = i18n("No default Hebrew Strongs module has been specified.");
+					break;
+				case GREEKMORPH:
+					modname = m_options.defaultGreekMorph;
+					error = i18n("No default Greek morphological module has been specified.");
+					break;
+				case HEBREWMORPH:
+					modname = m_options.defaultHebrewMorph;
+					error = i18n("No default Hebrew morphological module has been specified.");
 					break;
 				case MODULETYPE_NONE:
 					error = i18n("No module specified.");
@@ -342,8 +310,46 @@ void SwordProtocol::get(const KURL & url)
 		
 	if (debug1) data(debugprint(m_options, m_sword).utf8());
 	data(footer());
-	data(QByteArray());		// empty array means we're done sending the data
+	data(QByteArray());     // empty array means we're done sending the data
 	finished();
+}
+
+
+void SwordProtocol::setHTML() {
+	KStandardDirs* dirs = KGlobal::dirs();
+	// Reduce number of file access ops by only looking up two things:
+	//   - where is the style sheet
+	//   - where are the images
+	QString imgdir = dirs->findResourceDir("data", "kio_sword/header_tl.png") + "kio_sword/";
+	QString cssdir = dirs->findResourceDir("data", "kio_sword/kio_sword.css") + "kio_sword/";
+	html_start_output = html_head.arg(cssdir + "kio_sword.css")
+			+ page_start.arg(imgdir + "header_tl.png")
+				.arg(imgdir + "header_t.png")
+				.arg(imgdir + "header_caption.png")
+				.arg(imgdir + "header_tr.png")
+				.arg(imgdir + "border_l.png");
+	html_end_output = page_end.arg(imgdir + "border_r.png")
+				.arg(imgdir + "footer_bl.png")
+				.arg(imgdir + "footer_b.png")
+				.arg(imgdir + "footer_sword.png")
+				.arg(imgdir + "footer_br.png")
+				.arg(page_links
+					.arg(i18n("Module list"))
+					.arg(i18n("Search"))
+					.arg(i18n("Settings"))
+					.arg(i18n("Help")))
+				+ html_tail;
+	
+	html_start_output_simple = html_head
+					.arg(cssdir + "kio_sword.css") + 
+				   page_start_simple
+				   	.arg(page_links
+						.arg(i18n("Module list"))
+						.arg(i18n("Search"))
+						.arg(i18n("Settings"))
+						.arg(i18n("Help")))
+								;
+	html_end_output_simple = page_end_simple + html_tail;
 }
 
 void SwordProtocol::mimetype(const KURL & /*url */ )
@@ -361,7 +367,7 @@ QCString SwordProtocol::header() {
 
 QCString SwordProtocol::footer() {
 	if (m_options.simplePage)
-		return html_end_output_simple.utf8();
+		return html_end_output_simple.arg(m_path).utf8();
 	else
 		return html_end_output.arg(m_path).utf8();
 }
@@ -397,8 +403,10 @@ void SwordProtocol::readUserConfig()
 		m_options.snippet 		= m_config->readBoolEntry("HTMLSnippet",		false);
 		m_options.styleSheet 		= m_config->readEntry("StyleSheet", QString("kio_sword.css"));
 		m_options.defaultBible 		= m_config->readEntry("DefaultBible");
-		m_options.defaultStrongsGreek	= m_config->readEntry("DefaultStrongsGreek");
-		m_options.defaultStrongsHebrew  = m_config->readEntry("DefaultStrongsHebrew");
+		m_options.defaultGreekStrongs	= m_config->readEntry("DefaultGreekStrongs");
+		m_options.defaultHebrewStrongs  = m_config->readEntry("DefaultHebrewStrongs");
+		m_options.defaultGreekMorph	= m_config->readEntry("DefaultGreekMorph");
+		m_options.defaultHebrewMorph	= m_config->readEntry("DefaultHebrewMorph");
 	}
 	
 	// Always reset navigation options (don't read from user config)
@@ -431,8 +439,10 @@ QString SwordProtocol::saveUserConfig()
 	m_config->writeEntry("HTMLSnippet", 		m_options.snippet);
 	m_config->writeEntry("StyleSheet", 		m_options.styleSheet);
 	m_config->writeEntry("DefaultBible", 		m_options.defaultBible);
-	m_config->writeEntry("DefaultStrongsGreek", 	m_options.defaultStrongsGreek);
-	m_config->writeEntry("DefaultStrongsHebrew", 	m_options.defaultStrongsHebrew);
+	m_config->writeEntry("DefaultGreekStrongs", 	m_options.defaultGreekStrongs);
+	m_config->writeEntry("DefaultHebrewStrongs", 	m_options.defaultHebrewStrongs);
+	m_config->writeEntry("DefaultGreekMorph", 	m_options.defaultGreekMorph);
+	m_config->writeEntry("DefaultHebrewMorph", 	m_options.defaultHebrewMorph);
 	
 	m_config->sync();
 	message = "<p>" + i18n("Settings saved.") + "</p>";
@@ -489,7 +499,7 @@ void SwordProtocol::parseURL(const KURL& url)
 		key = it.key().latin1();
 		val = it.data();
 		
-		     BOOL_OPTION(m_options.snippet, 		"snpt", "snippet")
+		     BOOL_OPTION(m_options.snippet, 		"sn", "snippet")
 		else BOOL_OPTION(m_options.verseNumbers, 	"vn", "versenumbers")
 		else BOOL_OPTION(m_options.verseLineBreaks, 	"lb", "linebreaks")
 		else BOOL_OPTION(m_options.redWords, 		"rw", "redwords")
@@ -511,8 +521,10 @@ void SwordProtocol::parseURL(const KURL& url)
 		else BOOL_OPTION(m_options.doOtherIndex, 	"oi", "otherindex")
 		// default modules
 		else STRING_OPTION1(m_options.defaultBible,		"defaultbible")
-		else STRING_OPTION1(m_options.defaultStrongsGreek,	"defaultstrongsgreek")
-		else STRING_OPTION1(m_options.defaultStrongsHebrew,	"defaultstrongshebrew")
+		else STRING_OPTION1(m_options.defaultGreekStrongs,	"defaultgreekstrongs")
+		else STRING_OPTION1(m_options.defaultHebrewStrongs,	"defaulthebrewstrongs")
+		else STRING_OPTION1(m_options.defaultGreekMorph,	"defaultgreekmorph")
+		else STRING_OPTION1(m_options.defaultHebrewMorph,	"defaulthebrewmorph")
 		// redirection
 		else STRING_OPTION1(m_redirect.query,		"query")
 		else STRING_OPTION1(m_redirect.module,		"module")
@@ -520,11 +532,17 @@ void SwordProtocol::parseURL(const KURL& url)
 			if (!strcasecmp(val, "bible")) {
 				m_moduletype = BIBLE;
 				m_action = REDIRECT_QUERY;
-			} else if (!strcasecmp(val, "strongsgreek")) {
-				m_moduletype = STRONGSGREEK;
+			} else if (!strcasecmp(val, "greekstrongs")) {
+				m_moduletype = GREEKSTRONGS;
 				m_action = REDIRECT_QUERY;
-			} else if (!strcasecmp(val, "strongshebrew")) {
-				m_moduletype = STRONGSHEBREW;
+			} else if (!strcasecmp(val, "hebrewstrongs")) {
+				m_moduletype = HEBREWSTRONGS;
+				m_action = REDIRECT_QUERY;
+			} else if (!strcasecmp(val, "greekmorph")) {
+				m_moduletype = GREEKMORPH;
+				m_action = REDIRECT_QUERY;
+			} else if (!strcasecmp(val, "hebrewmorph")) {
+				m_moduletype = HEBREWMORPH;
 				m_action = REDIRECT_QUERY;
 			}
 		}
@@ -563,6 +581,9 @@ void SwordProtocol::parseURL(const KURL& url)
 		m_action = REDIRECT_QUERY;
 }
 #undef BOOL_OPTION
+#undef STRING_OPTION1
+#undef STRING_OPTION2
+#undef ENUM_OPTION
 
 QString settingsBooleanOptionRow(const QString &description, const char *name, const char *shortname, bool value) {
 	static const QString boolean_option_row(
@@ -598,7 +619,7 @@ QString SwordProtocol::settingsForm() {
 	// Start output
 	output += i18n("<h1>Settings</h1>"
 			"<p>Select the settings using the form below.  Use the 'Save settings' button to "
-			" save these settings to your own configuiration file.  'Test settings' will return "
+			" save these settings to your own configuration file.  'Test settings' will return "
 			" you to the previous page with the options you have specified. <br>");
 			
 	output += QString(
@@ -645,13 +666,21 @@ QString SwordProtocol::settingsForm() {
 	dm_names.push_back(QString("defaultbible"));
 	dm_values.push_back(m_options.defaultBible);
 	
-	dm_desc.push_back(i18n("Default Strongs Greek Lexicon"));
-	dm_names.push_back(QString("defaultstrongsgreek"));
-	dm_values.push_back(m_options.defaultStrongsGreek);
+	dm_desc.push_back(i18n("Default Greek Strong's Lexicon"));
+	dm_names.push_back(QString("defaultgreekstrongs"));
+	dm_values.push_back(m_options.defaultGreekStrongs);
 	
-	dm_desc.push_back(i18n("Default Strongs Hebrew Lexicon"));
-	dm_names.push_back(QString("defaultstrongshebrew"));
-	dm_values.push_back(m_options.defaultStrongsHebrew);
+	dm_desc.push_back(i18n("Default Hebrew Strong's Lexicon"));
+	dm_names.push_back(QString("defaulthebrewstrongs"));
+	dm_values.push_back(m_options.defaultHebrewStrongs);
+	
+	dm_desc.push_back(i18n("Default Greek Morphological Lexicon"));
+	dm_names.push_back(QString("defaultgreekmorph"));
+	dm_values.push_back(m_options.defaultGreekMorph);
+	
+	dm_desc.push_back(i18n("Default Hebrew Morphological Lexicon"));
+	dm_names.push_back(QString("defaulthebrewmorph"));
+	dm_values.push_back(m_options.defaultHebrewMorph);
 	
 	for (i = 0; i < dm_desc.size(); i++) {
 		temp = QString::null;
@@ -688,10 +717,9 @@ QString SwordProtocol::settingsForm() {
 	
 	output += i18n("<hr><p>To further customise the appearance of the kio-sword page, you can make your own modified "
 			"version of the style sheet. "
-			"Simply copy the file '%1/share/apps/kio_sword/kio_sword.css' to $HOME/.kde/share/apps/kio_sword/ and modify it as desired. You may want "
-			" to use the 'simplepage' option above to make the most of this.</p>").arg("/usr"); // FIXME - use PREFIX
-			
-			 
+			"Simply copy the file '%1kio_sword/kio_sword.css' to $HOME/.kde/share/apps/kio_sword/ and modify it as desired. You may want "
+			" to use the 'simplepage' option above to make the most of this.</p>")
+				.arg(KGlobal::dirs()->findResourceDir("data", "kio_sword/kio_sword.css")); // FIXME - use PREFIX
 			
 	output += QString("<hr><form action='sword:/' method='get'>"
 			  "<table><tr><td><input type='submit' name='reset' value='%1'></td><td>%2</td></tr>"
@@ -702,8 +730,6 @@ QString SwordProtocol::settingsForm() {
 	
 	return output;
 }
-
-#undef BOOLEAN_OPTION_ROW
 
 QString SwordProtocol::helpPage() {
 	QString output;

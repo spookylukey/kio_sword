@@ -44,13 +44,10 @@ public:
     
 protected:
 	void parseURL(const KURL & url);
-	//void setInternalDefaults();
-	//void setOptionDefaults();
 	void readUserConfig();
 	QString saveUserConfig();
 	void setHTML();
 	
-	//void readUserDefaults();
 	QCString header();
 	QCString footer();
 	
@@ -65,15 +62,19 @@ protected:
 			SETTINGS_SAVE, 
 			RESET, 
 			HELP } ActionType;
+			
 	typedef enum {  MODULETYPE_NONE,
 			BIBLE,
-			STRONGSGREEK,
-			STRONGSHEBREW } ModuleType;
+			GREEKSTRONGS,
+			HEBREWSTRONGS,
+			GREEKMORPH,
+			HEBREWMORPH } ModuleType;
 
 	CSword m_sword;
+	CSwordOptions m_options;
 	ActionType m_action;
-	QString m_path;
 	ModuleType m_moduletype;	
+	QString m_path;
 		
 	struct {
 		QString query;
@@ -91,7 +92,6 @@ protected:
 		QString type; // ??more here?
 	} m_search;
 	
-	CSwordOptions m_options;
 	
 	KConfig *m_config;
 	

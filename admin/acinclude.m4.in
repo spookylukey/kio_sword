@@ -422,18 +422,15 @@ AC_DEFUN([KDE_SET_DEFAULT_PATHS],
 if test "$1" = "default"; then
 
   if test -z "$kde_htmldir"; then
-    kde_htmldir='\${prefix}/share/doc/HTML'
     if test -f /etc/debian_version; then
       if dpkg -s kdelibs4 | grep Status | grep not-installed 2>&1 >/dev/null; then
-       kde_htmldir='\${prefix}/share/doc/HTML';
+       kde_htmldir='\${datadir}/doc/HTML'
       else
-       kde_htmldir='\${prefix}/share/doc/kde/HTML'
+       kde_htmldir='\${datadir}/doc/kde/HTML'
       fi
     else
-       kde_htmldir='\${prefix}/share/doc/HTML'
+       kde_htmldir='\${datadir}/doc/HTML'
     fi
-
-    kde_htmldir='\${datadir}/doc/HTML'
   fi
   if test -z "$kde_appsdir"; then
     kde_appsdir='\${datadir}/applnk'

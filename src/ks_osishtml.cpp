@@ -58,31 +58,23 @@ ks_OSISHTML::ks_OSISHTML() {
 
 
 bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData *userData) {
-  // manually process if it wasn't a simple substitution
+	// manually process if it wasn't a simple substitution
 	if (!substituteToken(buf, token)) {
 		MyUserData *u = (MyUserData *)userData;
 		XMLTag tag(token);
 
 		// <w> tag
 		if (!strcmp(tag.getName(), "w")) {
-
 			if ((!tag.isEmpty()) && (!tag.isEndTag())) {
 				// start <w> tag
 				u->w = token;
 			} else {
-				// end or empty <w> tag
-				bool endTag = tag.isEndTag();
-				SWBuf lastText;
-				bool show = true;	// to handle unplaced article in kjv2003-- temporary till combined
-
-				if (endTag) {
-					tag = u->w.c_str();
-					lastText = u->lastTextNode.c_str();
-				} else 
-					lastText = "stuff";
-
+				// end <w> tag
 				const char *attrib;
 				const char *val;
+				if (tag.isEndTag())
+					tag = u->w.c_str();
+					
 				if ((attrib = tag.getAttribute("xlit"))) {
 					val = strchr(attrib, ':');
 					val = (val) ? (val + 1) : attrib;
@@ -101,57 +93,42 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 						if (i < 0) i = 0;       // to handle our -1 condition
 						val = strchr(attrib, ':');
 						val = (val) ? (val + 1) : attrib;
-						const char *val2 = val;
-						if ((strchr("GH", *val)) && (isdigit(val[1])))
-							val2++;
-						if ((!strcmp(val2, "3588")) && (lastText.length() < 1))
-							show = false;
-						else {
-							if (strchr("G", *val)) {
-								buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=strongsgreek&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val2, val);
-							} else {
-								buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=strongsgreek&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val2, val);
+						if (*val == 'G') {
+							buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val+1, val+1);
+						} else if (*val == 'H') {
+							buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val+1, val+1);
+						}
+					} while (++i < count);
+				}
+				if ((attrib = tag.getAttribute("morph"))) {
+					int count = tag.getAttributePartCount("morph");
+					int i = (count > 1) ? 0 : -1;		// -1 for whole value cuz it's faster, but does the same thing as 0
+					do {
+						attrib = tag.getAttribute("morph", i);
+						if (i < 0) i = 0;       // to handle our -1 condition
+						val = strchr(attrib, ':');
+						val = (val) ? (val + 1) : attrib;
+						if (!strncmp(attrib, "x-Robinson",10)) { //robinson codes
+							buf.appendFormatted(" (<a href=\"sword:/?modtype=greekmorph&query=%s\" class=\"sword_strongs\">%s</a>) ", val, val);
+						} else if ((*val == 'T'))  {
+							if (val[1] == 'G') {
+								buf.appendFormatted(" (<a href=\"sword:/?modtype=greekmorph&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, val+1);
+							} else if (val[1] == 'H') {
+								buf.appendFormatted(" (<a href=\"sword:/?modtype=hebrewmorph&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, val+1);
 							}
 						}
-				} while (++i < count);
-				}
-				if ((attrib = tag.getAttribute("morph")) && (show)) {
-					SWBuf savelemma = tag.getAttribute("savlm");
-					if ((strstr(savelemma.c_str(), "3588")) && (lastText.length() < 1))
-						show = false;
-					if (show) {
-						int count = tag.getAttributePartCount("morph");
-						int i = (count > 1) ? 0 : -1;		// -1 for whole value cuz it's faster, but does the same thing as 0
-						do {
-							attrib = tag.getAttribute("morph", i);
-							if (i < 0) i = 0;       // to handle our -1 condition
-							val = strchr(attrib, ':');
-							val = (val) ? (val + 1) : attrib;
-							const char *val2 = val;
-							if ((*val == 'T') && (strchr("GH", val[1])) && (isdigit(val[2])))
-								val2+=2;
-							if (strchr("G", *val)) {
-								buf.appendFormatted(" (<a href=\"word:/?modtype=strongsgreek&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, tag.getAttribute("morph"));
-							} else if (strchr("H", *val)) {
-								buf.appendFormatted(" (<a href=\"word:/?modtype=strongsgreek&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, tag.getAttribute("morph"));
-							} else {
-							buf.appendFormatted(" (<a href=\"sword:/Packard/%s\" class=\"sword_strongs\">%s</a>) ", val, tag.getAttribute("morph"));
-							}
-                                                } while (++i < count);
-					}
+					} while (++i < count);
 				}
 				if ((attrib = tag.getAttribute("POS"))) {
 					val = strchr(attrib, ':');
 					val = (val) ? (val + 1) : attrib;
 					buf.appendFormatted(" %s", val);
 				}
-
-				/*if (endTag)
-					buf += "}";*/
 			}
 		}
 
 		// <note> tag
+		// FIXME - unmodified for kiosword
 		else if (!strcmp(tag.getName(), "note")) {
 			if (!tag.isEndTag()) {
 				if (!tag.isEmpty()) {

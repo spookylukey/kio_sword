@@ -23,8 +23,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef KS_OSISHTMLHREF_H
-#define KS_OSISHTMLHREF_H
+#ifndef KS_OSISHTML_H
+#define KS_OSISHTML_H
 
 #include <swbasicfilter.h>
 
@@ -32,7 +32,7 @@ using namespace sword;
 
 /** this filter converts OSIS text to HTML text with hrefs
  */
-class SWDLLEXPORT ks_OSISHTML : public SWBasicFilter {
+class ks_OSISHTML : public SWBasicFilter {
 private:
 protected:
 	class MyUserData : public BasicFilterUserData {

@@ -25,6 +25,7 @@
 #include "csword.h"
 #include "cswordoptions.h"
 #include "ks_osishtml.h"
+#include "ks_gbfhtml.h"
 #include "utils.h"
 
 // Sword
@@ -36,7 +37,6 @@
 #include <treekeyidx.h>
 
 // FIXME - remove
-#include <gbfhtmlhref.h>
 #include <thmlhtml.h>
 #include <plainhtml.h>
 #include <rtfhtml.h>
@@ -244,7 +244,7 @@ void CSword::setModuleFilter(SWModule *module) {
 			
 		case FMT_GBF:
 			if (!m_gbffilter)
-				m_gbffilter = new GBFHTMLHREF();
+				m_gbffilter = new ks_GBFHTML();
 			filter = m_gbffilter;
 			break;
 			
