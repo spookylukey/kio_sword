@@ -114,8 +114,6 @@ static const QString &page_end_simple("%1</div></body>"); // %1 = page links
 				
 static const QString &html_tail("</html>\n");
 
-QString debugprint(const CSwordOptions &options, CSword &mysword);
-
 extern "C" {
 	int kdemain(int argc, char **argv) {
 		KInstance instance("kio_sword");
@@ -288,7 +286,6 @@ void SwordProtocol::get(const KURL & url)
 			break;
 	}
 	
-	if (debug1) data(debugprint(m_options, m_sword).utf8());
 	data(footer());
 	data(QByteArray());     // empty array means we're done sending the data
 	finished();
@@ -340,6 +337,19 @@ void SwordProtocol::mimetype(const KURL & /*url */ )
 	finished();
 }
 
+/* redefine data for QCStrings so we don't send the trailing
+   null */
+void SwordProtocol::data(const QCString& text) {
+	QByteArray nonull;
+	nonull.setRawData(text.data(), text.size()-1);
+	SlaveBase::data(nonull);
+	nonull.resetRawData(text.data(), text.size()-1);
+}
+
+void SwordProtocol::data(const QByteArray& array) {
+	SlaveBase::data(array);
+}
+
 QCString SwordProtocol::header() {
 	if (m_options.simplePage) 
 		return html_start_output_simple.arg("Kio-Sword").utf8();
@@ -353,15 +363,6 @@ QCString SwordProtocol::footer() {
 	else
 		return html_end_output.arg(m_path).utf8();
 }
-
-QString debugprint(const CSwordOptions &options, CSword &mysword) {
-	QString output;
-	output += QString("<p>options.strongs: %1").arg(options.strongs);
-	output += "<p>getGlobalOption(\"Strong's Numbers\"):";
-	output += mysword.getGlobalOption("Strong's Numbers");
-	return output;
-}
-
 
 void SwordProtocol::readUserConfig() 
 {
@@ -398,8 +399,6 @@ void SwordProtocol::readUserConfig()
 	m_options.doFullTreeIndex = false;
 	m_options.wholeBook = false;
 		
-	debug1 = false;
-	debug2 = false;
 }
 
 QString SwordProtocol::saveUserConfig() 
@@ -555,20 +554,6 @@ void SwordProtocol::parseURL(const KURL& url)
 		else if (!strcasecmp(key, "previouspath")) {
 			m_previous.module = val.section('/', 0, 0, QString::SectionSkipEmpty);
 			m_previous.query = val.section('/', 1, -1, QString::SectionSkipEmpty);
-		}
-		else if (!strcasecmp(key, "debug1")) {
-			if (val == "0")
-				debug1 = false;
-			else
-				debug1 = true;
-				
-		}
-		else if (!strcasecmp(key, "debug2")) {
-			if (val == "0")
-				debug2 = false;
-			else
-				debug2 = true;
-		
 		}
 	}
 	

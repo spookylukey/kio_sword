@@ -43,6 +43,9 @@ public:
 	virtual void get(const KURL & url);
     
 protected:
+	void data(const QCString& text);
+	void data(const QByteArray& text);
+	
 	void parseURL(const KURL & url);
 	void readUserConfig();
 	QString saveUserConfig();
@@ -88,18 +91,8 @@ protected:
 		QString module;
 	} m_redirect;
 	
-	struct {
-		QString module;
-		QString range;
-		QString type; // ??more here?
-	} m_search;
-	
-	
 	KConfig *m_config;
 	
-	bool debug1;
-	bool debug2;
-    
 };
 
 #endif
