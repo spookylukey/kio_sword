@@ -334,6 +334,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	
 	if (keyt == VERSEKEY) {  // Should be just bibles and commentaries
 		//--------------------  VERSE BASED -------------------------------//
+		vk->AutoNormalize(0);
 		error = false;
 		do { // dummy loop
 			if (ref.isEmpty()) {
@@ -347,18 +348,25 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 				break;
 			}
 			// FIXME - detect whether we have referenced an entire book
-			// and if so decide whether or not to view it. or an index
+			// and if so decide whether or not to view it or an index
+			char book = 0;
+			char testament = 0;
+			int chapter = 0;
 			for (int i = 0; i < lk.Count(); i++) {
 				VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
 				if (element) {
 					// Multiple verses
-					// FIXME insert chapter headings at relevant points
-					char book;
-					char testament;
 					module->Key(element->LowerBound());
 					do  {
+						VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
+						if (curvk->Book() != book || curvk->Testament() != testament) {
+							text += "<h2>" + QString(curvk->getBookName()) + "</h2>";
+							chapter = 0;
+						}
+						if (curvk->Chapter() != chapter) {
+							text += "<h3>" + i18n("Chapter %1").arg(curvk->Chapter()) + "</h3>";
+						}
 						if (options.verseNumbers && modtype == BIBLE) {
-							VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
 							text += QString("<a class=\"sword_versenumber\" href=\"sword:/%1/%2\">%3</a>")
 									.arg(module->Name())
 									.arg(module->KeyText())
@@ -369,11 +377,20 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 						if (options.verseLineBreaks) 
 							text += "<br />";
 							
+						book = curvk->Book();
+						testament = curvk->Testament();
+						chapter = curvk->Chapter();
+						
 						module->increment(1);
 					} while (module->Key() <= element->UpperBound());
 				} else {
+					// Reset flags used by the multiple verse path
+					book = 0;
+					testament = 0;
+					chapter = 0;
 					// Single verse
 					module->Key(*lk.GetElement(i));
+					text += QString("<h3>%1</h3>").arg(module->KeyText());
 					text += renderText(module);
 				}
 				if (i+1 != lk.Count())
@@ -388,13 +405,10 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 					+ text;
 		} else {
 			if (modtype == COMMENTARY) { 
-				text = QString("<h1 class=\"sword_moduletitle\">%1</h1><h2 class=\"sword_bibleref\">%2</h2>").arg(module->Description()).arg(ref) 
+				text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description())
 					+ text;
 			} else if (modtype == BIBLE) {
-				// FIXME - use a nicely formatted version of 'ref', computed above
-				text = QString("<h2 class=\"sword_bibleref\">%1</h2>").arg(ref) 
-					+ text 
-					+ QString("<div class=\"sword_biblename\">(%1)</div>").arg(module->Description());
+				text += QString("<div class=\"sword_biblename\">(%1)</div>").arg(module->Description());
 			}
 		}
 		output += text;
@@ -461,13 +475,14 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 			doindex = true;
 		} else {
 			skey->Error(); // clear
-			skey->setText(ref.latin1()); // FIXME - should this be .latin1() or local8bit() or utf8()?
+			skey->setText(ref.utf8()); // FIXME - should this be .latin1() or local8bit() or utf8()?
 			doindex = false;
 			if (skey->Error()) {
 				output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
 				output += "<hr>";
 				doindex = true;
 			} else {
+				output += QString("<h3>%1</h3>)").arg(module->KeyText());
 				output += renderText(module);
 			}
 		}
@@ -498,9 +513,8 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 							.arg(modname)
 							.arg(i18n("View complete index"));
 				}
-			} 
-		} 
-
+			}
+		}
 	} else {
 		// never get here
 	
