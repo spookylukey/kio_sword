@@ -21,8 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _cswordoptions_H
-#define _cswordoptions_H
+#ifndef CSWORDOPTIONS_H
+#define CSWORDOPTIONS_H
+
+#include <qstring.h>
+
 struct CSwordOptions {
 	bool persist;		// Allow options set in one 'get' command to persist to later 'get' commands
 
@@ -30,7 +33,7 @@ struct CSwordOptions {
 	bool verseNumbers;
 	bool verseLineBreaks;
 	bool wholeBook; 	// Allows whole book to be printed - otherwise 'Genesis' will give an index of chapters  FIXME IMPLEMENT
-	QString styleSheet;
+	QString styleSheet;	// FIXME IMPLEMENT
 
 	bool footnotes; 	// FIXME IMPLEMENT
 	bool headings;  	// FIXME IMPLEMENT
@@ -48,6 +51,11 @@ struct CSwordOptions {
 	bool doFullTreeIndex;	// Create a full index for 'tree' books, not just first level
 	bool doDictIndex;	// Create an index for all items in a Lexicon/Dictionary
 	bool doOtherIndex;	// Create an index for other books
+	
+	QString defaultBible;
+	QString defaultStrongsGreek;
+	QString defaultStrongsHebrew;
+	
 	
 	bool simplePage;
 	// To add:

@@ -18,18 +18,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _kio_sword_H_
-#define _kio_sword_H_
-
-#include <qstring.h>
-#include <qcstring.h>
-
-#include <kurl.h>
-#include <kio/global.h>
-#include <kio/slavebase.h>
+#ifndef KIO_SWORD_H
+#define KIO_SWORD_H
 
 #include "cswordoptions.h"
 #include "csword.h"
+
+#include <kurl.h>
+#include <kconfig.h>
+//#include <kio/global.h>
+#include <kio/slavebase.h>
+
+#include <qstring.h>
+#include <qcstring.h>
 
 class SwordProtocol : public KIO::SlaveBase {
 
@@ -37,13 +38,16 @@ class SwordProtocol : public KIO::SlaveBase {
 public:
 	SwordProtocol(const QCString & pool_socket,
 			  const QCString & app_socket);
-	virtual ~ SwordProtocol();
+	virtual ~SwordProtocol();
 	virtual void mimetype(const KURL & url);
 	virtual void get(const KURL & url);
     
 protected:
 	void parseURL(const KURL & url);
-	void setInternalDefaults();
+	//void setInternalDefaults();
+	//void setOptionDefaults();
+	void readUserConfig();
+	QString saveUserConfig();
 	void setHTML();
 	
 	//void readUserDefaults();
@@ -61,10 +65,15 @@ protected:
 			SETTINGS_SAVE, 
 			RESET, 
 			HELP } ActionType;
+	typedef enum {  MODULETYPE_NONE,
+			BIBLE,
+			STRONGSGREEK,
+			STRONGSHEBREW } ModuleType;
 
 	CSword m_sword;
 	ActionType m_action;
 	QString m_path;
+	ModuleType m_moduletype;	
 		
 	struct {
 		QString query;
@@ -83,6 +92,8 @@ protected:
 	} m_search;
 	
 	CSwordOptions m_options;
+	
+	KConfig *m_config;
 	
 	bool debug1;
 	bool debug2;

@@ -23,8 +23,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _ks_OSISHTMLHREF_H
-#define _ks_OSISHTMLHREF_H
+#ifndef KS_OSISHTMLHREF_H
+#define KS_OSISHTMLHREF_H
 
 #include <swbasicfilter.h>
 

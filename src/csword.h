@@ -20,24 +20,20 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef _csword_H
-#define _csword_H
+#ifndef CSWORD_H
+#define CSWORD_H
 
-#include <functional>
-#include <vector>
-#include <set>
-
-#include <qstring.h>
-#include <qstringlist.h>
+#include "cswordoptions.h"
 
 #include <swmgr.h>
 #include <swmodule.h>
 
-#include "cswordoptions.h"
+#include <qstring.h>
+#include <qstringlist.h>
 
-using std::less;
-using std::set;
-using std::vector;
+#include <functional>
+#include <vector>
+#include <set>
 
 /** Handles sword backend and prints modules 
  *
@@ -73,6 +69,7 @@ public:
 	 */
 	QString listModules(const CSwordOptions &options);
 	void setOptions(const CSwordOptions &options);
+	QStringList moduleList();
 	
 protected:
 	void setModuleFilter(sword::SWModule *module);
@@ -87,9 +84,9 @@ protected:
 	sword::SWFilter *m_thmlfilter;
 	sword::SWFilter *m_plainfilter;
 	sword::SWFilter *m_rtffilter;
-	set<sword::SWModule *, less<sword::SWModule *> > m_modset;
-	vector<const char *> m_moduleTypes;
-	vector<QString> m_moduleTypeNames;
+	std::set<sword::SWModule *, std::less<sword::SWModule *> > m_modset;
+	std::vector<const char *> m_moduleTypes;
+	std::vector<QString> m_moduleTypeNames;
 	enum ModuleTypes { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES };
 	enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
 

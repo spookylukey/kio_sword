@@ -108,9 +108,9 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 							show = false;
 						else {
 							if (strchr("G", *val)) {
-								buf.appendFormatted(" &lt;<a href=\"sword:/StrongsGreek/%s?type=strongs\"  class=\"sword_strongs\">%s</a>&gt; ", val2, val);
+								buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=strongsgreek&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val2, val);
 							} else {
-								buf.appendFormatted(" &lt;<a href=\"sword:/StrongsHebrew/%s?type=strongs\"  class=\"sword_strongs\">%s</a>&gt; ", val2, val);
+								buf.appendFormatted(" &lt;<a href=\"sword:/?modtype=strongsgreek&query=%s\"  class=\"sword_strongs\">%s</a>&gt; ", val2, val);
 							}
 						}
 				} while (++i < count);
@@ -131,9 +131,9 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 							if ((*val == 'T') && (strchr("GH", val[1])) && (isdigit(val[2])))
 								val2+=2;
 							if (strchr("G", *val)) {
-								buf.appendFormatted(" (<a href=\"sword:/StrongsGreek/%s?type=morph\" class=\"sword_strongs\">%s</a>) ", val+1, tag.getAttribute("morph"));
+								buf.appendFormatted(" (<a href=\"word:/?modtype=strongsgreek&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, tag.getAttribute("morph"));
 							} else if (strchr("H", *val)) {
-								buf.appendFormatted(" (<a href=\"sword:/StrongsHebrew/%s?type=morph\" class=\"sword_strongs\">%s</a>) ", val+1, tag.getAttribute("morph"));
+								buf.appendFormatted(" (<a href=\"word:/?modtype=strongsgreek&query=%s\" class=\"sword_strongs\">%s</a>) ", val+1, tag.getAttribute("morph"));
 							} else {
 							buf.appendFormatted(" (<a href=\"sword:/Packard/%s\" class=\"sword_strongs\">%s</a>) ", val, tag.getAttribute("morph"));
 							}

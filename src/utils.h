@@ -21,8 +21,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _utils_H_
-#define _utils_H_
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <qstring.h>
  

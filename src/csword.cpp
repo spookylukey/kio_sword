@@ -21,15 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-// Standard C/C++
-#include <vector>
-#include <cstring>
-#include <set>
-
-// KDE/QT
-#include <qstring.h>
-#include <qstringlist.h>
-#include <klocale.h>
+// Mine
+#include "csword.h"
+#include "cswordoptions.h"
+#include "ks_osishtml.h"
+#include "utils.h"
 
 // Sword
 #include <swmgr.h>
@@ -56,11 +52,19 @@
 #include <filemgr.h>
 #include <utilstr.h>
 
-// Mine
-#include "csword.h"
-#include "cswordoptions.h"
-#include "ks_osishtml.h"
-#include "utils.h"
+
+// KDE
+#include <klocale.h>
+
+// QT
+#include <qstring.h>
+#include <qstringlist.h>
+
+// Standard C/C++
+#include <vector>
+#include <cstring>
+#include <set>
+
 
 using std::string;
 using std::vector;
@@ -123,6 +127,10 @@ void CSword::setOptions(const CSwordOptions &options) {
 	
 }
 
+/* Return an HTML hyperlinked list of all modules,
+ * categorised, and including descriptions
+ */
+ 
 QString CSword::listModules(const CSwordOptions &options) {
 	QString output;
 	QString temp;
@@ -156,6 +164,23 @@ QString CSword::listModules(const CSwordOptions &options) {
 			  "</div>";
 	}
 	output += "</div>";
+	return output;
+}
+
+/* Return a sorted list of all module names 
+ *
+ */
+ 
+QStringList CSword::moduleList() {
+	QStringList output;
+	ModMap::iterator it;
+	SWModule *curMod;
+	
+	for (it = Modules.begin(); it != Modules.end(); it++) {
+		curMod = (*it).second;
+		output += QString(curMod->Name());
+	}
+	output.sort();
 	return output;
 }
 
@@ -323,9 +348,15 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 				doindex = true;
 				break;
 			}
+			// FIXME - detect whether we have referenced an entire book
+			// and if so decide whether or not to view it. or an index
 			for (int i = 0; i < lk.Count(); i++) {
 				VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
 				if (element) {
+					// Multiple verses
+					// FIXME insert chapter headings at relevant points
+					char book;
+					char testament;
 					module->Key(element->LowerBound());
 					do  {
 						if (options.verseNumbers && modtype == BIBLE) {
@@ -343,6 +374,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 						module->increment(1);
 					} while (module->Key() <= element->UpperBound());
 				} else {
+					// Single verse
 					module->Key(*lk.GetElement(i));
 					text += renderText(module);
 				}
@@ -364,7 +396,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 				// FIXME - use a nicely formatted version of 'ref', computed above
 				text = QString("<h2 class=\"sword_bibleref\">%1</h2>").arg(ref) 
 					+ text 
-					+ QString("<div class=\"sword_biblename\">(%1)</div>").arg(modname);
+					+ QString("<div class=\"sword_biblename\">(%1)</div>").arg(module->Description());
 			}
 		}
 		output += text;
@@ -501,12 +533,13 @@ QString CSword::indexBible(SWModule *module) {
 	if (!vk)
 		return output;
 		
-	module->setPosition(sword::TOP);
-	module->setSkipConsecutiveLinks(true);
 
+	module->setSkipConsecutiveLinks(true);
+	vk->AutoNormalize(1);
+	module->setPosition(sword::TOP);
+	
 	book = vk->Book();
 	testament = vk->Testament();
-	vk->AutoNormalize(1);
 	
 	output += "<ul>\n";
 	while (vk->Testament() == testament) {
