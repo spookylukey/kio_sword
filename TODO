@@ -2,14 +2,23 @@ Feedback/votes for any of these are appreciated - e-mail the author.
 Bugs are summarised at the end.
 
 ===================
-Before release 0.1:
-===================
-
-o  Make a Debian package
-
-===================
 After release 0.1:
 ===================
+
+o  Style sheet
+   o have a system stylesheet default.css
+   o have an additional user stylesheet:
+     - automatically search the kio_sword dirs for CSS files,
+       and allow the user to choose one
+   o Still allow the default.css to be overridden by a copy in users
+     dir, but not tyhe suggested way of doing it.  Instead,
+     include the user.css file after default.css, so it overrides
+     anyway.  This way when a new version is installed, new style sheet
+     changes will be included
+   o package an 'empty' user.css file -- contains various selectors, with
+     comments, but no actual content
+
+
 o  Read some config defaults from the BibleTime settings
 
 o  Headings in Lexicons - use the proper name, not the user's query text 
@@ -61,7 +70,9 @@ o  Clean up options system, perhaps using QVariant, or Q_PROPERTY ??
 o  Possible:  instead of returning QStrings from CSword functions, pass them
    some kind of iostream object they can write to directly, which calls SlaveBase::data(),
    and so return the page as it is being generated.  This would be especially 
-   important with searches.
+   important with searches
+   o in reality, SWORD's search function returns all the results at once, so there is 
+     no advantage in this - you have to wait for the function to complete
   
 o  For searches, fork a thread off which then
    waits for SlaveBase::wasKilled(), and calls CSword::cancelSearch(), which in turn

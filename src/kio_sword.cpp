@@ -56,8 +56,8 @@ static QString search_form;
 static QString help_page;
 
 // static HTML fragments -------------------------------------------------------------------------------------------------------
-static const QString &html_head("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
-				"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+static const QString &html_head("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\""
+				"\"http://www.w3.org/TR/html4/strict.dtd\">\n"
 				"<html><head>\n"
 				"<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>\n"
 				"<title>%2</title>\n"
@@ -79,16 +79,18 @@ static const QString &page_start("<body><div class=\"swordpage\">\n"
 				"  </tr>\n"
 				"  <tr>\n"
 				"    <td background=\"file:%5\"></td>\n"					// border_l.png
-				"    <td class=\"swordpage\" width=\"100%\">\n");
+				"    <td class=\"swordpage\">\n"
+				"      <div class='swordcontent'>");
 				
-static const QString &page_start_simple("<body class='swordsimplepage'><div class='swordsimplepage'>");
+static const QString &page_start_simple("<body class='swordsimplepage'><div class='swordsimplepage'><div class='swordcontent'>");
 
 static const QString &page_links(
 				"      <div class=\"swordlinks\">\n"
 				"        <a href=\"sword:/\">%1</a> | <a href=\"sword:/?search\">%2</a> | <a href=\"sword:/?settings&amp;previouspath=%5\">%3</a> | <a href=\"sword:/?help\">%4</a>"
 				"      </div>\n");
 
-static const QString &page_end( "      %6"									// page links
+static const QString &page_end( "      </div>"
+				"      %6"									// page links
 				"    </td>\n"
 				"    <td background=\"file:%1\"></td>\n"				// border_r.png
 				"  </tr>\n"
@@ -108,7 +110,7 @@ static const QString &page_end( "      %6"									// page links
 				"</div>\n"
 				"</body>\n");
 
-static const QString &page_end_simple("%1</div></body>"); // %1 = page links
+static const QString &page_end_simple("</div>%1</div></body>"); // %1 = page links
 				
 static const QString &html_tail("</html>\n");
 
