@@ -20,4 +20,4 @@ protocoldir = $(kde_servicesdir)
 messages: rc.cpp
 	$(XGETTEXT) *.cpp -o $(podir)/kio_sword.pot
 
-noinst_HEADERS = csword.h kioswordoptions.h cswordoptions.h ks_gbfhtml.h ks_osishtml.h
+noinst_HEADERS = csword.h cswordoptions.h  ks_osishtml.h
