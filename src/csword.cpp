@@ -176,6 +176,20 @@ QStringList CSword::moduleList() {
 	return output;
 }
 
+CSword::ModuleType CSword::getModuleType(sword::SWModule *module) {
+	ModuleType modtype;
+	vector<const char *>::size_type i;
+	
+	modtype = GENERIC; // default
+	for  (i = 0; i < m_moduleTypes.size(); i++) {
+		if (!strcmp(module->Type(), m_moduleTypes[i])) {
+			modtype = (ModuleType)i;
+			break;
+		}
+	}
+	return modtype;
+}
+
 
 /** Add the relevant filter to a module
  *
@@ -282,7 +296,6 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	VerseKey *vk;
 	TreeKey *tk;
 	
-	vector<const char *>::size_type i;
 	ModuleType modtype;	
 	
 	setOptions(options);
@@ -310,16 +323,9 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	} else {
 		keyt = VERSEKEY;
 	}
-	// Determine module type
-	modtype = GENERIC; // default
-	for  (i = 0; i < m_moduleTypes.size(); i++) {
-		if (!strcmp(module->Type(), m_moduleTypes[i])) {
-			modtype = (ModuleType)i;
-			break;
-		}
-	}
+	modtype = getModuleType(module);
 	
-	nav += QString("<ul><li class='swordfirst'>[%1 <a href='%3'>%2</a>]")
+	nav += QString("<ul><li class='swordfirst'>%1 <a href='%3'>%2</a>")
 		.arg(i18n("Module:"))
 		.arg(modname)
 		.arg(swordUrl(modname));
@@ -349,6 +355,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 	ListKey lk;
 	int stype = SEARCH_WORDS;
 	QString stypename;
+	ModuleType modtype;
 	
 	// Find the module
 	module = getModule(modname.latin1());
@@ -360,6 +367,9 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 		output += listModules(options);
 		return output;
 	}
+	
+	modtype = getModuleType(module);
+	
 	if (searchType == SEARCH_WORDS) {
 		stype = -2;
 		stypename = i18n("Word");
@@ -390,9 +400,18 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 		for (int i = 0; i < lk.Count(); ++i) {
 			QString ref;
 			ref = QString::fromLocal8Bit(lk.getElement(i)->getText());
-			output += QString("<li><a href='%2'>%1</a></li>")
-					.arg(ref)
-					.arg(swordUrl(modname, ref));
+			if (modtype == BIBLE) {
+				module->setKey(lk.getElement(i));
+				output += QString("<li><a href='%3'>%1</a>: %2</li>")
+						.arg(ref)
+						.arg(renderText(module))
+						.arg(swordUrl(modname, ref));
+				
+			} else {
+				output += QString("<li><a href='%2'>%1</a></li>")
+						.arg(ref)
+						.arg(swordUrl(modname, ref));
+			}
 		}
 		output += "</ul>";
 	}
@@ -593,14 +612,14 @@ QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOpti
 			QString link;
 			output += renderText(module);
 			if (tk->previousSibling()) {
-				link = module->KeyText();
+				link = QString::fromLocal8Bit(module->KeyText());
 				navlinks += prev.arg(shorten(link.section('/', -1, -1) , 20))
 						 .arg(swordUrl(modname, link));
 				tk->nextSibling();
 			}
 			SWKey *saved = tk->clone();
 			if (tk->parent()) {
-				link = module->KeyText();
+				link = QString::fromLocal8Bit(module->KeyText());
 				navlinks += up.arg(i18n("Up:"))
 					      .arg(shorten(link.section('/', -1, -1), 20))
 					      .arg(swordUrl(modname, link));
@@ -608,7 +627,7 @@ QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOpti
 			}
 			delete saved;
 			if (tk->nextSibling()) {
-				link = module->KeyText();
+				link = QString::fromLocal8Bit(module->KeyText());
 				navlinks += next.arg(shorten(link.section('/', -1, -1), 20))
 						 .arg(swordUrl(modname, link));
 				tk->previousSibling();
