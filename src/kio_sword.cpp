@@ -295,6 +295,7 @@ void SwordProtocol::get(const KURL & url)
 			
 		case RESET:
 			m_options.persist = false;
+			m_config->sync();
 			readUserConfig();
 			setHTML();
 			data(i18n("<p>Formatting options reset to user defaults.</p>").utf8());
@@ -341,15 +342,15 @@ void SwordProtocol::setHTML() {
 				+ html_tail;
 	
 	html_start_output_simple = html_head
-					.arg(cssdir + "kio_sword.css") + 
-				   page_start_simple
+					.arg(cssdir + "kio_sword.css")
+				   + page_start_simple;
+	html_end_output_simple = page_end_simple
 				   	.arg(page_links
 						.arg(i18n("Module list"))
 						.arg(i18n("Search"))
 						.arg(i18n("Settings"))
-						.arg(i18n("Help")))
-								;
-	html_end_output_simple = page_end_simple + html_tail;
+						.arg(i18n("Help"))) 
+				   + html_tail;
 }
 
 void SwordProtocol::mimetype(const KURL & /*url */ )
@@ -683,8 +684,9 @@ QString SwordProtocol::settingsForm() {
 	dm_values.push_back(m_options.defaultHebrewMorph);
 	
 	for (i = 0; i < dm_desc.size(); i++) {
-		temp = QString::null;
-	
+		temp = QString("<option value='' %1> </option>")
+			.arg(dm_values[i].stripWhiteSpace().isEmpty() ? "selected" : "");
+			
 		for (it = modules.begin(); it != modules.end(); ++it ) {
 			temp += QString("<option value='%1' %3>%2</option>")
 					.arg(*it)
