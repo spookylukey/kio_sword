@@ -400,8 +400,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 }
 
 QString CSword::renderText(SWModule *module) {
-	return module->isUnicode() ?  QString::fromUtf8(module->RenderText()) 
-				   :  QString::fromLocal8Bit(module->RenderText());
+	return QString::fromUtf8(module->RenderText());
 }
 
 /* return formatted text for the query of a verse based module
