@@ -49,7 +49,9 @@ protected:
 	//void readUserDefaults();
 	QCString header();
 	QCString footer();
-	QString helppage();
+	
+	QString helpPage();
+	QString settingsForm();
 	
 	typedef enum { 	QUERY, 
 			REDIRECT_QUERY, 
@@ -60,8 +62,14 @@ protected:
 			RESET, 
 			HELP } ActionType;
 
+	CSword m_sword;
 	ActionType m_action;
 	QString m_path;
+		
+	struct {
+		QString query;
+		QString module;
+	} m_previous;
 	
 	struct {
 		QString query;
@@ -75,7 +83,7 @@ protected:
 	} m_search;
 	
 	CSwordOptions m_options;
-	CSword m_sword;
+	
 	bool debug1;
 	bool debug2;
     

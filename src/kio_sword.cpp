@@ -97,11 +97,13 @@ static const QString page_start("<body><div class=\"sword_page\">\n"
 				
 static const QString page_start_simple("<body class='sword_simplepage'><div class='sword_simplepage'>");
 
-static const QString page_end(  "      </div>\n"
-				"      <hr>\n"
+static const QString page_links("      <hr>\n"
 				"      <div class=\"sword_links\">\n"
-				"        <a href=\"sword:/\">%6</a> | <a href=\"sword:/?search\">%7</a> | <a href=\"sword:/?settings\">%8</a> | <a href=\"sword:/?help\">%9</a>"
-				"      </div>\n"
+				"        <a href=\"sword:/\">%1</a> | <a href=\"sword:/?search\">%2</a> | <a href=\"sword:/?settings&previouspath=%5\">%3</a> | <a href=\"sword:/?help\">%4</a>"
+				"      </div>\n");
+
+static const QString page_end(  "      </div>\n"
+				"      %6"									// page links
 				"    </td>\n"
 				"    <td background=\"file:%1\" alt=\"\"></td>\n"				// border_r.png
 				"  </tr>\n"
@@ -124,14 +126,6 @@ static const QString page_end(  "      </div>\n"
 static const QString page_end_simple("</div></body>");
 				
 static const QString html_tail("</html>\n");
-
-static const QString settings_form(
-				"<form action='sword:/' method='GET'>\n"
-				"  <input type='checkbox' name='versenumbers' value='1' %1>%2<br>\n"
-				"  <input type='checkbox' name='linebreaks' value='1' %1>%2<br>\n"
-				"  <input type='submit' name='savesettings' value='1' caption='%3'>"
-				"      &nbsp;<input type='submit' name='path' value='%4' caption='%5'>  <br>\n"
-				"</form>\n");
 
 QString debugprint(const CSwordOptions &options, CSword &mysword);
 
@@ -191,10 +185,11 @@ void SwordProtocol::setHTML() {
 				.arg(imgdir + "footer_b.png")
 				.arg(imgdir + "footer_sword.png")
 				.arg(imgdir + "footer_br.png")
-				.arg(i18n("Module list"))
-				.arg(i18n("Search"))
-				.arg(i18n("Settings"))
-				.arg(i18n("Help"))
+				.arg(page_links
+					.arg(i18n("Module list"))
+					.arg(i18n("Search"))
+					.arg(i18n("Settings"))
+					.arg(i18n("Help")))
 				+ html_tail;
 	
 	html_start_output_simple = html_head.arg(cssdir + "kio_sword.css") + page_start_simple;
@@ -237,7 +232,9 @@ void SwordProtocol::get(const KURL & url)
 	m_path		  = QString::null;
 	m_redirect.module = QString::null;
 	m_redirect.query  = QString::null;
-
+	m_previous.module = QString::null;
+	m_previous.query  = QString::null;
+	
 	// Reset options
 	setInternalDefaults();
 		// setUserDefaults();  // read from a system/user config file
@@ -253,6 +250,8 @@ void SwordProtocol::get(const KURL & url)
 		query = m_path.section('/', 1, -1, QString::SectionSkipEmpty);
 	}
 	
+	data(header());
+	
 	// handle redirections first
 	if (m_action == REDIRECT_QUERY) {
 		if (!m_redirect.module.isEmpty())
@@ -266,8 +265,10 @@ void SwordProtocol::get(const KURL & url)
 			m_action = QUERY;
 		} else {
 			KURL newurl = url;
+			// Remove anything that will trigger a redirection
 			newurl.removeQueryItem("module");
 			newurl.removeQueryItem("query");
+			newurl.removeQueryItem("testsettings");
 			newurl.setPath('/' + modname + '/' + query);
 			redirection(newurl);
 			finished();
@@ -279,8 +280,7 @@ void SwordProtocol::get(const KURL & url)
 	// Send the data
 	
 	
-	data(header());
-	
+
 	// FIXME - fix the encoding according to user preferences ??
 	
 	switch (m_action) {
@@ -301,7 +301,8 @@ void SwordProtocol::get(const KURL & url)
 			break;
 			
 		case SETTINGS_FORM:
-			data(QCString("<p><span class='sword_fixme'>SETTINGS_FORM: unimplemented</span></p>"));
+			data(settingsForm().utf8());
+			//data(QCString("<p><span class='sword_fixme'>SETTINGS_FORM: unimplemented</span></p>"));
 			break;
 			
 		case SETTINGS_SAVE:
@@ -316,7 +317,7 @@ void SwordProtocol::get(const KURL & url)
 			break;
 			
 		case HELP:
-			data(helppage().utf8());
+			data(helpPage().utf8());
 			break;
 			
 		default:
@@ -346,7 +347,7 @@ QCString SwordProtocol::footer() {
 	if (m_options.simplePage)
 		return html_end_output_simple.utf8();
 	else
-		return html_end_output.utf8();
+		return html_end_output.arg(m_path).utf8();
 }
 
 QString debugprint(const CSwordOptions &options, CSword &mysword) {
@@ -392,6 +393,8 @@ void SwordProtocol::setInternalDefaults()
 	
 	m_redirect.query  = QString::null;
 	m_redirect.module = QString::null;
+	m_previous.query  = QString::null;
+	m_previous.module = QString::null;
 	
 	debug1 = false;
 	debug2 = false;
@@ -453,7 +456,10 @@ void SwordProtocol::parseURL(const KURL& url)
 			   !strcasecmp(key, "stylesheet")) {
 			if (!val.isEmpty())
 				m_options.styleSheet = val;
-				
+		
+		} else if (!strcasecmp(key, "previouspath")) {
+			m_previous.module = val.section('/', 0, 0, QString::SectionSkipEmpty);
+			m_previous.query = val.section('/', 1, -1, QString::SectionSkipEmpty);
 		
 		// Actions
 		} else if (!strcasecmp(key, "reset")) {
@@ -468,23 +474,93 @@ void SwordProtocol::parseURL(const KURL& url)
 			m_action = SETTINGS_FORM;
 		} else if (!strcasecmp(key, "savesettings")) {
 			m_action = SETTINGS_SAVE;
+		} else if (!strcasecmp(key, "testsettings")) {
+			m_action = REDIRECT_QUERY;
 			
 		// redirection
 		} else if (!strcasecmp(key, "query")) {
-			m_action = REDIRECT_QUERY;
 			m_redirect.query = val;
 		} else if (!strcasecmp(key, "module")) {
-			m_action = REDIRECT_QUERY;
 			m_redirect.module = val;
-		} else if (!strcasecmp(key, "path")) {
-			m_action = REDIRECT_QUERY;
-			m_redirect.module = val.section('/', 0, 0, QString::SectionSkipEmpty);
-			m_redirect.query = val.section('/', 1, -1, QString::SectionSkipEmpty);
 		}
 	}
+	if (m_action == QUERY &&
+		!(m_redirect.query.isEmpty() && m_redirect.module.isEmpty()))
+		m_action = REDIRECT_QUERY;
+}
+#undef BOOL_OPTION
+
+
+#define BOOLEAN_OPTION_ROW(description, name, shortname, value) \
+	output += boolean_option_row				\
+			.arg(i18n(description))			\
+			.arg(name)				\
+			.arg(name)				\
+			.arg(name)				\
+			.arg(value ? "checked" : "")		\
+			.arg(i18n("On"))			\
+			.arg(value ? "" : "checked")		\
+			.arg(i18n("Off"))			\
+			.arg(i18n("Boolean"))			\
+			.arg(shortname)
+			
+QString SwordProtocol::settingsForm() {
+	QString output;
+	static const QString settings_form_start(
+				"<form action='sword:/' method='GET'>"
+				"<table class='sword_settings' border=0 cellspacing=0>"
+				"  <tr><th>%1</th><th>%2</th><th>%3</th><th>%4</th></tr>"); // "Description", "Value", "Type", "URL parameter"
+
+	static const QString settings_form_end(
+				"</table>"
+				"<br><br><input type='hidden' name='module' value='%1'>"    // redirection path
+				"<input type='hidden' name='query' value='%2'>"	    // redirection path
+				"<input type='submit' name='testsettings' value='%3'>"	    // "Test settings"
+				"<input type='submit' name='savesettings' value='%4''> "    // "Save settings"
+				"</form>");
+	static const QString boolean_option_row(
+				"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</option></select></nobr></td><td>%7</td><td>%2, %8</td></tr>");
+				
+	static const QString general_option_row(
+				"<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>");
+
+	// Start output
+	output += i18n("<h1>Settings</h1>"
+			"<p>Select the settings using the form below.  Use the 'Save settings' button to "
+			" save these settings to your own configuiration file.  'Test settings' will return "
+			" you to the previous page with the options you have specified. <br>");
+	output += settings_form_start
+			.arg(i18n("Description"))
+			.arg(i18n("Value"))
+			.arg(i18n("Type"))
+			.arg(i18n("URL parameter"));
+			
+	BOOLEAN_OPTION_ROW("Display verse numbers for Bible modules", "versenumbers", "vn", m_options.verseNumbers);
+	BOOLEAN_OPTION_ROW("Insert line breaks between Bible verses", "linebreaks", "lb", m_options.verseLineBreaks);
+	BOOLEAN_OPTION_ROW("Display the whole book when a Bible book is selected, instead of an index of the chapters",	
+								"wholebook", "wb", m_options.wholeBook);
+	BOOLEAN_OPTION_ROW("Display an index for the selected dictionary if no entry is requested",	
+								"dictindex", "di", m_options.doDictIndex);
+	BOOLEAN_OPTION_ROW("Display a full index for books instead of just the first level",	
+								"fullindex", "fi", m_options.doFullTreeIndex);
+	BOOLEAN_OPTION_ROW("Make formatting options persistant.  This makes kio-sword remember any options specified in the command line for the length of a session (until the kio-sword process ends) or until it is overwritten.",	
+								"persist", "ps", m_options.persist);
+
+/*	output += general_option_row
+			.arg(i18n("Reset 'persistant' options (see option 'persist' above), and re-check for user customisations."))
+			.arg("<input type='submit' ")*/
+			
+	output += settings_form_end
+			.arg(m_previous.module)
+			.arg(m_previous.query)
+			.arg("Test settings")
+			.arg("Save settings");
+	return output;
 }
 
-QString SwordProtocol::helppage() {
+#undef BOOLEAN_OPTION_ROW
+
+QString SwordProtocol::helpPage() {
 	QString output;
 	KStandardDirs* dirs = KGlobal::dirs();
 	QString htmldir = dirs->findResourceDir("html", "kio_sword"); // FIXME - how does this work with different locales?
