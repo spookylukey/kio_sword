@@ -1,0 +1,18 @@
+Source: kio-sword
+Section: kde
+Priority: optional
+Maintainer: Luke Plant <L.Plant.98@cantab.net>
+Build-Depends: debhelper (>= 4.0.0), libsword-dev (>= 1.5.7-1), kdelibs4-dev (>= 4), kdelibs-bin, kdelibs-data, gettext
+Standards-Version: 3.6.0
+
+Package: kio-sword
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: sword-text, sword-dict, sword-comm
+Provides: sword-frontend
+Description: A lightweight easy-to-use Bible tool for KDE
+ Kio-Sword provides access to Bibles, commentaries 
+ and other texts in an easy to use and attractive 
+ interface -- the Konqueror web browser.  It does so
+ using the SWORD Bible project and implementing a KDE 
+ ioslave, providing the sword:/ protocol. 
