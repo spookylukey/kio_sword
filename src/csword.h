@@ -79,7 +79,8 @@ protected:
 	typedef enum { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES } ModuleType ;
 	enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
 	void setModuleFilter(sword::SWModule *module);
-//	QString hrefList(const QStringList &list, const QString &modname);
+
+	ModuleType getModuleType(sword::SWModule *module);
 	QString indexBible(sword::SWModule *module);
 	QString indexBook(sword::SWModule *module);
 	QString indexTree(sword::SWModule *module, bool fromTop, const int depth = -1);
