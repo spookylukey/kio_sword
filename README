@@ -1,1 +1,49 @@
+	Kio-Sword - a lightweight frontend for the 
+		Sword Bible project for KDE
 
+
+Copyright (C) 2004 Luke Plant <L.Plant.98@cantab.net>
+
+Installation
+============
+See file INSTALL.  In summary:
+	./configure
+	make
+	make install
+
+
+Using kio-sword
+===============
+Type 'sword:/' in a Konqueror window location bar, and 
+browse.  
+
+Requirements
+============
+o  KDE 3
+o  Sword 1.5.7
+o  for compiling from source, the header files for the above 
+   libraries are also needed.
+o  Sword modules installed (kio-sword isn't very useful 
+   without them)
+
+License
+=======
+GNU General Public License v2 or later. See file COPYING 
+for details.
+
+Feedback
+========
+Comments, feature requests, bug reports are all welcome - please 
+e-mail the author (e-mail above).  For bug reports,
+please include:
+ o  version of KDE
+ o  version of Sword
+ o  operating system
+ o  locale information (the output of 'locale' if
+    available, or the contents of LANG, LC_ALL etc)
+ o  the full error message if one was printed.
+
+Website
+=======
+Currently kio-sword.lukeplant.me.uk
+ 
