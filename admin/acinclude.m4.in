@@ -26,6 +26,11 @@ dnl
 dnl Single-module modifications are best placed in configure.in for kdelibs
 dnl and kdebase or configure.in.in if present.
 
+dnl Modified by Luke Plant
+dnl - modified the definition of kde_htmldir to make it work
+dnl   on Debian, as per a discussion on the kde-debian mailing list
+dnl   Not a great fix, but works for now.
+
 # KDE_PATH_X_DIRECT
 dnl Internal subroutine of AC_PATH_X.
 dnl Set ac_x_includes and/or ac_x_libraries.
@@ -417,6 +422,17 @@ AC_DEFUN([KDE_SET_DEFAULT_PATHS],
 if test "$1" = "default"; then
 
   if test -z "$kde_htmldir"; then
+    kde_htmldir='\${prefix}/share/doc/HTML'
+    if test -f /etc/debian_version; then
+      if dpkg -s kdelibs4 | grep Status | grep not-installed 2>&1 >/dev/null; then
+       kde_htmldir='\${prefix}/share/doc/HTML';
+      else
+       kde_htmldir='\${prefix}/share/doc/kde/HTML'
+      fi
+    else
+       kde_htmldir='\${prefix}/share/doc/HTML'
+    fi
+
     kde_htmldir='\${datadir}/doc/HTML'
   fi
   if test -z "$kde_appsdir"; then
