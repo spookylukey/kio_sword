@@ -29,36 +29,19 @@
 #include "csword.h"
 
 // KDE
-#include <kapplication.h>
 #include <kdebug.h>
-#include <kmessagebox.h>
-#include <kinstance.h>
 #include <kglobal.h>
 #include <kstandarddirs.h>
 #include <klocale.h>
 #include <kurl.h>
-#include <ksock.h>
 
 // Qt 
 #include <qcstring.h>
 #include <qmap.h>
 
-// FIXME don't need all these	
-#include <qsocket.h>
-#include <qdatetime.h>
-#include <qbitarray.h>
-
 // Standard C++ /C
 #include <list>
-
-// FIXME - do we need all these?
 #include <stdlib.h>
-#include <math.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
- 
 
 using namespace KIO;
 using std::list;
@@ -69,8 +52,10 @@ static QString html_start_output;
 static QString html_end_output;
 static QString html_start_output_simple;
 static QString html_end_output_simple;
+static QString search_form;
+static QString help_page;
 
-// static HTML 
+// static HTML fragments -------------------------------------------------------------------------------------------------------
 static const QString &html_head("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
 				"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
 				"<html><head>\n"
@@ -104,7 +89,7 @@ static const QString &page_links(
 				"        <a href=\"sword:/\">%1</a> | <a href=\"sword:/?search\">%2</a> | <a href=\"sword:/?settings&previouspath=%5\">%3</a> | <a href=\"sword:/?help\">%4</a>"
 				"      </div>\n");
 
-static const QString &page_end(  "      </div>\n"
+static const QString &page_end( "      </div>\n"
 				"      %6"									// page links
 				"    </td>\n"
 				"    <td background=\"file:%1\" alt=\"\"></td>\n"				// border_r.png
@@ -153,17 +138,13 @@ extern "C" {
 }
 
 
-
-// NB SwordProtocol::SwordProtocol() does not necessarily get called
-// before *each* call to the 'get' method - konqueror keeps the slave alive
-// so we have to be careful where initialisation gets done.
-
 SwordProtocol::SwordProtocol(const QCString & pool_socket,
 				     const QCString & app_socket)
   : SlaveBase("kio_sword", pool_socket, app_socket)
 {
 	kdDebug() << "SwordProtocol::SwordProtocol()" << endl;
-	// Just set the persist option:
+	// Just set the persist option to ensure
+	// proper initialisation gets done later.
 	m_options.persist = false;
 	m_config = KGlobal::config();
 	setHTML();
@@ -179,6 +160,7 @@ void SwordProtocol::get(const KURL & url)
 {
 	QString modname;
 	QString query;
+	QString error;
 	kdDebug() << "SwordProtocol::get(const KURL& url)" << endl;
 	
 	/*    kdDebug() << "Seconds: " << url.query() << endl;
@@ -197,19 +179,14 @@ void SwordProtocol::get(const KURL & url)
 	// Get options/actions from URL
 	parseURL(url);
 	
-	// Set the CSword options from ours
-	m_sword.setOptions(m_options);
-
 	if (!m_path.isEmpty() && m_path != "/") {
 		modname = m_path.section('/', 0, 0, QString::SectionSkipEmpty);
 		query = m_path.section('/', 1, -1, QString::SectionSkipEmpty);
 	}
 	
-	data(header());
 	
 	// handle redirections first
 	if (m_action == REDIRECT_QUERY) {
-		QString error;
 		if (!m_redirect.module.isEmpty())
 			modname = m_redirect.module;
 		if (!m_redirect.query.isEmpty())
@@ -241,13 +218,12 @@ void SwordProtocol::get(const KURL & url)
 					error = i18n("No module specified.");
 			}
 		}
-						
+		
 		if (modname.isEmpty()) {
-			// invalid syntax
-			data(QCString("<p class='sword_usererror'>") + error.utf8() + QCString("</p><hr>"));
+			error = "<p class='sword_usererror'>" + error + "</p><hr>";
 			m_action = QUERY; // revert back to displaying list of modules
 		} else {
-			KURL newurl = url;
+			KURL newurl(url);
 			// Remove anything that will trigger a redirection
 			newurl.removeQueryItem("module");
 			newurl.removeQueryItem("query");
@@ -260,33 +236,40 @@ void SwordProtocol::get(const KURL & url)
 		}
 	}
 	
+	// need to do 'reset' before header(), as it affects formatting
+	// options
+	if (m_action == RESET) {
+		m_options.persist = false;
+		m_config->sync();
+		readUserConfig();
+		setHTML();
+	}
+
 	
 	// Send the data
-	
-	
-
-	// FIXME - fix the encoding according to user preferences ??
+	data(header());
 	
 	switch (m_action) {
 		case QUERY:
 			if (!modname.isEmpty()) {
 				data(m_sword.moduleQuery(modname, query, m_options).utf8());
-			} else {		
+			} else {
+				if (!error.isEmpty()) 
+					data(error.utf8());
 				data(m_sword.listModules(m_options).utf8());
 			}
 			break;
 		
 		case SEARCH_FORM:
-			data(QCString("<p><span class='sword_fixme'>SEARCH: unimplemented</span></p>"));
+			data(searchForm().utf8());
 			break;
 					
 		case SEARCH_QUERY:
-			data(QCString("<p><span class='sword_fixme'>SEARCH_QUERY: unimplemented</span></p>"));
+			data(m_sword.search(m_redirect.module, m_redirect.query, m_stype, m_options).utf8());
 			break;
 			
 		case SETTINGS_FORM:
 			data(settingsForm().utf8());
-			//data(QCString("<p><span class='sword_fixme'>SETTINGS_FORM: unimplemented</span></p>"));
 			break;
 			
 		case SETTINGS_SAVE:
@@ -294,10 +277,6 @@ void SwordProtocol::get(const KURL & url)
 			break;
 			
 		case RESET:
-			m_options.persist = false;
-			m_config->sync();
-			readUserConfig();
-			setHTML();
 			data(i18n("<p>Formatting options reset to user defaults.</p>").utf8());
 			break;
 			
@@ -308,7 +287,7 @@ void SwordProtocol::get(const KURL & url)
 		default:
 			break;
 	}
-		
+	
 	if (debug1) data(debugprint(m_options, m_sword).utf8());
 	data(footer());
 	data(QByteArray());     // empty array means we're done sending the data
@@ -321,6 +300,8 @@ void SwordProtocol::setHTML() {
 	// Reduce number of file access ops by only looking up two things:
 	//   - where is the style sheet
 	//   - where are the images
+	// This allows the user to make their own copy of the kio_sword.css
+	// without having to copy all the image files as well.
 	QString imgdir = dirs->findResourceDir("data", "kio_sword/header_tl.png") + "kio_sword/";
 	QString cssdir = dirs->findResourceDir("data", "kio_sword/kio_sword.css") + "kio_sword/";
 	html_start_output = html_head.arg(cssdir + "kio_sword.css")
@@ -547,11 +528,26 @@ void SwordProtocol::parseURL(const KURL& url)
 				m_action = REDIRECT_QUERY;
 			}
 		}
+		// search
+		else if (!strcasecmp(key, "stype")) {
+			if (!strcasecmp(val, "words")) {
+				m_stype = CSword::SEARCH_WORDS;
+			} else if (!strcasecmp(val, "phrase")) {
+				m_stype = CSword::SEARCH_PHRASE;
+			} else if (!strcasecmp(val, "regex")) {
+				m_stype = CSword::SEARCH_REGEX;
+			} else {
+				m_stype = CSword::SEARCH_WORDS;
+			}
+		}
+		// Search type
+		else ENUM_OPTION(m_action, "reset",        RESET)
+		
 		// Actions
 		else ENUM_OPTION(m_action, "reset",        RESET)
 		else ENUM_OPTION(m_action, "help",         HELP)
 		else ENUM_OPTION(m_action, "search",       SEARCH_FORM)
-		else ENUM_OPTION(m_action, "searchmod",    SEARCH_QUERY)
+		else ENUM_OPTION(m_action, "searchq",      SEARCH_QUERY)
 		else ENUM_OPTION(m_action, "settings",     SETTINGS_FORM)
 		else ENUM_OPTION(m_action, "savesettings", SETTINGS_SAVE)
 		else ENUM_OPTION(m_action, "testsettings", REDIRECT_QUERY)
@@ -577,8 +573,8 @@ void SwordProtocol::parseURL(const KURL& url)
 	}
 	
 	// Once all the URL is parsed:	
-	if (m_action == QUERY &&
-		!m_redirect.query.isEmpty() || !m_redirect.module.isEmpty())
+	if ((m_action == QUERY) && (
+		!m_redirect.query.isEmpty() || !m_redirect.module.isEmpty()))
 		m_action = REDIRECT_QUERY;
 }
 #undef BOOL_OPTION
@@ -588,7 +584,7 @@ void SwordProtocol::parseURL(const KURL& url)
 
 QString settingsBooleanOptionRow(const QString &description, const char *name, const char *shortname, bool value) {
 	static const QString boolean_option_row(
-				"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</option></select></nobr></td><td>%7</td><td>%2, %8</td></tr>");
+				"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</nobr></td><td>%7</td><td>%2, %8</td></tr>");
 	QString output = boolean_option_row
 			.arg(description)
 			.arg(shortname)
@@ -719,9 +715,8 @@ QString SwordProtocol::settingsForm() {
 	
 	output += i18n("<hr><p>To further customise the appearance of the kio-sword page, you can make your own modified "
 			"version of the style sheet. "
-			"Simply copy the file '%1kio_sword/kio_sword.css' to $HOME/.kde/share/apps/kio_sword/ and modify it as desired. You may want "
-			" to use the 'simplepage' option above to make the most of this.</p>")
-				.arg(KGlobal::dirs()->findResourceDir("data", "kio_sword/kio_sword.css")); // FIXME - use PREFIX
+			"Simply copy the file '%1kio_sword/kio_sword.css' to $HOME/.kde/share/apps/kio_sword/ and modify it as desired. You may want to use the 'simplepage' option above to make the most of this.</p>")
+				.arg(KGlobal::dirs()->findResourceDir("data", "kio_sword/kio_sword.css")); // FIXME - this must always return the system dir, not users dir.
 			
 	output += QString("<hr><form action='sword:/' method='get'>"
 			  "<table><tr><td><input type='submit' name='reset' value='%1'></td><td>%2</td></tr>"
@@ -729,45 +724,88 @@ QString SwordProtocol::settingsForm() {
 			.arg(i18n("Reset"))
 			.arg(i18n("Use this button to reset any 'persistant' options (see option 'persist' above), and re-check for user customisations."));
 
-	
 	return output;
 }
 
 QString SwordProtocol::helpPage() {
-	QString output;
-	KStandardDirs* dirs = KGlobal::dirs();
-	QString htmldoc = dirs->findResourceDir("html", "kio_sword/index.html"); // FIXME - how does this work with different locales?
-	
-	output += i18n("<h1>Help</h1>");
-	
-	if (htmldoc.isEmpty())
-		output += i18n("<p>(Full documentation cannot be found)</p>");
-	else
-		output += i18n("<p>For full documentation, please see your <a href='file:%1'>online documentation</a>.</p>")
-				.arg(htmldoc);
-	
-	// Breif help
-	output += i18n(
-	"<p>Kio-Sword allows you to view installed SWORD modules (such as Bibles and commentaries) from Konqueror.\n"
-	"  These modules must already be installed - you can download them from <a href='http://www.crosswire.org/'>"
-	"crosswire.org</a> or you can use a program such as <a href='http:/www.bibletime.info'>BibleTime</a> to help"
-	" install them."
-	"<h3>Quick help</h3>\n"
-	"<ul>\n"
-	"  <li>To start, simply type <b><a href='sword:/'>sword:/</a></b> in the location bar, and follow the links like any normal web page<br /><br />\n"
-	"  <li>You can type the exact reference in the Location bar, instead of browsing to it, e.g.<br />\n"
-	"      <b>sword:/KJV/Hebrews 1:3-5</b> will look up Hebrews chapter 1 verses 3 to 5 in the King James Bible.<br /><br />\n"
-	"  <li>You can specify various formatting options in the URL - see <a href='sword:/?settings'>Settings</a> for more info.<br /><br />\n"
-	"  <li>To use a default Bible, the easiest way is to add a web shortcut. For example, \n"
-	"       if you set<br/>"
-	"       Search URI: <b>sword:/KJV/\\{@}</b><br/>"
-	"       URI shortcut: <b>bible</b><br/>"
-	"       then <b>bible:Hebrews 1:3-5</b> will take\n"
-	"       you straight to Hebrews 1:3-5 in the King James Version<br /><br />\n"
-	"  <li>You can bookmark Kio-Sword pages just like any other web page.<br /><br />\n"
-	"</ul>\n"
-	"<p>Problems, comments, feature requests? Email the author: "
-	"<a href='mailto:L.Plant.98@cantab.net'>L.Plant.98@cantab.net</a>"
-	"<p>Website: <a href='http://kiosword.lukeplant.me.uk'>kiosword.lukeplant.me.uk</a>. (FIXME)");
-	return output;
+	if (help_page.isEmpty()) {
+		help_page += i18n("<h1>Help</h1>"
+		"<p>For full documentation, see <a href='help:/kio_sword'>installed help files</a>.</p>"
+		"<p>Kio-Sword allows you to view SWORD modules (such as Bibles and commentaries) from Konqueror.\n"
+		"  These modules must already be installed - you can download them from <a href='http://www.crosswire.org/'>"
+		"crosswire.org</a> or you can use a program such as <a href='http:/www.bibletime.info'>BibleTime</a> to help"
+		" install them."
+		"<h3>Quick help</h3>\n"
+		"<ul>\n"
+		"  <li>To start, simply type <b><a href='sword:/'>sword:/</a></b> in the location bar, and follow the links like any normal web page<br /><br />\n"
+		"  <li>You can type the exact reference in the Location bar, instead of browsing to it, e.g.<br />\n"
+		"      <b>sword:/KJV/Hebrews 1:3-5</b> will look up Hebrews chapter 1 verses 3 to 5 in the King James Bible.<br /><br />\n"
+		"  <li>You can specify various formatting options in the URL - see <a href='sword:/?settings'>Settings</a> for more info.<br /><br />\n"
+		"  <li>To use a default Bible, the easiest way is to add a web shortcut. For example, \n"
+		"       if you set<br/>"
+		"       Search URI: <b>sword:/KJV/\\{@}</b><br/>"
+		"       URI shortcut: <b>bible</b><br/>"
+		"       then <b>bible:Hebrews 1:3-5</b> will take\n"
+		"       you straight to Hebrews 1:3-5 in the King James Version<br /><br />\n"
+		"  <li>You can bookmark Kio-Sword pages just like any other web page.<br /><br />\n"
+		"</ul>\n"
+		"<p>Problems, comments, feature requests? Email the author. "
+		"<p>Author: <a href='mailto:L.Plant.98@cantab.net'>L.Plant.98@cantab.net</a>"
+		"<p>Website: <a href='http://kio-sword.lukeplant.me.uk'>kio-sword.lukeplant.me.uk</a>.");
+	}
+	return help_page;
+}
+
+QString SwordProtocol::searchForm() {
+	static const QString search_form_tmpl(
+		"<h1 class='sword_searchform'>%1</h1>"			// title
+		"<div class='sword_searchform'>"
+		"<form action='sword:/' method='GET'>"
+		"  <table class='sword_searchform'>"
+		"    <tr>"
+		"      <td><label for='query'>%2</label></td>"		// Search terms
+		"      <td><input type='text' name='query'></td>"
+		"    </tr>"
+		"    <tr>"
+		"      <td><label for='module'>%3</label></td>"		// Module
+		"      <td><select name='module'>"
+		"         %4</select></td>"					// (list of modules)
+		"    </tr>"
+		"    <tr>"
+		"      <td valign='top'><label for='stype'>%5</label></td>"		// Search type
+		"      <td><input type='radio' name='stype' value='words' checked>%6<br>"  // words
+		"        <input type='radio' name='stype' value='phrase'>%7<br>"    // phrase
+		"        <input type='radio' name='stype' value='regex'>%8"        // regex
+		"      </td>"
+		"    </tr>"
+		"    <tr>"
+		"      <td colspan='2' align='center'><input type='submit' name='searchq' value='%9'></td>" // Search
+		"    </tr>"
+		"  </table>"
+		"</form>"
+		"</div>");
+		
+	if (search_form.isEmpty()) {
+		QStringList modules = m_sword.moduleList();
+		QString temp;
+		QStringList::Iterator it;
+		
+		temp = "<option value=''></option>";
+		for (it = modules.begin(); it != modules.end(); ++it ) {
+			temp += QString("<option value='%1'>%2</option>")
+					.arg(*it)
+					.arg(*it);
+		}
+		search_form = search_form_tmpl
+				.arg(i18n("Search"))
+				.arg(i18n("Search terms"))
+				.arg(i18n("Module"))
+				.arg(temp)
+				.arg(i18n("Search type"))
+				.arg(i18n("Words"))
+				.arg(i18n("Phrase"))
+				.arg(i18n("Regular expression"))
+				.arg(i18n("Search"));
+	}
+	return search_form;
 }

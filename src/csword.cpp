@@ -31,27 +31,20 @@
 
 // Sword
 #include <swmgr.h>
-#include <swfilter.h>
+//#include <swfilter.h>
 #include <swkey.h>
 #include <versekey.h>
 #include <treekey.h>
 #include <treekeyidx.h>
 
 // FIXME - remove
-#include <thmlhtml.h>
+#include <thmlhtmlhref.h>
 #include <plainhtml.h>
 #include <rtfhtml.h>
 #include <encfiltmgr.h>
-#include <osishtmlhref.h>
-//#include <swbuf.h>
 
-// FIXME dont need all these:
 
-#include <swdisp.h>
-#include <swfiltermgr.h>
-#include <rawgbf.h>
-#include <filemgr.h>
-#include <utilstr.h>
+//#include <utilstr.h>
 
 
 // KDE
@@ -242,7 +235,7 @@ void CSword::setModuleFilter(SWModule *module) {
 			
 		case FMT_THML :
 			if (!m_thmlfilter)
-				m_thmlfilter = new ThMLHTML();
+				m_thmlfilter = new ThMLHTMLHREF();
 			filter = m_thmlfilter;
 			break;
 			
@@ -297,6 +290,8 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	vector<const char *>::size_type i;
 	ModuleType modtype;	
 	
+	setOptions(options);
+
 	// Find the module	
 	module = getModule(modname.latin1());
 	
@@ -348,6 +343,64 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 			 "<div class='sword_navbottom'>" + nav + "</div>";
 	}
 
+	return output;
+}
+
+QString CSword::search(const QString &modname, const QString &query, const SearchType searchType, const CSwordOptions &options) {
+	SWModule *module = 0;
+	QString output;
+	ListKey lk;
+	int stype = SEARCH_WORDS;
+	QString stypename;
+	
+	// Find the module
+	module = getModule(modname.latin1());
+	
+	if (module == 0) { 
+		output += "<p><span class='sword_error'>" 
+			  + i18n("The module '%1' could not be found.").arg(modname) 
+			  + "</span></p>";
+		output += listModules(options);
+		return output;
+	}
+	if (searchType == SEARCH_WORDS) {
+		stype = -2;
+		stypename = i18n("Word");
+	} else if (searchType == SEARCH_PHRASE) {
+		stype = -1;
+		stypename = i18n("Phrase");
+	} else if (searchType == SEARCH_REGEX) {
+		stype = 0;
+		stypename = i18n("Regular expression");
+	}
+	
+	output += "<h1 class='sword_searchresult'>" + i18n("Search results:") + "</h1>";
+	output += QString("<table><tr><td>%1</td><td><b>%2</b></td></tr><tr><td>%3</td><td><b>%4</b></td></tr><tr><td>%5</td><td><b>%6</b></td></tr></table>")
+			.arg(i18n("Module:"))
+			.arg(modname)
+			.arg(i18n("Query:"))
+			.arg(query)
+			.arg(i18n("Search type:"))
+			.arg(stypename);
+			
+	
+	lk = module->search(module->isUnicode() ? (const char *)(query.utf8()) : query.latin1(),
+				stype);
+	if (lk.Count() == 0) {
+		output += "<p>" +i18n("No matches returned.");
+	} else {
+		output += "<p>" + i18n("1 match returned:", "%1 matches returned:", lk.Count()).arg(lk.Count());
+		output += "<ul>";
+		for (int i = 0; i < lk.Count(); ++i) {
+			QString ref;
+			ref = module->isUnicode() ? QString::fromUtf8(lk.getElement(i)->getText())
+						: QString::fromLatin1(lk.getElement(i)->getText());
+			output += QString("<li><a href='%2'>%1</a></li>")
+					.arg(ref)
+					.arg(swordUrl(modname, ref));
+		}
+		output += "</ul>";
+	}
 	return output;
 }
 
@@ -512,7 +565,6 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 		}
 	}
 	return output;
-
 }
 
 QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOptions &options, 

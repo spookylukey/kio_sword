@@ -52,6 +52,7 @@ protected:
 	QCString footer();
 	
 	QString helpPage();
+	QString searchForm();
 	QString settingsForm();
 	
 	typedef enum { 	QUERY, 
@@ -70,11 +71,12 @@ protected:
 			GREEKMORPH,
 			HEBREWMORPH } DefModuleType;
 
-	CSword m_sword;
-	CSwordOptions m_options;
-	ActionType m_action;
-	DefModuleType m_moduletype;	
-	QString m_path;
+	CSword 		m_sword;
+	CSwordOptions 	m_options;
+	ActionType 	m_action;
+	DefModuleType 	m_moduletype;	
+	QString 	m_path;
+	CSword::SearchType 	m_stype;
 		
 	struct {
 		QString query;

@@ -54,19 +54,26 @@ public:
 	CSword();
 	virtual ~CSword();
  
+	typedef enum {  SEARCH_WORDS,
+			SEARCH_PHRASE,
+			SEARCH_REGEX } SearchType;
+			
 	/** Return an HTML snippet of specified key from module
 	 *
 	 * @param module The sword module to print from
 	 * @param key    The text description of the key from the users URL
 	 * @return	 An HTML snippet containing the specified key, an error message or an index (if the key is empty)
 	 */
-	QString moduleQuery(const QString &module, const QString &key, const CSwordOptions &options);
+	QString moduleQuery(const QString &module, const QString &ref, const CSwordOptions &options);
+	
+	QString search(const QString &module, const QString &query, SearchType stype, const CSwordOptions &options);
 	
 	/** Return an HTML snippet containing a hyperlinked table of modules
 	 */
 	QString listModules(const CSwordOptions &options);
 	void setOptions(const CSwordOptions &options);
 	QStringList moduleList();
+	
 	
 protected:
 	typedef enum { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES } ModuleType ;
@@ -86,6 +93,7 @@ protected:
 			   ModuleType modtype, QString &navlinks);
 	
 	QString chapterList(const QString &modname, const sword::VerseKey *vk);
+	
 	QString chapterLink(const QString &modname, const sword::VerseKey *vk);
 	QString chapterLink(const QString &modname, const sword::SWKey *sk);
 	
