@@ -55,3 +55,10 @@ QString swordUrl(const QString &module, const QString &ref) {
 	else
 		return swordUrl(module + "/" + ref);
 }
+
+QString shorten(const QString &ref, int len) {
+	QString output = ref.stripWhiteSpace();
+	if (output.length() > len)
+		output = output.left(len-2) + "...";
+	return output;
+}

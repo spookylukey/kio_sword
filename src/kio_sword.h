@@ -63,17 +63,17 @@ protected:
 			RESET, 
 			HELP } ActionType;
 			
-	typedef enum {  MODULETYPE_NONE,
-			BIBLE,
+	typedef enum {  DEFMODULETYPE_NONE,
+			DEFBIBLE,
 			GREEKSTRONGS,
 			HEBREWSTRONGS,
 			GREEKMORPH,
-			HEBREWMORPH } ModuleType;
+			HEBREWMORPH } DefModuleType;
 
 	CSword m_sword;
 	CSwordOptions m_options;
 	ActionType m_action;
-	ModuleType m_moduletype;	
+	DefModuleType m_moduletype;	
 	QString m_path;
 		
 	struct {

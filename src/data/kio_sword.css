@@ -8,6 +8,14 @@ body.sword_simplepage { background-color: #ffffff;
 
 h1, h2, h3 { color: #404040; }
 
+hr { text-align: center }
+a { color: #4000ff;
+    font-weight: bold; }
+
+a:link, a:visited { text-decoration: none }
+a:hover { text-decoration: underline }
+
+
 div.sword_text 	    { margin-bottom: 10px }
 td.sword_text	    { background-color: #ffffff; }
 .sword_jesusquote   { color: red ;}
@@ -15,7 +23,9 @@ td.sword_text	    { background-color: #ffffff; }
 		      font-size: 0.7em ; }
 
 .sword_biblename { text-align: right ;
-		   color: #202020 ;}
+		   color: #202020 ;
+		   font-style: italic; 
+		   font-size: small;}
 
 /*
  
@@ -38,8 +48,46 @@ h1.sword_moduletitle, h2.sword_moduletitle, h1.sword_bibleref, h2.sword_biblref
 h1.sword_moduleslist { text-align: center; }
 
 .sword_links { font-size: small;
-	       text-align: center 
+	       text-align: center;
 	     }
-hr { text-align: center }
-a { color: #4000ff;
-    font-weight: bold; }
+div.sword_links { margin-top:10px;
+		  padding-top: 10px;
+		  border-top: solid black 1px;
+		}
+
+ table.sword_settings {  border-top: 1px solid black; 
+                         border-left: 1px solid black; 
+                        }
+table.sword_settings td,
+table.sword_settings th {  border-right: 1px solid black; 
+                           border-bottom: 1px solid black; 
+                          margin: 0px;}
+
+
+table.sword_settings th { padding: 3pt 5pt 3pt 5pt ;
+                          vertical-align: middle;
+                          text-align: center;
+                          background-color: #c0c0c0;
+                          }
+
+table.sword_settings td { padding: 2pt 5pt 2pt 5pt;
+                          vertical-align: top;
+                          text-align: left;
+                          }
+
+table.sword_settings  td.sword_settings_category { 
+                                                   text-align: center; 
+                                                   vertical-align: middle; 
+                                                   font-weight: bold ;
+                                                   background-color: #e0e0e0;
+}
+
+div.sword_navbottom { border-top: solid #808080 1px;
+		      font-size: 0.9em; 
+		      text-align: right;
+		      margin-top: 1em;
+		    }
+div.sword_navtop { border-bottom: solid #808080 1px;
+			font-size: 0.9em; 
+			text-align: right;
+		  }

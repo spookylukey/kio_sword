@@ -99,7 +99,7 @@ static const QString &page_start("<body><div class=\"sword_page\">\n"
 				
 static const QString &page_start_simple("<body class='sword_simplepage'><div class='sword_simplepage'>");
 
-static const QString &page_links("      <hr>\n"
+static const QString &page_links(
 				"      <div class=\"sword_links\">\n"
 				"        <a href=\"sword:/\">%1</a> | <a href=\"sword:/?search\">%2</a> | <a href=\"sword:/?settings&previouspath=%5\">%3</a> | <a href=\"sword:/?help\">%4</a>"
 				"      </div>\n");
@@ -217,7 +217,7 @@ void SwordProtocol::get(const KURL & url)
 
 		if (modname.isEmpty()) {
 			switch (m_moduletype) {
-				case BIBLE:
+				case DEFBIBLE:
 					modname = m_options.defaultBible;
 					error = i18n("No default bible has been specified.");
 					break;
@@ -237,7 +237,7 @@ void SwordProtocol::get(const KURL & url)
 					modname = m_options.defaultHebrewMorph;
 					error = i18n("No default Hebrew morphological module has been specified.");
 					break;
-				case MODULETYPE_NONE:
+				case DEFMODULETYPE_NONE:
 					error = i18n("No module specified.");
 			}
 		}
@@ -491,7 +491,7 @@ void SwordProtocol::parseURL(const KURL& url)
 	m_redirect.query  = QString::null;
 	m_previous.module = QString::null;
 	m_previous.query  = QString::null;
-	m_moduletype 	  = MODULETYPE_NONE;
+	m_moduletype 	  = DEFMODULETYPE_NONE;
 
 	if (url.hasPath()) 
 		m_path = url.path();
@@ -531,7 +531,7 @@ void SwordProtocol::parseURL(const KURL& url)
 		else STRING_OPTION1(m_redirect.module,		"module")
 		else if (!strcasecmp(key, "modtype")) {
 			if (!strcasecmp(val, "bible")) {
-				m_moduletype = BIBLE;
+				m_moduletype = DEFBIBLE;
 				m_action = REDIRECT_QUERY;
 			} else if (!strcasecmp(val, "greekstrongs")) {
 				m_moduletype = GREEKSTRONGS;
@@ -736,15 +736,15 @@ QString SwordProtocol::settingsForm() {
 QString SwordProtocol::helpPage() {
 	QString output;
 	KStandardDirs* dirs = KGlobal::dirs();
-	QString htmldir = dirs->findResourceDir("html", "en/kio_sword"); // FIXME - how does this work with different locales?
+	QString htmldoc = dirs->findResourceDir("html", "kio_sword/index.html"); // FIXME - how does this work with different locales?
 	
 	output += i18n("<h1>Help</h1>");
 	
-	if (htmldir.isEmpty())
+	if (htmldoc.isEmpty())
 		output += i18n("<p>(Full documentation cannot be found)</p>");
 	else
-		output += i18n("<p>For full documentation, please see your <a href='file:%1/index.html'>online documentation</a>.</p>")
-				.arg(htmldir);
+		output += i18n("<p>For full documentation, please see your <a href='file:%1'>online documentation</a>.</p>")
+				.arg(htmldoc);
 	
 	// Breif help
 	output += i18n(

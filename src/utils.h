@@ -28,5 +28,7 @@
  
 QString swordUrl(const QString &path);
 QString swordUrl(const QString &module, const QString &ref);
+QString shorten(const QString &ref, int len);
+
 
 #endif
