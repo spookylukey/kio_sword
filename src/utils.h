@@ -1,9 +1,7 @@
 /***************************************************************************
-    File:         ks_osishtml.h
+    File:         utils.h
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
-                  and CrossWire Bible Society 2003
-                  (file based on osishtmlhref.h)
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,34 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _ks_OSISHTMLHREF_H
-#define _ks_OSISHTMLHREF_H
+#ifndef _utils_H_
+#define _utils_H_
 
-#include <swbasicfilter.h>
-
-using namespace sword;
-
-/** this filter converts OSIS text to HTML text with hrefs
- */
-class SWDLLEXPORT ks_OSISHTML : public SWBasicFilter {
-private:
-protected:
-	class MyUserData : public BasicFilterUserData {
-	public:
-		bool osisQToTick;
-		bool inBold;
-		SWBuf lastTransChange;
-		SWBuf w;
-		SWBuf fn;
-		MyUserData(const SWModule *module, const SWKey *key);
-	};
-	virtual BasicFilterUserData *createUserData(const SWModule *module, const SWKey *key) {
-		return new MyUserData(module, key);
-	}
-	virtual bool handleToken(SWBuf &buf, const char *token, BasicFilterUserData *userData);
-public:
-	ks_OSISHTML();
-};
-
+#include <qstring.h>
+ 
+QString swordUrl(const QString &path);
+QString swordUrl(const QString &module, const QString &ref);
 
 #endif

@@ -76,8 +76,11 @@ public:
 	
 protected:
 	void setModuleFilter(sword::SWModule *module);
-	QStringList indexBible(sword::SWModule *module);
-	QStringList indexBook(sword::SWModule *module);
+//	QString hrefList(const QStringList &list, const QString &modname);
+	QString indexBible(sword::SWModule *module);
+	QString indexBook(sword::SWModule *module);
+	QString indexTree(sword::SWModule *module, bool fromTop, const int depth = -1);
+	QString renderText(sword::SWModule *module);
 	
 	sword::SWFilter *m_osisfilter;
 	sword::SWFilter *m_gbffilter;
@@ -85,10 +88,11 @@ protected:
 	sword::SWFilter *m_plainfilter;
 	sword::SWFilter *m_rtffilter;
 	set<sword::SWModule *, less<sword::SWModule *> > m_modset;
-	vector<const char *> moduleTypes;
-	vector<QString> moduleTypeNames;
-	enum { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES } ModuleTypes;
-	
+	vector<const char *> m_moduleTypes;
+	vector<QString> m_moduleTypeNames;
+	enum ModuleTypes { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES };
+	enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
+
 };
 
 #endif

@@ -44,13 +44,22 @@ public:
 protected:
 	void parseURL(const KURL & url);
 	void setInternalDefaults();
+	void setHTML();
 	
 	//void readUserDefaults();
 	QCString header();
 	QCString footer();
 	QString helppage();
 	
-	typedef enum { QUERY, REDIRECT_QUERY, SEARCH, SETTINGS, SAVESETTINGS, RESET, HELP } ActionType;
+	typedef enum { 	QUERY, 
+			REDIRECT_QUERY, 
+			SEARCH_FORM, 
+			SEARCH_QUERY, 
+			SETTINGS_FORM, 
+			SETTINGS_SAVE, 
+			RESET, 
+			HELP } ActionType;
+
 	ActionType m_action;
 	QString m_path;
 	
@@ -58,6 +67,12 @@ protected:
 		QString query;
 		QString module;
 	} m_redirect;
+	
+	struct {
+		QString module;
+		QString range;
+		QString type; // ??more here?
+	} m_search;
 	
 	CSwordOptions m_options;
 	CSword m_sword;

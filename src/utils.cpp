@@ -1,9 +1,8 @@
 /***************************************************************************
-    File:         ks_osishtml.h
+    File:         utils.cpp
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
-                  and CrossWire Bible Society 2003
-                  (file based on osishtmlhref.h)
+    Description:  Misc utility functions that don't belong anywhere else
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,34 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _ks_OSISHTMLHREF_H
-#define _ks_OSISHTMLHREF_H
+#include <qstring.h>
+#include <kurl.h>
 
-#include <swbasicfilter.h>
+/** return a valid sword URL to be used in anchors
+  *
+  * Many key names have spaces in them, and even trailing spaces
+  * which are stripped by Konqueror.  We must encode them to
+  * ensure we can access them.
+  *
+  * @param path path to be encode
+  */
+QString swordUrl(const QString &path) {
+	QString output;
+	KURL url;
+	url.setProtocol(QString("sword"));
+	if (path.at(0) != '/')
+		url.addPath("/");
+	url.addPath(path);
+	return url.url();
+}
 
-using namespace sword;
-
-/** this filter converts OSIS text to HTML text with hrefs
- */
-class SWDLLEXPORT ks_OSISHTML : public SWBasicFilter {
-private:
-protected:
-	class MyUserData : public BasicFilterUserData {
-	public:
-		bool osisQToTick;
-		bool inBold;
-		SWBuf lastTransChange;
-		SWBuf w;
-		SWBuf fn;
-		MyUserData(const SWModule *module, const SWKey *key);
-	};
-	virtual BasicFilterUserData *createUserData(const SWModule *module, const SWKey *key) {
-		return new MyUserData(module, key);
-	}
-	virtual bool handleToken(SWBuf &buf, const char *token, BasicFilterUserData *userData);
-public:
-	ks_OSISHTML();
-};
-
-
-#endif
+/** return a valid sword URL to be used in anchors
+  *
+  * @param module name of module
+  * @param reference within module
+  */
+QString swordUrl(const QString &module, const QString &ref) {
+	if (ref.at(0) == '/')
+		return swordUrl(module + ref);
+	else
+		return swordUrl(module + "/" + ref);
+}

@@ -44,10 +44,12 @@ struct CSwordOptions {
 	bool redWords;
 	int variants;
 	
-	bool doBibleIndex;	// FIXME IMPLEMENT - Create an index for for Bibles/Commentaries
-	bool doDictIndex;	// FIXME IMPLEMENT - Create an index for all items in a Lexicon/Dictionary
-	bool doOtherIndex;	// FIXME IMPLEMENT - Create an index for other books
+	bool doBibleIndex;	// Create an index for for Bibles/Commentaries
+	bool doFullTreeIndex;	// Create a full index for 'tree' books, not just first level
+	bool doDictIndex;	// Create an index for all items in a Lexicon/Dictionary
+	bool doOtherIndex;	// Create an index for other books
 	
+	bool simplePage;
 	// To add:
 
 

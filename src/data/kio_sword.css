@@ -1,8 +1,15 @@
 body { background-color: #e0e0e0;
-       margin: 20px }
+       margin: 20px; }
+
+
+body.sword_simplepage { background-color: #ffffff;
+		       margin: 15px; }
+
+
+h1, h2, h3 { color: #404040; }
 
 div.sword_text 	    { margin-bottom: 10px }
-td.sword_text	    { background-color: #ffffff }
+td.sword_text	    { background-color: #ffffff; }
 .sword_jesusquote   { color: red ;}
 .sword_versenumber  { vertical-align: super ; 
 		      font-size: 0.7em ; }
@@ -34,3 +41,5 @@ h1.sword_moduleslist { text-align: center; }
 	       text-align: center 
 	     }
 hr { text-align: center }
+a { color: #4000ff;
+    font-weight: bold; }

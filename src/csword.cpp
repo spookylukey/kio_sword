@@ -60,7 +60,7 @@
 #include "csword.h"
 #include "cswordoptions.h"
 #include "ks_osishtml.h"
-
+#include "utils.h"
 
 using std::string;
 using std::vector;
@@ -77,19 +77,19 @@ CSword::CSword() :
 	m_rtffilter(0)
 {
 	for (int i = 0; i < NUM_MODULE_TYPES; i++) {
-		moduleTypes.push_back("");
-		moduleTypeNames.push_back(QString(""));
+		m_moduleTypes.push_back("");
+		m_moduleTypeNames.push_back(QString(""));
 	}
 	
-	moduleTypes[BIBLE]      = "Biblical Texts";
-	moduleTypes[COMMENTARY] = "Commentaries";
-	moduleTypes[LEXDICT]    = "Lexicons / Dictionaries";
-	moduleTypes[GENERIC]    = "Generic Books";
+	m_moduleTypes[BIBLE]      = "Biblical Texts";
+	m_moduleTypes[COMMENTARY] = "Commentaries";
+	m_moduleTypes[LEXDICT]    = "Lexicons / Dictionaries";
+	m_moduleTypes[GENERIC]    = "Generic Books";
 	
-	moduleTypeNames[BIBLE]      = i18n("Bibles");
-	moduleTypeNames[COMMENTARY] = i18n("Commentaries");
-	moduleTypeNames[LEXDICT]    = i18n("Lexicons & Dictionaries");
-	moduleTypeNames[GENERIC]    = i18n("Other Books");
+	m_moduleTypeNames[BIBLE]      = i18n("Bibles");
+	m_moduleTypeNames[COMMENTARY] = i18n("Commentaries");
+	m_moduleTypeNames[LEXDICT]    = i18n("Lexicons & Dictionaries");
+	m_moduleTypeNames[GENERIC]    = i18n("Other Books");
 }
 
  
@@ -139,13 +139,13 @@ QString CSword::listModules(const CSwordOptions &options) {
 	output += QString("<div class='sword_moduleslist'><h1>%1</h1>")
 			.arg(i18n("Modules"));
 		  
-	for  (i = 0; i < moduleTypes.size(); i++) {
+	for  (i = 0; i < m_moduleTypes.size(); i++) {
 		output += QString("<h2 class='sword_moduletype'>%1</h2>\n"
 				  "<div class='sword_modulelist'>\n"
-				  "<ul>\n").arg(moduleTypeNames[i]);
+				  "<ul>\n").arg(m_moduleTypeNames[i]);
 		for (it = Modules.begin(); it != Modules.end(); it++) {
 			curMod = (*it).second;
-			if (!strcmp(curMod->Type(), moduleTypes[i])) {
+			if (!strcmp(curMod->Type(), m_moduleTypes[i])) {
 				output += QString("<li class='sword_module'><a class='sword_module' href=\"sword:/%1/\">%2</a> : %3\n")
 					.arg(curMod->Name())
 					.arg(curMod->Name())
@@ -159,7 +159,6 @@ QString CSword::listModules(const CSwordOptions &options) {
 	return output;
 }
 
-enum KeyType { SWKEY, VERSEKEY, TREEKEY, TREEKEYIDX };
 
 /** Add the relevant filter to a module
  *
@@ -258,17 +257,19 @@ void CSword::setModuleFilter(SWModule *module) {
 
 QString CSword::moduleQuery(const QString &modname, const QString &ref, const CSwordOptions &options) {
 	QString output;
-	QString outputtmp;
-	QString temp;
+	QString text;
+	QString nav;
+	
 	SWModule *module = 0;
 	SWKey *skey = 0;
 	KeyType keyt = SWKEY;
 	VerseKey *vk;
 	ListKey lk;
 	TreeKey *tk;
-	TreeKeyIdx *tkidx;
+	
 	bool doindex = false;
 	bool error = false;
+	
 	vector<const char *>::size_type i;
 	vector<const char *>::size_type modtype;	
 	
@@ -289,16 +290,11 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	skey = module->getKey();
 	
 	// Determine key type.
-	// Start with lowest levels
 	if (!(vk = dynamic_cast<VerseKey*>(skey))) {
-		if (!(tkidx = dynamic_cast<TreeKeyIdx*>(skey))) {
-			if (!(tk = dynamic_cast<TreeKey*>(skey))) {
-				keyt = SWKEY;
-			} else {
-				keyt = TREEKEY;
-			}
+		if (!(tk = dynamic_cast<TreeKey*>(skey))) {
+			keyt = SWKEY;
 		} else {
-			keyt = TREEKEYIDX;
+			keyt = TREEKEY;
 		}
 	} else {
 		keyt = VERSEKEY;
@@ -306,16 +302,15 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 		
 	// Determine module type
 	modtype = GENERIC; // default
-	for  (i = 0; i < moduleTypes.size(); i++) {
-		if (!strcmp(module->Type(), moduleTypes[i])) {
+	for  (i = 0; i < m_moduleTypes.size(); i++) {
+		if (!strcmp(module->Type(), m_moduleTypes[i])) {
 			modtype = i;
 			break;
 		}
 	}
 	
-	
-	
 	if (keyt == VERSEKEY) {  // Should be just bibles and commentaries
+		//--------------------  VERSE BASED -------------------------------//
 		error = false;
 		do { // dummy loop
 			if (ref.isEmpty()) {
@@ -324,7 +319,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 			}
 			lk = vk->ParseVerseList(ref, "Gen1:1", true);
 			if (lk.Count() == 0) {
-				outputtmp += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
+				text += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
 				doindex = true;
 				break;
 			}
@@ -335,81 +330,107 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 					do  {
 						if (options.verseNumbers && modtype == BIBLE) {
 							VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
-							outputtmp += QString("<a class=\"sword_versenumber\" href=\"sword:/%1/%2\">%3</a>")
+							text += QString("<a class=\"sword_versenumber\" href=\"sword:/%1/%2\">%3</a>")
 									.arg(module->Name())
 									.arg(module->KeyText())
 									.arg(curvk->Verse());
 						}
-						outputtmp += module->RenderText();
-						outputtmp += " ";
+						text += renderText(module);
+						text += " ";
 						if (options.verseLineBreaks) 
-							outputtmp += "<br />";
+							text += "<br />";
 							
 						module->increment(1);
 					} while (module->Key() <= element->UpperBound());
 				} else {
 					module->Key(*lk.GetElement(i));
-					outputtmp += module->RenderText() ;
+					text += renderText(module);
 				}
 				if (i+1 != lk.Count())
-					outputtmp += "<br />";
+					text += "<br />";
 			}
 		} while (false);
 		
-		if (doindex) { // an error message was printed
-			if (!outputtmp.isEmpty())
-				outputtmp = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
-					+ outputtmp;
+		// Title: depends on what got printed above
+		if (doindex) {
+			if (!text.isEmpty())  // an error message was printed
+				text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
+					+ text;
 		} else {
 			if (modtype == COMMENTARY) { 
-				outputtmp = QString("<h1 class=\"sword_moduletitle\">%1</h1><h2 class=\"sword_bibleref\">%2</h2>").arg(module->Description()).arg(ref) 
-					+ outputtmp;
+				text = QString("<h1 class=\"sword_moduletitle\">%1</h1><h2 class=\"sword_bibleref\">%2</h2>").arg(module->Description()).arg(ref) 
+					+ text;
 			} else if (modtype == BIBLE) {
 				// FIXME - use a nicely formatted version of 'ref', computed above
-				outputtmp = QString("<h2 class=\"sword_bibleref\">%1</h2>").arg(ref) 
-					+ outputtmp 
+				text = QString("<h2 class=\"sword_bibleref\">%1</h2>").arg(ref) 
+					+ text 
 					+ QString("<div class=\"sword_biblename\">(%1)</div>").arg(modname);
 			}
 		}
-		output += outputtmp;
+		output += text;
 		
 		if (doindex) {
-			if (!outputtmp.isEmpty())
+			if (!text.isEmpty())
 				output += "<hr>\n";
 			if (options.doBibleIndex) {
-				QStringList bklist = indexBible(module);
 				output += "<h2>" + i18n("Books:") + "</h2>";
-				output += "<ul>\n";
-				for (QStringList::Iterator strit = bklist.begin(); strit != bklist.end(); strit++) {
-					output += QString("<li><a href=\"sword:/%1/%2\">%3</a>\n")
-							.arg(modname)
-							.arg(*strit)
-							.arg(*strit);
-				}
-				output += "</ul>\n";
+				output += indexBible(module);
+				//index = indexBible(module);
+				//output += hrefList(index, modname);
 			} else {
 				output += QString("<p><a href=\"sword:/%1/?bi=1\">%2</a></p>")
 						.arg(modname)
 						.arg(i18n("Index of books"));
 			}
 		}
-	} else if (keyt == TREEKEY) {
-		output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
-		// FIXME
-		output += "<br><span class=\"sword_fixme\">TREEKEY - unimplemented</span><br>";
-	} else if (keyt == TREEKEYIDX) {
-		output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
-		// FIXME
-		output += "<br><span class=\"sword_fixme\">TREEKEYIDX - unimplemented</span><br>";
 		
-	} else if (keyt == SWKEY) {
-		//output += "<br><span class=\"sword_fixme\">SWKEY - unimplemented</span><br>";
+	} else if (keyt == TREEKEY) {
+		//--------------------  TREE BASED -------------------------------//
 		output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
 		
 		if (ref.isEmpty()) {
 			doindex = true;
 		} else {
-			skey = module->getKey();
+			tk->Error(); // clear
+			tk->setText(ref.utf8());  // FIXME - sync this to other usages of setText()
+			doindex = false;
+			if (tk->Error()) {
+				output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find section '%1'.")).arg(ref) + "</p>";
+				output += "<hr>";
+				doindex = true;
+			} else {
+				output += renderText(module);
+				if (tk->hasChildren()) {
+					if (tk->firstChild());
+					output += "<hr>";
+					output += indexTree(module, false, 1);
+				}
+			}
+		}
+		
+		if (doindex) {
+			output += "<h2>" + i18n("Contents:") + "</h2>";
+			if (options.doFullTreeIndex) {	
+				output += indexTree(module, true, -1);
+				output += QString("<p><a href=\"sword:/%1/?fi=0\">%2</a></p>")
+						.arg(modname)
+						.arg(i18n("View simple index"));
+			} else {
+				output += indexTree(module, true, 1);
+				output += QString("<p><a href=\"sword:/%1/?fi=1\">%2</a></p>")
+						.arg(modname)
+						.arg(i18n("View full index"));
+			}
+		}
+		
+	} else if (keyt == SWKEY) {
+		//-------------------- OTHER -------------------------------//
+		output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
+		
+		if (ref.isEmpty()) {
+			doindex = true;
+		} else {
+			skey->Error(); // clear
 			skey->setText(ref.latin1()); // FIXME - should this be .latin1() or local8bit() or utf8()?
 			doindex = false;
 			if (skey->Error()) {
@@ -417,14 +438,16 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 				output += "<hr>";
 				doindex = true;
 			} else {
-				output += module->RenderText();
+				output += renderText(module);
 			}
 		}
 		
 		if (doindex) {
+			// FIXME - condense this
 			if (modtype == LEXDICT) {
 				if (options.doDictIndex) {
-					output += "<br><span class=\"sword_fixme\">Index for Dictionaries- unimplemented</span><br>";
+					output += "<h2>" + i18n("Index:") + "</h2>";
+					output += indexBook(module);
 				} else {
 					output += QString("<form action='sword:/%1/' method='get'>"
 							  "%2 <input type='text' name='query'>"
@@ -438,9 +461,10 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 				}
 			} else if (modtype == GENERIC) {
 				if (options.doOtherIndex) {
-					output += "<br><span class=\"sword_fixme\">Index for other books - unimplemented</span><br>";
+					output += "<h2>" + i18n("Index:") + "</h2>";
+					output += indexBook(module);
 				} else {
-					output += QString("<p><a href=\"sword:/%1/?di=1\">%2</a></p>")
+					output += QString("<p><a href=\"sword:/%1/?oi=1\">%2</a></p>")
 							.arg(modname)
 							.arg(i18n("View complete index"));
 				}
@@ -458,10 +482,185 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	return output;
 }
 
+QString CSword::renderText(SWModule *module) {
+	return module->isUnicode() ?  QString::fromUtf8(module->RenderText()) 
+				   :  QString::fromLatin1(module->RenderText());
+}
+
+/** Retrieves an HTML list of all the books in the module
+  * 
+  * @param module The module to retrieve. Must be a Bible/commentary
+  */
+  
+QString CSword::indexBible(SWModule *module) {
+	QString output;
+	char book;
+	char testament;
+	VerseKey *vk = dynamic_cast<VerseKey*>(module->getKey());
+	
+	if (!vk)
+		return output;
+		
+	module->setPosition(sword::TOP);
+	module->setSkipConsecutiveLinks(true);
+
+	book = vk->Book();
+	testament = vk->Testament();
+	vk->AutoNormalize(1);
+	
+	output += "<ul>\n";
+	while (vk->Testament() == testament) {
+		while (vk->Book() == book && !module->Error()) {
+			output += QString("<li><a href=\"%2\">%1</a>\n")
+				.arg(vk->getBookName())
+				.arg(swordUrl(module->Name(), vk->getBookName()));
+			vk->Book(++book);
+		};
+		// Move to new testament, if not there already.
+		++testament;
+		module->setPosition(sword::BOTTOM);
+		book = 1;
+		vk->Book(book);
+	};
+	output += "</ul>\n";
+	module->setSkipConsecutiveLinks(false);
+	return output;
+}
+
+
+/** Retrieves an HTML list of all the keys in a module
+  * 
+  * @param module The module to retrieve. Must have key type SWKey
+  */
+
+QString CSword::indexBook(SWModule *module) {
+	QString output;
+	QString ref;
+	
+	module->setPosition(sword::TOP);
+	output += "<ul>\n";
+	do {
+		ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
+					  :  QString::fromLatin1(module->KeyText());
+		output += QString("<li><a href=\"%2\">%1</a>")
+				.arg(ref)
+				.arg(swordUrl(module->Name(), ref));
+		(*module)++;
+	} while(!module->Error()) ;
+	output += "</ul>\n";
+	return output;
+}
+
+
+
+/** Return the index of a tree-key based module
+  *
+  * @param module  The module to scan
+  * @param fromTop If true, get the index from the top level
+  * @param depth   How many levels to scan, -1 for all
+  */
+QString CSword::indexTree(SWModule *module, bool fromTop, const int depth) {
+	QString output;
+	QString ref;
+	bool changed;
+	
+	TreeKey *tk = dynamic_cast<TreeKey*>(module->getKey());
+	int mydepth = 1;
+	
+	if (!tk) 
+		return output;
+		
+	if (fromTop) {
+		//module->setPosition(sword::TOP);
+		tk->root();
+		tk->firstChild();
+	}
+	
+	output += "<ul>";
+	do {
+		changed = false;
+		ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
+					  :  QString::fromLatin1(module->KeyText());
+		output += QString("<li><a href=\"%2\">%1</a>\n")
+				.arg(ref.section('/', -1))
+				.arg(swordUrl(module->Name(), ref));
+
+		if (tk->hasChildren() && (mydepth < depth || depth == -1) ) {
+			if (tk->firstChild()) {
+				mydepth++;
+				output += "<ul>";
+				changed = true;
+			} else {
+				changed = false;
+			}
+		} else {
+			if (tk->nextSibling()) {
+				changed = true;
+			} else {
+				// try to go up a level
+				changed = false;
+				if (mydepth > 1) {
+					if (tk->parent()) {
+						mydepth--;
+						output += "</ul>";
+						changed = ((tk->nextSibling()) ? true : false);
+					} else {
+						changed = false;
+					}
+				}
+			}
+		}
+	} while (!module->Error() && changed);
+	
+	output += "</ul>";
+	return output;
+	
+}
+
+/*
+QString CSword::hrefList(const QStringList &list, const QString &modname) {
+	QString output;
+	output += "<ul>\n";
+	for (QStringList::ConstIterator it = list.begin(); it != list.end(); it++) {
+		output += QString("<li><a href=\"sword:/%1/%2\">%3</a>\n")
+				.arg(modname)
+				.arg(*it)
+				.arg(*it);
+	}
+	output += "</ul>\n";
+	return output;
+}
+
+*/
+
+
+/** Retrieves a QStringList of all the keys in a module
+  * 
+  * @param module The module to retrieve. Must have key type SWKey
+  */
+/*
+QStringList CSword::indexBook(SWModule *module) {
+	QStringList list;
+		
+	module->setPosition(sword::TOP);
+	
+	do {
+		if (module->isUnicode())
+			list.append(QString::fromUtf8(module->KeyText()));
+		else
+			list.append(QString::fromLatin1(module->KeyText()));
+			
+		(*module)++;
+	} while(!module->Error()) ;
+	return list;
+}
+*/
+
 /** Retrieves a QStringList of all the books in the module
   * 
   * @param module The module to retrieve. Must be a Bible/commentary
   */
+/*  
 QStringList CSword::indexBible(SWModule *module) {
 	QStringList list;
 	char book;
@@ -470,7 +669,8 @@ QStringList CSword::indexBible(SWModule *module) {
 	
 	if (!vk)
 		return list;
-	*module = sword::TOP;
+		
+	module->setPosition(sword::TOP);
 	book = vk->Book();
 	testament = vk->Testament();
 	vk->AutoNormalize(1);
@@ -485,32 +685,4 @@ QStringList CSword::indexBible(SWModule *module) {
 	};
 	return list;
 }
-
-/** Retrieves a QStringList of all the keys in a module
-  * 
-  * @param module The module to retrieve. Must have key type SWKey
-  */
-QStringList CSword::indexBook(SWModule *module) {
-	QStringList list;
-	char book;
-	char testament;
-	SWKey *sk = module->getKey();
-	
-	if (!sk)
-		return list;
-	*module = sword::TOP;
-	
-// 	book = vk->Book();
-// 	testament = vk->Testament();
-// 	vk->AutoNormalize(1);
-// 	while (vk->Testament() == testament) {
-// 		while (vk->Book() == book) {
-// 			list.append(vk->getBookName());
-// 			vk->Book(++book);
-// 		};
-// 		vk->Testament(++testament);
-// 		book = 1;
-// 		vk->Book(book);
-// 	};
-// 	return list;
-}
+*/
