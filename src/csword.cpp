@@ -149,7 +149,6 @@ QString CSword::listModules(const CSwordOptions &options) {
 		  
 	for  (i = 0; i < m_moduleTypes.size(); i++) {
 		output += QString("<h2 class='sword_moduletype'>%1</h2>\n"
-				  "<div class='sword_modulelist'>\n"
 				  "<ul>\n").arg(m_moduleTypeNames[i]);
 		for (it = Modules.begin(); it != Modules.end(); it++) {
 			curMod = (*it).second;
@@ -160,8 +159,7 @@ QString CSword::listModules(const CSwordOptions &options) {
 					.arg(curMod->Description());
 			}
 		}
-		output += "</ul>"
-			  "</div>";
+		output += "</ul>";
 	}
 	output += "</div>";
 	return output;
