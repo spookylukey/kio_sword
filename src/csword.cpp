@@ -387,13 +387,13 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 							if (singleChapter(element)) {
 								module->decrement();
 								if (!module->Error()) {
-									nav += QString(" | <a href='%2'>%1")
+									nav += QString(" | <a href='%2'>%1</a>")
 										.arg(i18n("&laquo; Previous"))
 										.arg(chapterLink(modname, module->getKey()));
 								}
 								module->Key(element->LowerBound());
 							} else {
-								nav += QString(" | <a href='%2'>%1")
+								nav += QString(" | <a href='%2'>%1</a>")
 										.arg(i18n("Chapter %1").arg(element->Chapter()))
 										.arg(chapterLink(modname, module->getKey()));
 							}
@@ -428,7 +428,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 							if (singleChapter(element)) {
 							// add some navigation links 
 								if (!err) {
-									nav += QString(" | <a href='%2'>%1")
+									nav += QString(" | <a href='%2'>%1</a>")
 										.arg(i18n("Next &raquo;"))
 										.arg(chapterLink(modname, module->getKey()));
 								}
@@ -446,7 +446,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 					text += QString("<h3>%1</h3>").arg(module->KeyText());
 					text += renderText(module);
 					if (lk.Count() == 1)
-						nav += QString(" | <a href='%2'>%1")
+						nav += QString(" | <a href='%2'>%1</a>")
 							.arg(i18n("Chapter %1").arg(element->Chapter()))
 							.arg(chapterLink(modname, element));
 				}
