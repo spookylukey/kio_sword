@@ -6,16 +6,13 @@ Copyright (C) 2004 Luke Plant <L.Plant.98@cantab.net>
 
 Installation
 ============
-See file INSTALL.  In summary:
-	./configure
-	make
-	make install
-
+See file INSTALL.
 
 Using kio-sword
 ===============
 Type 'sword:/' in a Konqueror window location bar, and 
-browse.  
+browse.  Help files can be found at sword:/?help (currently
+quite incomplete).
 
 Requirements
 ============
@@ -45,5 +42,5 @@ please include:
 
 Website
 =======
-Currently kio-sword.lukeplant.me.uk
+kio-sword.lukeplant.me.uk
  

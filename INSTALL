@@ -2,20 +2,27 @@ Kio-Sword installation
 ======================
 To compile, you will need header files for the following
 libraries, as well as the libraries themselves:
-	-  kdelibs v3 or greater
-	-  sword 1.5.7 or greater
+	-  kdelibs >= 3 
+	-  sword >= 1.5.7
 
-You should make sure $KDEDIR is set to your KDE directory. After 
-unpacking the source tarball, type the following in the  base 
-directory of the kio-sword distribution:
 
-% ./configure
-% make
-% make install
+After unpacking the source, change to the base directory of the 
+kio-sword distribution. You will then need to find you KDE directory 
+using this command if you don't know it already:
+  kde-config --prefix
 
-You will need to be root for the 'make install' step.
+Then type:
+  export KDEDIR=<your KDE dir>
+  ./configure --prefix=<your KDE DIR>
+  make
+  su			<enter root password>
+  make install
 
-Below are the generic installation instructions
+
+
+
+
+Below are the generic installation instructions:
 
 
 Basic Installation
