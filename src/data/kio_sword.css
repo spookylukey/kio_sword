@@ -1,0 +1,36 @@
+body { background-color: #e0e0e0;
+       margin: 20px }
+
+div.sword_text 	    { margin-bottom: 10px }
+td.sword_text	    { background-color: #ffffff }
+.sword_jesusquote   { color: red ;}
+.sword_versenumber  { vertical-align: super ; 
+		      font-size: 0.7em ; }
+
+.sword_biblename { text-align: right ;
+		   color: #202020 ;}
+
+/*
+ 
+*/
+img.sword_tableimg { display: block;
+		     margin: 0px;
+		     padding: 0px;
+		     border: none; }
+
+
+.sword_error { font-size: 1.2em ;
+	       color: red ; }
+
+.sword_fixme { font-size: 1.2em ;
+	       color: red ; }
+
+h1.sword_moduletitle, h2.sword_moduletitle, h1.sword_bibleref, h2.sword_biblref
+		{ text-align: center; }
+
+h1.sword_moduleslist { text-align: center; }
+
+.sword_links { font-size: small;
+	       text-align: center 
+	     }
+hr { text-align: center }
