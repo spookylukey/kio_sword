@@ -64,47 +64,45 @@ static const QString &html_head("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 T
 				"<link rel=\"StyleSheet\" href=\"file:%1\" TYPE=\"text/css\">\n"		// kio_sword.css
 				"</head>\n");
 			
-static const QString &page_start("<body><div class=\"sword_page\">\n"
+static const QString &page_start("<body><div class=\"swordpage\">\n"
 				"<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n"
   				"  <tr>\n"
-				"    <td><img src=\"file:%1\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// header_tl.png
+				"    <td><img src=\"file:%1\" alt=\"\" class=\"swordtableimg\"></td>\n"	// header_tl.png
 				"    <td background=\"file:%2\">\n"						// header_t.png
 				"      <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n"
 				"        <tr>\n"
 				"          <td width=\"100%\"></td>\n"
-				"          <td><img src=\"file:%3\" class=\"sword_tableimg\" alt=\"\"></td>\n" 	// header_caption.png
+				"          <td><img src=\"file:%3\" class=\"swordtableimg\" alt=\"\"></td>\n" 	// header_caption.png
 				"      </tr></table>\n"
 				"    </td>\n"
-				"    <td><img src=\"file:%4\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// header_tr.png
+				"    <td><img src=\"file:%4\" alt=\"\" class=\"swordtableimg\"></td>\n"	// header_tr.png
 				"  </tr>\n"
 				"  <tr>\n"
 				"    <td background=\"file:%5\"></td>\n"					// border_l.png
-				"    <td class=\"sword_text\" width=\"100%\">\n"
-				"      <div class=\"sword_text\">\n");
+				"    <td class=\"swordpage\" width=\"100%\">\n");
 				
-static const QString &page_start_simple("<body class='sword_simplepage'><div class='sword_simplepage'>");
+static const QString &page_start_simple("<body class='swordsimplepage'><div class='swordsimplepage'>");
 
 static const QString &page_links(
-				"      <div class=\"sword_links\">\n"
-				"        <a href=\"sword:/\">%1</a> | <a href=\"sword:/?search\">%2</a> | <a href=\"sword:/?settings&previouspath=%5\">%3</a> | <a href=\"sword:/?help\">%4</a>"
+				"      <div class=\"swordlinks\">\n"
+				"        <a href=\"sword:/\">%1</a> | <a href=\"sword:/?search\">%2</a> | <a href=\"sword:/?settings&amp;previouspath=%5\">%3</a> | <a href=\"sword:/?help\">%4</a>"
 				"      </div>\n");
 
-static const QString &page_end( "      </div>\n"
-				"      %6"									// page links
+static const QString &page_end( "      %6"									// page links
 				"    </td>\n"
-				"    <td background=\"file:%1\" alt=\"\"></td>\n"				// border_r.png
+				"    <td background=\"file:%1\"></td>\n"				// border_r.png
 				"  </tr>\n"
 				"  <tr>\n"
-				"    <td><img src=\"file:%2\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// footer_bl.png
+				"    <td><img src=\"file:%2\" alt=\"\" class=\"swordtableimg\"></td>\n"	// footer_bl.png
 				"    <td background=\"file:%3\">\n"						// footer_b.png
 				"      <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n"
 				"        <tr>\n"
-				"          <td><img src=\"file:%4\" class=\"sword_tableimg\" alt=\"\"></td>\n" 	// footer_sword.png
+				"          <td><img src=\"file:%4\" class=\"swordtableimg\" alt=\"\"></td>\n" 	// footer_sword.png
 				"          <td width=\"100%\"></td>\n"
 				"        </tr>\n"
 				"      </table>\n"
 				"    </td>\n"
-				"    <td><img src=\"file:%5\" alt=\"\" class=\"sword_tableimg\"></td>\n"	// footer_br.png
+				"    <td><img src=\"file:%5\" alt=\"\" class=\"swordtableimg\"></td>\n"	// footer_br.png
 				"  </tr>\n"
 				"</table>\n"
 				"</div>\n"
@@ -218,7 +216,7 @@ void SwordProtocol::get(const KURL & url)
 		}
 		
 		if (modname.isEmpty()) {
-			error = "<p class='sword_usererror'>" + error + "</p><hr>";
+			error = "<p class='swordusererror'>" + error + "</p><hr>";
 			m_action = QUERY; // revert back to displaying list of modules
 		} else {
 			KURL newurl(url);
@@ -590,11 +588,8 @@ QString SwordProtocol::settingsForm() {
 	QStringList::Iterator it;
 	QString temp;
 			
-//	static const QString general_option_row(
-//				"<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>");
-
 	static const QString separator_row(
-				"<tr><td class='sword_settings_category' colspan='4'>%1</td></tr>");
+				"<tr><td class='swordsettings_category' colspan='4'>%1</td></tr>");
 
 	static const QString module_option_row(
 				"<tr><td>%1</td><td colspan='2'><select name='%2'>%3</select></td><td>%4</td></tr>");
@@ -606,7 +601,7 @@ QString SwordProtocol::settingsForm() {
 			
 	output += QString(
 			"<form action='sword:/' method='GET'>"
-			"<table class='sword_settings' border=0 cellspacing=0>"
+			"<table class='swordsettings' border=0 cellspacing=0>"
 			"  <tr><th>%1</th><th>%2</th><th>%3</th><th>%4</th></tr>")
 			.arg(i18n("Description"))
 			.arg(i18n("Value"))
@@ -743,10 +738,10 @@ QString SwordProtocol::helpPage() {
 
 QString SwordProtocol::searchForm() {
 	static const QString search_form_tmpl(
-		"<h1 class='sword_searchform'>%1</h1>"			// title
-		"<div class='sword_searchform'>"
+		"<h1 class='swordsearchform'>%1</h1>"			// title
+		"<div class='swordsearchform'>"
 		"<form action='sword:/' method='GET'>"
-		"  <table class='sword_searchform'>"
+		"  <table class='swordsearchform'>"
 		"    <tr>"
 		"      <td><label for='query'>%2</label></td>"		// Search terms
 		"      <td><input type='text' name='query'></td>"

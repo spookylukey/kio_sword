@@ -66,23 +66,23 @@ bool ks_ThMLHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 				const char *value = tag.getAttribute("value");
 				if (strlen(value)) {
 					buf.appendFormatted
-						(" <span class='sword_lemma'>&lt;%s&gt;</span>", value);
+						(" <span class='swordlemma'>&lt;%s&gt;</span>", value);
 				}
 			} else if (tag.getAttribute("type") && !strcasecmp(tag.getAttribute("type"), "morph")) {  // Morph
 				const char *value = tag.getAttribute("value");
 				if (value) {
 					buf.appendFormatted
-						(" <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span>", value, value);
+						(" <span class='swordmorph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span>", value, value);
 				}
 			} else if (tag.getAttribute("type") && !strcasecmp(tag.getAttribute("type"), "Strongs")) {      // Strongs
 				const char *value =
 					tag.getAttribute("value");
 				if (value && value[0] == 'H') { //hewbrew strong number
-					buf.appendFormatted(" <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\">%s</a>&gt;</span>", value + 1,      //skip the H
+					buf.appendFormatted(" <span class='swordstrongs'>&lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\">%s</a>&gt;</span>", value + 1,      //skip the H
 								value + 1   //skip the H
 						);
 				} else if (value && value[0] == 'G') {  //greek strong number
-					buf.appendFormatted(" <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\">%s</a>&gt;</span>", value + 1,      //skip the G
+					buf.appendFormatted(" <span class='swordstrongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\">%s</a>&gt;</span>", value + 1,      //skip the G
 								value + 1   //skip the G
 						);
 				}

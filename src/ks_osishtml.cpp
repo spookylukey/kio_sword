@@ -96,9 +96,9 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 						val = strchr(attrib, ':');
 						val = (val) ? (val + 1) : attrib;
 						if (*val == 'G') {
-							buf.appendFormatted(" <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\">%s</a>&gt;</span> ", val+1, val+1);
+							buf.appendFormatted(" <span class='swordstrongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=%s\">%s</a>&gt;</span> ", val+1, val+1);
 						} else if (*val == 'H') {
-							buf.appendFormatted(" <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\">%s</a>&gt;</span> ", val+1, val+1);
+							buf.appendFormatted(" <span class='swordstrongs'>&lt;<a href=\"sword:/?modtype=hebrewstrongs&query=%s\">%s</a>&gt;</span> ", val+1, val+1);
 						}
 					} while (++i < count);
 				}
@@ -111,12 +111,12 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 						val = strchr(attrib, ':');
 						val = (val) ? (val + 1) : attrib;
 						if (!strncmp(attrib, "x-Robinson",10)) { //robinson codes
-							buf.appendFormatted(" <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span> ", val, val);
+							buf.appendFormatted(" <span class='swordmorph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span> ", val, val);
 						} else if ((*val == 'T'))  {
 							if (val[1] == 'G') {
-								buf.appendFormatted(" <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span> ", val+1, val+1);
+								buf.appendFormatted(" <span class='swordmorph'>(<a href=\"sword:/?modtype=greekmorph&query=%s\">%s</a>)</span> ", val+1, val+1);
 							} else if (val[1] == 'H') {
-								buf.appendFormatted(" <span class='sword_morph'>(<a href=\"sword:/?modtype=hebrewmorph&query=%s\">%s</a>)</span> ", val+1, val+1);
+								buf.appendFormatted(" <span class='swordmorph'>(<a href=\"sword:/?modtype=hebrewmorph&query=%s\">%s</a>)</span> ", val+1, val+1);
 							}
 						}
 					} while (++i < count);
@@ -205,7 +205,7 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 		// <title>
 		else if (!strcmp(tag.getName(), "title")) {
 			if ((!tag.isEndTag()) && (!tag.isEmpty())) {
-				buf += "<div class='sword_title'>";
+				buf += "<div class='swordtitle'>";
 			}
 			else if (tag.isEndTag()) {
 				buf += "</div>";
@@ -253,9 +253,9 @@ bool ks_OSISHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData
 					buf += (level % 2) ? '\"' : '\'';
 				
 				if (who == "Jesus")
-					buf += "<span class='sword_jesusquote'>";
+					buf += "<span class='swordjesusquote'>";
 				else 
-					buf += "<span class='sword_quote'>";
+					buf += "<span class='swordquote'>";
 			}
 			else if (tag.isEndTag()) {
 				buf += "</span>";

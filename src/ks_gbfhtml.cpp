@@ -47,7 +47,7 @@ ks_GBFHTML::ks_GBFHTML() {
 	addTokenSubstitute("Fi", "</i>");
 	addTokenSubstitute("FB", "<b>"); // bold begin
 	addTokenSubstitute("Fb", "</b>");
-	addTokenSubstitute("FR", "<span class='sword_jesusquote'>"); // words of Jesus begin
+	addTokenSubstitute("FR", "<span class='swordjesusquote'>"); // words of Jesus begin
 	addTokenSubstitute("Fr", "</span>");
 	addTokenSubstitute("FU", "<u>"); // underline begin
 	addTokenSubstitute("Fu", "</u>");
@@ -57,13 +57,13 @@ ks_GBFHTML::ks_GBFHTML() {
 	addTokenSubstitute("Fs", "</sup>");
 	addTokenSubstitute("FV", "<sub>"); // Subscript begin
 	addTokenSubstitute("Fv", "</sub>");
-	addTokenSubstitute("TT", "<span class='sword_title'>"); // Book title begin
+	addTokenSubstitute("TT", "<span class='swordtitle'>"); // Book title begin
 	addTokenSubstitute("Tt", "</span>");
 	addTokenSubstitute("PP", "<cite>"); //  poetry  begin
 	addTokenSubstitute("Pp", "</cite>");
 	addTokenSubstitute("Fn", "</font>"); //  font  end
 	addTokenSubstitute("CL", "<br />"); //  new line
-	addTokenSubstitute("CM", "<!P><br />"); //  paragraph <!P> is a non showing comment that can be changed in the front end to <P> if desired
+	addTokenSubstitute("CM", "<br />"); //  non showing comment
 	addTokenSubstitute("CG", ""); //  ???
 	addTokenSubstitute("CT", ""); // ???
 	addTokenSubstitute("JR", "<div align=\"right\">"); // right align begin
@@ -91,7 +91,7 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 					*valto++ = *num;
 				*valto = 0;
 				if (atoi((!isdigit(*val))?val+1:val) < 5627) {
-					buf += " <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=";
+					buf += " <span class='swordstrongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=";
 					for (tok = val; *tok; tok++)
 							buf += *tok;
 					buf += "\">";
@@ -115,7 +115,7 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 				for (num+=18; ((*num) && (*num != '\"')); num++)
 					*valto++ = *num;
 				*valto = 0;
-				buf += " <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=";
+				buf += " <span class='swordmorph'>(<a href=\"sword:/?modtype=greekmorph&query=";
 				for (tok = val; *tok; tok++)
 				// normal robinsons tense
 						buf += *tok;
@@ -128,7 +128,7 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 		}
 		
 		else if (!strncmp(token, "WG", 2) || !strncmp(token, "WH", 2)) { // strong's numbers
-			buf += " <span class='sword_strongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=";
+			buf += " <span class='swordstrongs'>&lt;<a href=\"sword:/?modtype=greekstrongs&query=";
 			for (tok = token+1; *tok; tok++)
 				//if(token[i] != '\"')
 					buf += *tok;
@@ -140,7 +140,7 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 		}
 
 		else if (!strncmp(token, "WTG", 3) || !strncmp(token, "WTH", 3)) { // strong's numbers tense
-			buf += " <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=";
+			buf += " <span class='swordmorph'>(<a href=\"sword:/?modtype=greekmorph&query=";
 			for (tok = token + 2; *tok; tok++)
 				if(*tok != '\"')
 					buf += *tok;
@@ -152,7 +152,7 @@ bool ks_GBFHTML::handleToken(SWBuf &buf, const char *token, BasicFilterUserData 
 		}
 
 		else if (!strncmp(token, "WT", 2) && strncmp(token, "WTH", 3) && strncmp(token, "WTG", 3)) { // morph tags
-			buf += " <span class='sword_morph'>(<a href=\"sword:/?modtype=greekmorph&query=";
+			buf += " <span class='swordmorph'>(<a href=\"sword:/?modtype=greekmorph&query=";
 			for (tok = token + 2; *tok; tok++)
 				if(*tok != '\"')
 					buf += *tok;

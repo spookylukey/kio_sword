@@ -61,10 +61,10 @@ using std::set;
 
 using namespace sword;
 
-static const QString prev(" | <a href='%3'>&laquo %1</a>");
-static const QString next(" | <a href='%3'>%1 &raquo</a>");
-static const QString up(" | <a href='%3'>%1 %2</a>");
-static const QString genlink(" | <a href='%2'>%1</a>");
+static const QString prev(" <li><a href='%3'>&laquo %1</a>");
+static const QString next(" <li><a href='%3'>%1 &raquo</a>");
+static const QString up(" <li><a href='%3'>%1 %2</a>");
+static const QString genlink(" <li><a href='%2'>%1</a>");
 
 CSword::CSword() : 
 	sword::SWMgr(0, 0, true, new sword::EncodingFilterMgr(sword::ENC_UTF8)),
@@ -138,16 +138,16 @@ QString CSword::listModules(const CSwordOptions &options) {
 	}
 	
 	
-	output += QString("<div class='sword_moduleslist'><h1>%1</h1>")
+	output += QString("<div class='swordmoduleslist'><h1>%1</h1>")
 			.arg(i18n("Modules"));
 		  
 	for  (i = 0; i < m_moduleTypes.size(); i++) {
-		output += QString("<h2 class='sword_moduletype'>%1</h2>\n"
+		output += QString("<h2 class='swordmoduletype'>%1</h2>\n"
 				  "<ul>\n").arg(m_moduleTypeNames[i]);
 		for (it = Modules.begin(); it != Modules.end(); it++) {
 			curMod = (*it).second;
 			if (!strcmp(curMod->Type(), m_moduleTypes[i])) {
-				output += QString("<li class='sword_module'><a class='sword_module' href=\"sword:/%1/\">%2</a> : %3\n")
+				output += QString("<li class='swordmodule'><a class='swordmodule' href=\"sword:/%1/\">%2</a> : %3\n")
 					.arg(curMod->Name())
 					.arg(curMod->Name())
 					.arg(curMod->Description());
@@ -291,7 +291,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	module = getModule(modname.latin1());
 	
 	if (module == 0) { 
-		output += "<p><span class='sword_error'>" 
+		output += "<p><span class='sworderror'>" 
 			  + i18n("The module '%1' could not be found.").arg(modname) 
 			  + "</span></p><hr>";
 		output += listModules(options);
@@ -319,7 +319,7 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 		}
 	}
 	
-	nav += QString("[%1 <a href='%3'>%2</a>]")
+	nav += QString("<ul><li class='swordfirst'>[%1 <a href='%3'>%2</a>]")
 		.arg(i18n("Module:"))
 		.arg(modname)
 		.arg(swordUrl(modname));
@@ -333,9 +333,11 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	}
 
 	if (!nav.isEmpty()) {
-		output = "<div class='sword_navtop'>" + nav + "</div>" +
-			  output +
-			 "<div class='sword_navbottom'>" + nav + "</div>";
+		output = "<div class='swordnavtop'>" + nav + "</ul></div><div class='swordtext'>" +
+			   output +
+			 "</div><div class='swordnavbottom'>" + nav + "</ul></div>";
+	} else {
+		output = "<div class='swordtext'>" +  output + "</div>";
 	}
 
 	return output;
@@ -352,7 +354,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 	module = getModule(modname.latin1());
 	
 	if (module == 0) { 
-		output += "<p><span class='sword_error'>" 
+		output += "<p><span class='sworderror'>" 
 			  + i18n("The module '%1' could not be found.").arg(modname) 
 			  + "</span></p>";
 		output += listModules(options);
@@ -369,7 +371,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 		stypename = i18n("Regular expression");
 	}
 	
-	output += "<h1 class='sword_searchresult'>" + i18n("Search results:") + "</h1>";
+	output += "<div  class='swordsearchresults'><h1>" + i18n("Search results:") + "</h1>";
 	output += QString("<table><tr><td>%1</td><td><b>%2</b></td></tr><tr><td>%3</td><td><b>%4</b></td></tr><tr><td>%5</td><td><b>%6</b></td></tr></table>")
 			.arg(i18n("Module:"))
 			.arg(modname)
@@ -379,8 +381,7 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 			.arg(stypename);
 			
 	
-	lk = module->search(module->isUnicode() ? (const char *)(query.utf8()) : query.latin1(),
-				stype);
+	lk = module->search(query.local8Bit(), stype);
 	if (lk.Count() == 0) {
 		output += "<p>" +i18n("No matches returned.");
 	} else {
@@ -388,14 +389,14 @@ QString CSword::search(const QString &modname, const QString &query, const Searc
 		output += "<ul>";
 		for (int i = 0; i < lk.Count(); ++i) {
 			QString ref;
-			ref = module->isUnicode() ? QString::fromUtf8(lk.getElement(i)->getText())
-						: QString::fromLocal8Bit(lk.getElement(i)->getText());
+			ref = QString::fromLocal8Bit(lk.getElement(i)->getText());
 			output += QString("<li><a href='%2'>%1</a></li>")
 					.arg(ref)
 					.arg(swordUrl(modname, ref));
 		}
 		output += "</ul>";
 	}
+	output += "</div>";
 	return output;
 }
 
@@ -428,7 +429,7 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 		}
 		lk = vk->ParseVerseList(ref, "Gen1:1", true);
 		if (lk.Count() == 0) {
-			text += "<p class=\"sword_error\">" + i18n("Couldn't find reference '%1'.").arg(ref) + "</p>";
+			text += "<p class=\"sworderror\">" + i18n("Couldn't find reference '%1'.").arg(ref) + "</p>";
 			doindex = true;
 			break;
 		}
@@ -448,7 +449,7 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 					//module->setKey(lk.GetElement(i));
 					text += QString("<h2>%1</h2>"
 							"<p>%5</p>"
-							"<p class='sword_chapterlist'>%6</p>"
+							"<p class='swordchapterlist'>%6</p>"
 							"<p><a href='sword:/%2/%3?wb=1'>%4</a></p>")
 							.arg(element->getBookName())
 							.arg(module->Name())
@@ -490,7 +491,7 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 							text += "<h3>" + i18n("Chapter %1").arg(curvk->Chapter()) + "</h3>";
 						}
 						if (options.verseNumbers && modtype == BIBLE) {
-							text += QString("<a class=\"sword_versenumber\" href=\"sword:/%1/%2\">%3</a>")
+							text += QString("<a class=\"swordversenumber\" href=\"sword:/%1/%2\">%3</a>")
 									.arg(module->Name())
 									.arg(module->KeyText())
 									.arg(curvk->Verse());
@@ -529,8 +530,8 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 				text += renderText(module);
 				if (lk.Count() == 1)
 					navlinks += genlink
-							.arg(i18n("Chapter %1").arg(element->Chapter()))
-							.arg(chapterLink(modname, element));
+						      .arg(bookChapter(element))
+						      .arg(chapterLink(modname, element));
 			}
 			if (i+1 != lk.Count())
 				text += "<br />";
@@ -540,14 +541,14 @@ QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOpt
 	// Title: depends on what got printed above
 	if (doindex) {
 		if (!text.isEmpty())  // an error message was printed
-			text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
+			text = QString("<h1 class=\"swordmoduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
 				+ text;
 	} else {
 		if (modtype == COMMENTARY) { 
-			text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description())
+			text = QString("<h1 class=\"swordmoduletitle\">%1</h1>").arg(module->Description())
 				+ text;
 		} else if (modtype == BIBLE) {
-			text += QString("<div class=\"sword_biblename\">(%1)</div>").arg(module->Description());
+			text += QString("<div class=\"swordbiblename\">(%1)</div>").arg(module->Description());
 		}
 	}
 	output += text;
@@ -577,7 +578,7 @@ QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOpti
 	if (!tk)
 		return output;
 	
-	output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());	
+	output += QString("<h1 class=\"swordmoduletitle\">%1</h1>").arg(module->Description());	
 	if (ref.isEmpty()) {
 		doindex = true;
 	} else {
@@ -585,7 +586,7 @@ QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOpti
 		tk->setText(ref.local8Bit());  // FIXME is this correct?
 		doindex = false;
 		if (tk->Error()) {
-			output += "<p class=\"sword_error\">" + i18n("Couldn't find section '%1'.").arg(ref) + "</p>";
+			output += "<p class=\"sworderror\">" + i18n("Couldn't find section '%1'.").arg(ref) + "</p>";
 			output += "<hr>";
 			doindex = true;
 		} else {
@@ -644,7 +645,7 @@ QString CSword::normalQuery(SWModule *module, const QString &ref, const CSwordOp
 	bool doindex;
 	SWKey *skey = module->getKey();
 	
-	output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
+	output += QString("<h1 class=\"swordmoduletitle\">%1</h1>").arg(module->Description());
 	
 	if (ref.isEmpty()) {
 		doindex = true;
@@ -653,7 +654,7 @@ QString CSword::normalQuery(SWModule *module, const QString &ref, const CSwordOp
 		skey->setText(ref.local8Bit());
 		doindex = false;
 		if (skey->Error()) {
-			output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
+			output += "<p class=\"sworderror\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
 			output += "<hr>";
 			doindex = true;
 		} else {
@@ -751,8 +752,7 @@ QString CSword::indexBook(SWModule *module) {
 	module->setPosition(sword::TOP);
 	output += "<ul>\n";
 	do {
-		ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
-					  :  QString::fromLocal8Bit(module->KeyText());
+		ref = QString::fromLocal8Bit(module->KeyText());
 		output += QString("<li><a href=\"%2\">%1</a>")
 				.arg(ref)
 				.arg(swordUrl(module->Name(), ref));
@@ -790,9 +790,7 @@ QString CSword::indexTree(SWModule *module, bool fromTop, const int depth) {
 	gonext = false;
 	do {
 		if (!gonext) {
-			ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
-						  :  QString::fromLocal8Bit(module->KeyText());
-
+			ref = QString::fromLocal8Bit(module->KeyText());
 			output += QString("<li><a href=\"%2\">%1</a>\n")
 					.arg(ref.section('/', -1))
 					.arg(swordUrl(module->Name(), ref));

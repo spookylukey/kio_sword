@@ -3,13 +3,6 @@ body {
 	margin: 20px; 
 }
 
-
-body.sword_simplepage { 
-	background-color: #ffffff;
-	margin: 15px; 
-}
-
-
 h1, h2, h3 { 
 	color: #404040; 
 }
@@ -32,120 +25,235 @@ a:hover {
 }
 
 
-div.sword_text { 
+div.swordtext { 
 	margin-bottom: 10px;
 }
-td.sword_text { 
+
+td.swordpage { 
 	background-color: #ffffff; 
 }
-.sword_jesusquote { 
+.swordjesusquote { 
 	color: red ;
 }
-.sword_versenumber { 
+.swordversenumber { 
 	vertical-align: super;
 	font-size: 0.7em ; 
 }
 
-.sword_biblename { 
+.swordbiblename { 
 	text-align: right ;
 	color: #202020 ;
 	font-style: italic; 
  	font-size: small;
 }
 
-img.sword_tableimg { 
+img.swordtableimg { 
 	display: block;
 	margin: 0px;
 	padding: 0px;
 	border: none; 
 }
 
-.sword_error { 
+.sworderror { 
 	font-size: 1.2em ;
 	color: red ; 
 }
 
-.sword_fixme { 
+.swordfixme { 
 	font-size: 1.2em ;
 	color: red ; 
 }
 
-h1.sword_moduletitle, h2.sword_moduletitle, h1.sword_bibleref, h2.sword_biblref {
+h1.swordmoduletitle, h2.swordmoduletitle, h1.swordbibleref, h2.swordbiblref {
 	text-align: center; 
 }
 
-h1.sword_moduleslist { 
+h1.swordmoduleslist { 
 	text-align: center; 
 }
 
-.sword_links { 
+.swordlinks { 
 	font-size: small;
 	text-align: center;
 }
-div.sword_links { 
-	margin-top: 10px;
-	padding-top: 10px;
+div.swordlinks { 
+	margin-top: 5px;
+	padding-top: 5px;
 	border-top: solid black 1px;
 }
 
-table.sword_settings {  
+table.swordsettings {  
 	border-top: 1px solid black; 
         border-left: 1px solid black; 
 }
-table.sword_settings td,
-table.sword_settings th {  
+table.swordsettings td,
+table.swordsettings th {  
 	border-right: 1px solid black; 
 	border-bottom: 1px solid black; 
 	margin: 0px;
 }
 
 
-table.sword_settings th { 
+table.swordsettings th { 
 	padding: 3pt 5pt 3pt 5pt ;
 	vertical-align: middle;
         text-align: center;
         background-color: #c0c0c0;
 }
 
-table.sword_settings td { 
+table.swordsettings td { 
 	padding: 2pt 5pt 2pt 5pt;
 	vertical-align: top;
 	text-align: left;
 }
 
 
-table.sword_settings  td.sword_settings_category { 
+table.swordsettings  td.swordsettings_category { 
 	text-align: center; 
 	vertical-align: middle; 
 	font-weight: bold ;
 	background-color: #e0e0e0;
 }
 
-h1.sword_searchform { 
+h1.swordsearchform { 
 	text-align: center;
 }
 
-div.sword_searchform { 
+div.swordsearchform { 
 	text-align: center;
 }
-div.sword_searchform table { 
+div.swordsearchform table { 
 	margin: auto;
 }
 
-div.sword_navbottom { 
-	border-top: solid #808080 1px;
+
+.swordstrongs, .swordmorph {
+	font-size: small;
+	font-style: italic;
+}
+
+div.swordnavbottom,
+div.swordnavtop { 
 	font-size: 0.9em; 
 	text-align: right;
 	margin-top: 1em;
 }
-
-div.sword_navtop { 
-	border-bottom: solid #808080 1px;
-	font-size: 0.9em; 
-	text-align: right;
+div.swordnavbottom {
+	border-top: solid #808080 1px;
+	padding-top: 0px;
+	margin-top: 0px;
 }
 
-.sword_strongs, .sword_morph {
-	font-size: small;
-	font-style: italic;
+div.swordnavtop { 
+	border-bottom: solid #808080 1px;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+div.swordnavtop li,
+div.swordnavbottom li {
+	display: inline;
+}
+
+div.swordnavtop li:before,
+div.swordnavbottom li:before {
+	content: "| ";
+}
+
+div.swordnavtop  li.swordfirst:before,
+div.swordnavbottom  li.swordfirst:before {
+	content: ""
+}
+
+div.swordnavtop ul,
+div.swordnavbottom ul {
+	margin-bottom: 0px;
+	margin-top: 0px
+}
+
+/*******************************/
+/*    Simple page settings     */
+
+
+body.swordsimplepage div.swordtext {
+/*	width: 85%;*/
+}
+
+
+body.swordsimplepage div.swordlinks {
+	float: clear;
+
+}
+
+
+body.swordsimplepage { 
+	margin: 0px;
+	background: white;
+}
+
+div.swordsimplepage { 
+	background: #e0e0ff;
+	margin: 30px 0px 30px 0px;
+	padding: 15px;
+	border-top: 3px double black;
+	border-bottom: 3px double black;
+}
+
+div.swordsimplepage > * { 
+	margin-top: 0px;
+	padding-top: 0px;
+}
+div.swordsimplepage > * > *{ 
+	margin-top: 0px;
+	padding-top: 0px;
+}
+
+body.swordsimplepage a { 
+	color: blue;
+    	font-weight: bold; 
+}
+
+body.swordsimplepage a:link, a:visited { 
+	text-decoration: none ;
+}
+
+body.swordsimplepage h1, 
+body.swordsimplepage h2, 
+body.swordsimplepage h3 { 
+	color: #000040; 
+}
+
+
+body.swordsimplepage div.swordnavbottom {
+	display: none;
+}
+
+body.swordsimplepage div.swordnavtop {
+	float: right;
+	font-size: 0.9em; 
+	text-align: left;
+	border:  1px solid black;
+	background-color: #e8e8ff;
+}
+
+body.swordsimplepage div.swordnavtop li {
+	display: list-item;
+	margin-left: 0px;
+	padding-left: 0px;
+	white-space: nowrap;
+	list-style-position: inside;
+}
+
+body.swordsimplepage div.swordnavtop li:before {
+	content: ""
+}
+
+body.swordsimplepage div.swordnavtop ul {
+	margin: 1em;
+	padding: 0em;
+
+}
+
+body.swordsimplepage div.swordlinks {
+	float: clear;
 }
