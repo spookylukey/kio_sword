@@ -73,6 +73,11 @@ using std::set;
 
 using namespace sword;
 
+static const QString prev(" | <a href='%3'>&laquo %1</a>");
+static const QString next(" | <a href='%3'>%1 &raquo</a>");
+static const QString up(" | <a href='%3'>%1 %2</a>");
+static const QString genlink(" | <a href='%2'>%1</a>");
+
 CSword::CSword() : 
 	sword::SWMgr(0, 0, true, new sword::EncodingFilterMgr(sword::ENC_UTF8)),
 	m_osisfilter(0),
@@ -281,21 +286,16 @@ void CSword::setModuleFilter(SWModule *module) {
 
 QString CSword::moduleQuery(const QString &modname, const QString &ref, const CSwordOptions &options) {
 	QString output;
-	QString text;
 	QString nav;
 	
 	SWModule *module = 0;
 	SWKey *skey = 0;
 	KeyType keyt = SWKEY;
 	VerseKey *vk;
-	ListKey lk;
 	TreeKey *tk;
 	
-	bool doindex = false;
-	bool error = false;
-	
 	vector<const char *>::size_type i;
-	vector<const char *>::size_type modtype;	
+	ModuleType modtype;	
 	
 	// Find the module	
 	module = getModule(modname.latin1());
@@ -307,13 +307,10 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 		output += listModules(options);
 		return output;
 	}
-	
 	setModuleFilter(module);
 	
-	// Set key
-	skey = module->getKey();
-	
 	// Determine key type.
+	skey = module->getKey();
 	if (!(vk = dynamic_cast<VerseKey*>(skey))) {
 		if (!(tk = dynamic_cast<TreeKey*>(skey))) {
 			keyt = SWKEY;
@@ -323,274 +320,329 @@ QString CSword::moduleQuery(const QString &modname, const QString &ref, const CS
 	} else {
 		keyt = VERSEKEY;
 	}
-		
 	// Determine module type
 	modtype = GENERIC; // default
 	for  (i = 0; i < m_moduleTypes.size(); i++) {
 		if (!strcmp(module->Type(), m_moduleTypes[i])) {
-			modtype = i;
+			modtype = (ModuleType)i;
 			break;
 		}
 	}
 	
-	nav += QString("%1 <a href='%3'>%2<a>")
+	nav += QString("[%1 <a href='%3'>%2</a>]")
 		.arg(i18n("Module:"))
 		.arg(modname)
 		.arg(swordUrl(modname));
 	
 	if (keyt == VERSEKEY) {  // Should be just bibles and commentaries
-		//--------------------  VERSE BASED -------------------------------//
-		vk->AutoNormalize(0);
-		error = false;
-		do { // dummy loop
-			if (ref.isEmpty()) {
-				doindex = true;
-				break;
-			}
-			lk = vk->ParseVerseList(ref, "Gen1:1", true);
-			if (lk.Count() == 0) {
-				text += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
-				doindex = true;
-				break;
-			}
-			// FIXME - detect whether we have referenced an entire book
-			// and if so decide whether or not to view it or an index
-			char book = 0;
-			char testament = 0;
-			int chapter = 0;
-			for (int i = 0; i < lk.Count(); i++) {
-				VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
-				if (element) {
-					char err;
-					// Multiple verses
-					// Check whether we have an entire book selected
-					// (but count single chapter books as if they were just
-					// one chapter from a book)
-					if (element->UpperBound().Chapter() > 1 &&
-					    entireBook(element) && !options.wholeBook) {
-						//module->setKey(lk.GetElement(i));
-						text += QString("<h2>%1</h2>"
-								"<p>%5</p>"
-								"<p class='sword_chapterlist'>%6</p>"
-								"<p><a href='sword:/%2/%3?wb=1'>%4</a></p>")
-								.arg(element->getBookName())
-								.arg(module->Name())
-								.arg(element->getBookName())
-								.arg(i18n("View entire book."))
-								.arg(i18n("Chapters:"))
-								.arg(chapterList(modname, element));
-					} else {
-							
-						module->Key(element->LowerBound());
-						if (lk.Count() == 1) {
-							// add some navigation links 
-							if (singleChapter(element)) {
-								module->decrement();
-								if (!module->Error()) {
-									nav += QString(" | <a href='%2'>%1</a>")
-										.arg(i18n("&laquo; Previous"))
-										.arg(chapterLink(modname, module->getKey()));
-								}
-								module->Key(element->LowerBound());
-							} else {
-								nav += QString(" | <a href='%2'>%1</a>")
-										.arg(i18n("Chapter %1").arg(element->Chapter()))
-										.arg(chapterLink(modname, module->getKey()));
-							}
-						}
-						do  {
-							VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
-							if (curvk->Book() != book || curvk->Testament() != testament) {
-								text += "<h2>" + QString(curvk->getBookName()) + "</h2>";
-								chapter = 0;
-							}
-							if (curvk->Chapter() != chapter) {
-								text += "<h3>" + i18n("Chapter %1").arg(curvk->Chapter()) + "</h3>";
-							}
-							if (options.verseNumbers && modtype == BIBLE) {
-								text += QString("<a class=\"sword_versenumber\" href=\"sword:/%1/%2\">%3</a>")
-										.arg(module->Name())
-										.arg(module->KeyText())
-										.arg(curvk->Verse());
-							}
-							text += renderText(module);
-							text += " ";
-							if (options.verseLineBreaks) 
-								text += "<br />";
-								
-							book = curvk->Book();
-							testament = curvk->Testament();
-							chapter = curvk->Chapter();
-							
-							module->increment(1);
-						} while (module->Key() <= element->UpperBound() && !(err = module->Error()));
-						if (lk.Count() == 1) {
-							if (singleChapter(element)) {
-							// add some navigation links 
-								if (!err) {
-									nav += QString(" | <a href='%2'>%1</a>")
-										.arg(i18n("Next &raquo;"))
-										.arg(chapterLink(modname, module->getKey()));
-								}
-							}
-						}
-					}
-				} else {
-					// Reset flags used by the multiple verse path
-					book = 0;
-					testament = 0;
-					chapter = 0;
-					// Single verse
-					module->Key(*lk.GetElement(i));
-					element = dynamic_cast<VerseKey*>(module->getKey());
-					text += QString("<h3>%1</h3>").arg(module->KeyText());
-					text += renderText(module);
-					if (lk.Count() == 1)
-						nav += QString(" | <a href='%2'>%1</a>")
-							.arg(i18n("Chapter %1").arg(element->Chapter()))
-							.arg(chapterLink(modname, element));
-				}
-				if (i+1 != lk.Count())
-					text += "<br />";
-			}
-	
-			
-		} while (false);
-		
-		// Title: depends on what got printed above
-		if (doindex) {
-			if (!text.isEmpty())  // an error message was printed
-				text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
-					+ text;
-		} else {
-			if (modtype == COMMENTARY) { 
-				text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description())
-					+ text;
-			} else if (modtype == BIBLE) {
-				text += QString("<div class=\"sword_biblename\">(%1)</div>").arg(module->Description());
-			}
-		}
-		output += text;
-		
-		if (doindex) {
-			if (!text.isEmpty())
-				output += "<hr>\n";
-			if (options.doBibleIndex) {
-				output += "<h2>" + i18n("Books:") + "</h2>";
-				output += indexBible(module);
-			} else {
-				output += QString("<p><a href=\"sword:/%1/?bi=1\">%2</a></p>")
-						.arg(modname)
-						.arg(i18n("Index of books"));
-			}
-		}
-		if (!nav.isNull() && !doindex) {
-			output = "<div class='sword_navtop'>" + nav + "</div>" +
-				  output +
-				 "<div class='sword_navbottom'>" + nav + "</div>";
-		}
-		
+		output += verseQuery(module, ref, options, modtype, nav);
 	} else if (keyt == TREEKEY) {
-		//--------------------  TREE BASED -------------------------------//
-		output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
-		
-		if (ref.isEmpty()) {
-			doindex = true;
-		} else {
-			tk->Error(); // clear
-			tk->setText(ref.utf8());  // FIXME - sync this to other usages of setText()
-			doindex = false;
-			if (tk->Error()) {
-				output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find section '%1'.")).arg(ref) + "</p>";
-				output += "<hr>";
-				doindex = true;
-			} else {
-				output += renderText(module);
-				if (tk->hasChildren()) {
-					if (tk->firstChild());
-					output += "<hr>";
-					output += indexTree(module, false, 1);
-				}
-			}
-		}
-		
-		if (doindex) {
-			output += "<h2>" + i18n("Contents:") + "</h2>";
-			if (options.doFullTreeIndex) {	
-				output += indexTree(module, true, -1);
-				output += QString("<p><a href=\"sword:/%1/?fi=0\">%2</a></p>")
-						.arg(modname)
-						.arg(i18n("View simple index"));
-			} else {
-				output += indexTree(module, true, 1);
-				output += QString("<p><a href=\"sword:/%1/?fi=1\">%2</a></p>")
-						.arg(modname)
-						.arg(i18n("View full index"));
-			}
-		}
-		
+		output += treeQuery(module, ref, options, modtype, nav);
 	} else if (keyt == SWKEY) {
-		//-------------------- OTHER -------------------------------//
-		output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
-		
-		if (ref.isEmpty()) {
-			doindex = true;
-		} else {
-			skey->Error(); // clear
-			skey->setText(ref.utf8()); // FIXME - should this be .latin1() or local8bit() or utf8()?
-			doindex = false;
-			if (skey->Error()) {
-				output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
-				output += "<hr>";
-				doindex = true;
-			} else {
-				output += QString("<h3>%1</h3>)").arg(module->KeyText());
-				output += renderText(module);
-			}
-		}
-		
-		if (doindex) {
-			// FIXME - condense this
-			if (modtype == LEXDICT) {
-				if (options.doDictIndex) {
-					output += "<h2>" + i18n("Index:") + "</h2>";
-					output += indexBook(module);
-				} else {
-					output += QString("<form action='sword:/%1/' method='get'>"
-							  "%2 <input type='text' name='query'>"
-							  "</form>")
-							  	.arg(modname)
-								.arg(i18n("Enter query term: "));
-					
-					output += QString("<p><a href=\"sword:/%1/?di=1\">%2</a></p>")
-							.arg(modname)
-							.arg(i18n("View complete index"));
-				}
-			} else if (modtype == GENERIC) {
-				if (options.doOtherIndex) {
-					output += "<h2>" + i18n("Index:") + "</h2>";
-					output += indexBook(module);
-				} else {
-					output += QString("<p><a href=\"sword:/%1/?oi=1\">%2</a></p>")
-							.arg(modname)
-							.arg(i18n("View complete index"));
-				}
-			}
-		}
-	} else {
-		// never get here
-	
+		output += normalQuery(module, ref, options, modtype, nav);
 	}
-	
-	//delete skey;
-	//skey = 0;
-		
+
+	if (!nav.isEmpty()) {
+		output = "<div class='sword_navtop'>" + nav + "</div>" +
+			  output +
+			 "<div class='sword_navbottom'>" + nav + "</div>";
+	}
+
 	return output;
 }
 
 QString CSword::renderText(SWModule *module) {
 	return module->isUnicode() ?  QString::fromUtf8(module->RenderText()) 
 				   :  QString::fromLatin1(module->RenderText());
+}
+
+/* return formatted text for the query of a verse based module
+ * links are also return, written to navlinks
+ */
+
+QString CSword::verseQuery(SWModule *module, const QString &ref, const CSwordOptions &options, 
+							ModuleType modtype, QString &navlinks) {
+	QString modname(module->Name());
+	QString text;
+	QString output;
+	bool doindex = false;
+	
+	ListKey lk;
+	VerseKey *vk = dynamic_cast<VerseKey*>(module->getKey());
+	
+	if (!vk) 
+		return output;
+		
+	vk->AutoNormalize(0);
+	do { // dummy loop
+		if (ref.isEmpty()) {
+			doindex = true;
+			break;
+		}
+		lk = vk->ParseVerseList(ref, "Gen1:1", true);
+		if (lk.Count() == 0) {
+			text += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
+			doindex = true;
+			break;
+		}
+		char book = 0;
+		char testament = 0;
+		int chapter = 0;
+		for (int i = 0; i < lk.Count(); i++) {
+			VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
+			if (element) {
+				char err = 0;
+				// Multiple verses
+				// Check whether we have an entire book selected
+				// (but count single chapter books as if they were just
+				// one chapter from a book)
+				if (element->UpperBound().Chapter() > 1 &&
+					entireBook(element) && !options.wholeBook) {
+					//module->setKey(lk.GetElement(i));
+					text += QString("<h2>%1</h2>"
+							"<p>%5</p>"
+							"<p class='sword_chapterlist'>%6</p>"
+							"<p><a href='sword:/%2/%3?wb=1'>%4</a></p>")
+							.arg(element->getBookName())
+							.arg(module->Name())
+							.arg(element->getBookName())
+							.arg(i18n("View entire book."))
+							.arg(i18n("Chapters:"))
+							.arg(chapterList(modname, element));
+				} else {
+					module->Key(element->LowerBound());
+					if (lk.Count() == 1) {
+						// add some navigation links 
+						if (singleChapter(element)) {
+							module->decrement();
+							if (!module->Error()) {
+								navlinks += prev
+									      .arg(bookChapter(module->getKey()))
+									      .arg(chapterLink(modname, module->getKey()));
+							}
+							module->Key(element->LowerBound());
+						} else {
+							navlinks += genlink
+								      .arg(bookChapter(element))
+								      .arg(chapterLink(modname, element));
+						}
+					}
+					do  {
+						VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
+						if (curvk->Book() != book || curvk->Testament() != testament) {
+							text += "<h2>" + QString(curvk->getBookName()) + "</h2>";
+							chapter = 0;
+						}
+						if (curvk->Chapter() != chapter) {
+							text += "<h3>" + i18n("Chapter %1").arg(curvk->Chapter()) + "</h3>";
+						}
+						if (options.verseNumbers && modtype == BIBLE) {
+							text += QString("<a class=\"sword_versenumber\" href=\"sword:/%1/%2\">%3</a>")
+									.arg(module->Name())
+									.arg(module->KeyText())
+									.arg(curvk->Verse());
+						}
+						text += renderText(module);
+						text += " ";
+						if (options.verseLineBreaks) 
+							text += "<br />";
+							
+						book = curvk->Book();
+						testament = curvk->Testament();
+						chapter = curvk->Chapter();
+						
+						module->increment(1);
+					} while (module->Key() <= element->UpperBound() && !(err = module->Error()));
+					if (lk.Count() == 1) {
+						if (singleChapter(element)) {
+						// add some navigation links 
+							if (!err) {
+								navlinks += next
+									      .arg(bookChapter(module->getKey()))
+									      .arg(chapterLink(modname, module->getKey()));
+							}
+						}
+					}
+				}
+			} else {
+				// Reset flags used by the multiple verse path
+				book = 0;
+				testament = 0;
+				chapter = 0;
+				// Single verse
+				module->Key(*lk.GetElement(i));
+				element = dynamic_cast<VerseKey*>(module->getKey());
+				text += QString("<h3>%1</h3>").arg(module->KeyText());
+				text += renderText(module);
+				if (lk.Count() == 1)
+					navlinks += genlink
+							.arg(i18n("Chapter %1").arg(element->Chapter()))
+							.arg(chapterLink(modname, element));
+			}
+			if (i+1 != lk.Count())
+				text += "<br />";
+		}
+	} while (false);
+	
+	// Title: depends on what got printed above
+	if (doindex) {
+		if (!text.isEmpty())  // an error message was printed
+			text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
+				+ text;
+	} else {
+		if (modtype == COMMENTARY) { 
+			text = QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description())
+				+ text;
+		} else if (modtype == BIBLE) {
+			text += QString("<div class=\"sword_biblename\">(%1)</div>").arg(module->Description());
+		}
+	}
+	output += text;
+	
+	if (doindex) {
+		if (!text.isEmpty())
+			output += "<hr>\n";
+		if (options.doBibleIndex) {
+			output += "<h2>" + i18n("Books:") + "</h2>";
+			output += indexBible(module);
+		} else {
+			output += QString("<p><a href=\"sword:/%1/?bi=1\">%2</a></p>")
+					.arg(modname)
+					.arg(i18n("Index of books"));
+		}
+	}
+	return output;
+
+}
+
+QString CSword::treeQuery(SWModule *module, const QString &ref, const CSwordOptions &options, 
+							ModuleType modtype, QString &navlinks) {
+	QString output;
+	QString modname(module->Name());
+	bool doindex;
+	TreeKey *tk = dynamic_cast<TreeKey*>(module->getKey());
+	
+	if (!tk)
+		return output;
+	
+	output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());	
+	if (ref.isEmpty()) {
+		doindex = true;
+	} else {
+		tk->Error(); // clear
+		tk->setText(ref.utf8());  // FIXME - sync this to other usages of setText()
+		doindex = false;
+		if (tk->Error()) {
+			output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find section '%1'.")).arg(ref) + "</p>";
+			output += "<hr>";
+			doindex = true;
+		} else {
+			QString link;
+			output += renderText(module);
+			if (tk->previousSibling()) {
+				link = module->KeyText();
+				navlinks += prev.arg(shorten(link.section('/', -1, -1) , 20))
+						 .arg(swordUrl(modname, link));
+				tk->nextSibling();
+			}
+			SWKey *saved = tk->clone();
+			if (tk->parent()) {
+				link = module->KeyText();
+				navlinks += up.arg(i18n("Up:"))
+					      .arg(shorten(link.section('/', -1, -1), 20))
+					      .arg(swordUrl(modname, link));
+				tk->copyFrom(*saved);
+			}
+			delete saved;
+			if (tk->nextSibling()) {
+				link = module->KeyText();
+				navlinks += next.arg(shorten(link.section('/', -1, -1), 20))
+						 .arg(swordUrl(modname, link));
+				tk->previousSibling();
+			}
+			if (tk->hasChildren()) {
+				if (tk->firstChild());
+				output += "<hr>";
+				output += indexTree(module, false, 1);
+			}
+		}
+	}
+	
+	if (doindex) {
+		output += "<h2>" + i18n("Contents:") + "</h2>";
+		if (options.doFullTreeIndex) {	
+			output += indexTree(module, true, -1);
+			output += QString("<p><a href=\"sword:/%1/?fi=0\">%2</a></p>")
+					.arg(modname)
+					.arg(i18n("View simple index"));
+		} else {
+			output += indexTree(module, true, 1);
+			output += QString("<p><a href=\"sword:/%1/?fi=1\">%2</a></p>")
+					.arg(modname)
+					.arg(i18n("View full index"));
+		}
+	}
+	return output;
+}
+
+QString CSword::normalQuery(SWModule *module, const QString &ref, const CSwordOptions &options, 
+							ModuleType modtype, QString &navlinks) {
+	QString output;
+	QString modname(module->Name());
+	bool doindex;
+	SWKey *skey = module->getKey();
+	
+	output += QString("<h1 class=\"sword_moduletitle\">%1</h1>").arg(module->Description());
+	
+	if (ref.isEmpty()) {
+		doindex = true;
+	} else {
+		skey->Error(); // clear
+		skey->setText(ref.utf8()); // FIXME - should this be .latin1() or local8bit() or utf8()?
+		doindex = false;
+		if (skey->Error()) {
+			output += "<p class=\"sword_error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
+			output += "<hr>";
+			doindex = true;
+		} else {
+			output += QString("<h3>%1</h3>").arg(module->KeyText());
+			output += renderText(module);
+			module->decrement();
+			QString link;
+			if (!module->Error()) {
+				link = module->KeyText();
+				navlinks += prev.arg(link)
+						.arg(swordUrl(modname, link));
+				module->increment();
+			}
+			module->increment();
+			if (!module->Error()) {
+				link = module->KeyText();
+				navlinks += next.arg(link)
+						.arg(swordUrl(modname, link));
+				module->decrement();
+			}
+		}
+	}
+	
+	if (doindex) {
+		if (((modtype == LEXDICT) && options.doDictIndex) ||
+		    ((modtype == GENERIC) && options.doOtherIndex)) {
+			output += "<h2>" + i18n("Index:") + "</h2>";
+			output += indexBook(module);
+		} else {
+			output += QString("<form action='sword:/%1/' method='get'>"
+						"%2 <input type='text' name='query'>"
+						"</form>")
+						.arg(modname)
+						.arg(i18n("Enter query term: "));
+			
+			output += QString("<p><a href=\"sword:/%1/?di=1\">%2</a></p>")
+					.arg(modname)
+					.arg(i18n("View complete index"));
+		}
+	}
+	return output;
 }
 
 /** Retrieves an HTML list of all the books in the module
@@ -667,7 +719,8 @@ QString CSword::indexBook(SWModule *module) {
 QString CSword::indexTree(SWModule *module, bool fromTop, const int depth) {
 	QString output;
 	QString ref;
-	bool changed;
+	bool gonext;
+	bool cont;
 	
 	TreeKey *tk = dynamic_cast<TreeKey*>(module->getKey());
 	int mydepth = 1;
@@ -676,46 +729,47 @@ QString CSword::indexTree(SWModule *module, bool fromTop, const int depth) {
 		return output;
 		
 	if (fromTop) {
-		//module->setPosition(sword::TOP);
 		tk->root();
 		tk->firstChild();
 	}
 	
 	output += "<ul>";
+	cont = true;
+	gonext = false;
 	do {
-		changed = false;
-		ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
-					  :  QString::fromLatin1(module->KeyText());
-		output += QString("<li><a href=\"%2\">%1</a>\n")
-				.arg(ref.section('/', -1))
-				.arg(swordUrl(module->Name(), ref));
-
-		if (tk->hasChildren() && (mydepth < depth || depth == -1) ) {
+		if (!gonext) {
+			ref = module->isUnicode() ?  QString::fromUtf8(module->KeyText()) 
+						:  QString::fromLatin1(module->KeyText());
+			output += QString("<li><a href=\"%2\">%1</a>\n")
+					.arg(ref.section('/', -1))
+					.arg(swordUrl(module->Name(), ref));
+		}
+		if (!gonext && tk->hasChildren() && (mydepth < depth || depth == -1) ) {
 			if (tk->firstChild()) {
 				mydepth++;
 				output += "<ul>";
-				changed = true;
+				cont = true;
 			} else {
-				changed = false;
+				cont = false;
 			}
 		} else {
 			if (tk->nextSibling()) {
-				changed = true;
+				gonext = false;
+				cont = true;
 			} else {
 				// try to go up a level
-				changed = false;
+				cont = false;
 				if (mydepth > 1) {
 					if (tk->parent()) {
 						mydepth--;
 						output += "</ul>";
-						changed = ((tk->nextSibling()) ? true : false);
-					} else {
-						changed = false;
+						cont = true;
+						gonext = true;
 					}
 				}
 			}
 		}
-	} while (!module->Error() && changed);
+	} while (cont);
 	
 	output += "</ul>";
 	return output;
@@ -737,7 +791,7 @@ QString CSword::chapterList(const QString &modname, const VerseKey *vk) {
 }
 
 QString CSword::chapterLink(const QString &modname, const VerseKey *vk) {
-	return swordUrl(modname, QString("%1 %2").arg(vk->getBookName()).arg(vk->Chapter()));
+	return swordUrl(modname, bookChapter(vk));
 }
 
 QString CSword::chapterLink(const QString &modname, const SWKey *sk) {
@@ -746,5 +800,16 @@ QString CSword::chapterLink(const QString &modname, const SWKey *sk) {
 		return chapterLink(modname, vk);
 	else
 		return QString::null;
-		
+}
+
+QString CSword::bookChapter(const VerseKey *vk)  {
+	return QString("%1 %2").arg(vk->getBookName()).arg(vk->Chapter());
+}
+
+QString CSword::bookChapter(const SWKey *sk)  {
+	const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
+	if (vk)
+		return bookChapter(vk);
+	else
+		return QString::null;
 }

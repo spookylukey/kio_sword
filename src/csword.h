@@ -47,10 +47,6 @@
  * what encoding to use in the web page e.g. utf 8 could be used
  * and no transformation would need to be done).
  *
- * An HTML 'snippet' is HTML formatted output that is not a valid
- * web page i.e. doesn't have <html> <head> <body> tags, again to allow
- * the caller to add this.
- *
  */
 class CSword : public sword::SWMgr {
  
@@ -73,15 +69,28 @@ public:
 	QStringList moduleList();
 	
 protected:
+	typedef enum { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES } ModuleType ;
+	enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
 	void setModuleFilter(sword::SWModule *module);
 //	QString hrefList(const QStringList &list, const QString &modname);
 	QString indexBible(sword::SWModule *module);
 	QString indexBook(sword::SWModule *module);
 	QString indexTree(sword::SWModule *module, bool fromTop, const int depth = -1);
 	QString renderText(sword::SWModule *module);
+	
+	QString verseQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
+			   ModuleType modtype, QString &navlinks);
+	QString treeQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
+			   ModuleType modtype, QString &navlinks);
+	QString normalQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
+			   ModuleType modtype, QString &navlinks);
+	
 	QString chapterList(const QString &modname, const sword::VerseKey *vk);
 	QString chapterLink(const QString &modname, const sword::VerseKey *vk);
 	QString chapterLink(const QString &modname, const sword::SWKey *sk);
+	
+	QString bookChapter(const sword::SWKey *sk);
+	QString bookChapter(const sword::VerseKey *vk);
 	
 	sword::SWFilter *m_osisfilter;
 	sword::SWFilter *m_gbffilter;
@@ -91,8 +100,6 @@ protected:
 	std::set<sword::SWModule *, std::less<sword::SWModule *> > m_modset;
 	std::vector<const char *> m_moduleTypes;
 	std::vector<QString> m_moduleTypeNames;
-	enum ModuleTypes { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES };
-	enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
 
 };
 
