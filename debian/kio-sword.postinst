@@ -1,5 +1,5 @@
 #! /bin/sh
-# postinst script for kio-sword
+# postinst script for tmp
 #
 # see: dh_installdeb(1)
 
