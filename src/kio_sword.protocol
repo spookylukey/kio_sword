@@ -1,0 +1,9 @@
+[Protocol]
+exec=kio_kio_sword
+protocol=kio_sword
+input=none
+output=stream
+reading=true
+defaultMimetype=text/plain
+Icon=remote
+Description=A kioslave for kio_sword
