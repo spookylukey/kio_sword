@@ -24,17 +24,19 @@ a:hover {
 	text-decoration: underline;
 }
 
-
 div.swordtext { 
 	margin-bottom: 10px;
 }
 
 td.swordpage { 
 	background-color: #ffffff; 
+	width: 100%;
 }
+
 .swordjesusquote { 
 	color: red ;
 }
+
 .swordversenumber { 
 	vertical-align: super;
 	font-size: 0.7em ; 
