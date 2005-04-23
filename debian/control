@@ -2,12 +2,12 @@ Source: kio-sword
 Section: kde
 Priority: optional
 Maintainer: Luke Plant <L.Plant.98@cantab.net>
-Build-Depends: debhelper (>= 4.0.0), libsword-dev (>= 1.5.7-1), kdelibs4-dev (>= 4), kdelibs-bin, kdelibs-data, gettext
+Build-Depends: debhelper (>= 4.0.0), libsword-dev (>= 1.5.7), kdelibs4-dev (>=4:3.2.0), kdelibs-bin, kdelibs-data, gettext
 Standards-Version: 3.6.0
 
 Package: kio-sword
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: kdelibs4 (>= 4:3.2.0), libstdc++5, libsword4 (>= 1.5.7)
 Suggests: sword-text, sword-dict, sword-comm
 Provides: sword-frontend
 Description: A lightweight easy-to-use Bible tool for KDE
