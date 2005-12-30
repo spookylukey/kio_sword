@@ -25,8 +25,8 @@
 #define SWORDUTILS_H
 
 #include <versekey.h>
-
-bool entireBook(const sword::VerseKey *vk);
-bool singleChapter(const sword::VerseKey *vk);
-
+namespace KioSword {
+	bool entireBook(const sword::VerseKey *vk);
+	bool singleChapter(const sword::VerseKey *vk);
+}
 #endif

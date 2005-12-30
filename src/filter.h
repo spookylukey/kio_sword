@@ -1,9 +1,7 @@
 /***************************************************************************
-    File:         ks_gbfhtml.h
+    File:         filter.h
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
-                  and CrossWire Bible Society 2003
-                  (file based on gbfhtmlhref.h)
  ***************************************************************************/
 
 /***************************************************************************
@@ -22,33 +20,20 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
-
-#ifndef KS_GBFHTML_H
-#define KS_GBFHTML_H
-
-#include "filter.h"
+#ifndef KS_FILTER_H
+#define KS_FILTER_H
 
 #include <swbasicfilter.h>
-#include <swkey.h>
-#include <swmodule.h>
 
 namespace KioSword {
-	/** this filter converts GBF  text to HTML text with hrefs
-	*/
-	class GBFHTML : public FilterBase {
+	class SwordOptions;
+
+	class FilterBase : public sword::SWBasicFilter {
 	protected:
-		class MyUserData : public sword::BasicFilterUserData {
-		public:
-			MyUserData(const sword::SWModule *module, const sword::SWKey *key) : BasicFilterUserData(module, key) {}
-			bool hasFootnotePreTag;
-		};
-		virtual sword::BasicFilterUserData *createUserData(const sword::SWModule *module, const sword::SWKey *key) {
-			return new MyUserData(module, key);
-		}
-		virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
+		const SwordOptions* m_swordoptions;
 	public:
-		GBFHTML();
+		void setSwordOptions(const SwordOptions* options);
 	};
-}	
+}
+
 #endif
