@@ -26,30 +26,33 @@
 #ifndef KS_THMLHTML_H
 #define KS_THMLHTML_H
 
+#include "filter.h"
+
 #include <swbasicfilter.h>
 #include <utilxml.h>
 #include <swkey.h>
 #include <swmodule.h>
 
-/** this filter converts ThML text to HTML text with hrefs
- */
-class ks_ThMLHTML : public sword::SWBasicFilter {
-protected:
-	class MyUserData : public sword::BasicFilterUserData {
+namespace KioSword {
+	/** this filter converts ThML text to HTML text with hrefs
+	*/
+	class ThMLHTML : public FilterBase {
+	protected:
+		class MyUserData : public sword::BasicFilterUserData {
+		public:
+			MyUserData(const sword::SWModule *module, const sword::SWKey *key);
+			sword::SWBuf inscriptRef;
+			bool SecHead;
+			bool BiblicalText;
+			sword::SWBuf version;
+			sword::XMLTag startTag;
+		};
+		virtual sword::BasicFilterUserData* createUserData(const sword::SWModule *module, const sword::SWKey *key) {
+			return new MyUserData(module, key);
+		}
+		virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
 	public:
-		MyUserData(const sword::SWModule *module, const sword::SWKey *key);//: BasicFilterUserData(module, key) {}
-		sword::SWBuf inscriptRef;
-		bool SecHead;
-		bool BiblicalText;
-		sword::SWBuf version;
-		sword::XMLTag startTag;
+		ThMLHTML();
 	};
-	virtual sword::BasicFilterUserData *createUserData(const sword::SWModule *module, const sword::SWKey *key) {
-		return new MyUserData(module, key);
-	}
-	virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
-public:
-	ks_ThMLHTML();
-};
-
+}
 #endif /* KS_THMLHTML_H */

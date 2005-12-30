@@ -26,33 +26,35 @@
 #ifndef KS_OSISHTML_H
 #define KS_OSISHTML_H
 
+#include "filter.h"
+
 #include <swbasicfilter.h>
 #include <swkey.h>
 #include <swmodule.h>
 
 using namespace sword;
 
-/** this filter converts OSIS text to HTML text with hrefs
- */
-class ks_OSISHTML : public sword::SWBasicFilter {
-private:
-protected:
-	class MyUserData : public sword::BasicFilterUserData {
+namespace KioSword {
+	/** this filter converts OSIS text to HTML text with hrefs */
+	class OSISHTML : public FilterBase {
+	private:
+	protected:
+		class MyUserData : public sword::BasicFilterUserData {
+		public:
+			bool osisQToTick;
+			bool inBold;
+			sword::SWBuf lastTransChange;
+			sword::SWBuf w;
+			sword::SWBuf fn;
+			MyUserData(const sword::SWModule *module, const sword::SWKey *key);
+		};
+		virtual BasicFilterUserData* createUserData(const sword::SWModule *module, const sword::SWKey *key) {
+			return new MyUserData(module, key);
+		}
+		virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
 	public:
-		bool osisQToTick;
-		bool inBold;
-		sword::SWBuf lastTransChange;
-		sword::SWBuf w;
-		sword::SWBuf fn;
-		MyUserData(const sword::SWModule *module, const sword::SWKey *key);
+		OSISHTML();
 	};
-	virtual BasicFilterUserData *createUserData(const sword::SWModule *module, const sword::SWKey *key) {
-		return new MyUserData(module, key);
-	}
-	virtual bool handleToken(sword::SWBuf &buf, const char *token, sword::BasicFilterUserData *userData);
-public:
-	ks_OSISHTML();
-};
-
+}
 
 #endif

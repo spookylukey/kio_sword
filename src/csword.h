@@ -20,10 +20,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CSWORD_H
-#define CSWORD_H
+#ifndef KS_SWORD_H
+#define KS_SWORD_H
 
-#include "cswordoptions.h"
+#include "filter.h"
 
 #include <swmgr.h>
 #include <swmodule.h>
@@ -36,11 +36,12 @@
 #include <vector>
 #include <set>
 
+
 /** Handles sword backend and prints modules 
  *
- * CSword inherits from sword:SWMgr and handles the majority of
+ * Sword inherits from sword::SWMgr and handles the majority of
  * the sword stuff.  It also adds functions to 'print' text from
- * a specified module and to list available modules.  
+ * a specified module and to list available modules.
  *
  * All output is in HTML, and unicode characters are not converted
  * to HTML entities (this allows the calling function to decide
@@ -48,76 +49,82 @@
  * and no transformation would need to be done).
  *
  */
-class CSword : public sword::SWMgr {
- 
-public:
-	CSword();
-	virtual ~CSword();
- 
-	typedef enum {  SEARCH_WORDS,
-			SEARCH_PHRASE,
-			SEARCH_REGEX } SearchType;
-			
-	/** Return an HTML snippet of specified key from module
-	 *
-	 * @param module The sword module to print from
-	 * @param key    The text description of the key from the users URL
-	 * @return	 An HTML snippet containing the specified key, an error message or an index (if the key is empty)
-	 */
-	QString moduleQuery(const QString &module, const QString &ref, const CSwordOptions &options);
-	
-	QString search(const QString &module, const QString &query, SearchType stype, const CSwordOptions &options);
-	
-	/** Return an HTML snippet containing a hyperlinked table of modules
-	 */
-	QString listModules(const CSwordOptions &options);
-	void setOptions(const CSwordOptions &options);
-	QStringList moduleList();
-	
-	
-protected:
-	typedef enum { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES } ModuleType ;
-	enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
-	void setModuleFilter(sword::SWModule *module);
 
-	ModuleType getModuleType(sword::SWModule *module);
-	QString indexBible(sword::SWModule *module);
-	QString indexBook(sword::SWModule *module);
-	QString indexTree(sword::SWModule *module, bool fromTop, const int depth = -1);
+namespace KioSword {
+	class SwordOptions;
 	
-	QString verseQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
-			   ModuleType modtype, QString &navlinks);
-	QString treeQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
-			   ModuleType modtype, QString &navlinks);
-	QString normalQuery(sword::SWModule *module, const QString &query, const CSwordOptions &options,
-			   ModuleType modtype, QString &navlinks);
+	class Sword : public sword::SWMgr {
 	
-	static QString renderText(sword::SWModule *module);
-	static QString chapterList(const QString &modname, const sword::VerseKey *vk);
+	public:
+		Sword();
+		virtual ~Sword();
 	
-	static QString chapterLink(const QString &modname, const sword::VerseKey *vk);
-	static QString chapterLink(const QString &modname, const sword::SWKey *sk);
+		typedef enum {  SEARCH_WORDS,
+				SEARCH_PHRASE,
+				SEARCH_REGEX } SearchType;
+				
+		/** Return an HTML snippet of specified key from module
+		*
+		* @param module The sword module to print from
+		* @param key    The text description of the key from the users URL
+		* @param options Options for rendering text
+		* @param title Output parameter to hold title of page
+		* @param body Output parameter to hold HTML body
+		*/
+		void moduleQuery(const QString &module, const QString &ref, const SwordOptions &options, QString &title, QString &body);
+		
+		QString search(const QString &module, const QString &query, SearchType stype, const SwordOptions &options);
+		
+		/** Return an HTML snippet containing a hyperlinked table of modules
+		*/
+		QString listModules(const SwordOptions &options);
+		void setOptions(const SwordOptions &options);
+		QStringList moduleList();
+		
+		
+	protected:
+		typedef enum { BIBLE, COMMENTARY, LEXDICT, GENERIC, NUM_MODULE_TYPES } ModuleType ;
+		enum KeyType { SWKEY, VERSEKEY, TREEKEY } ;
+		void setModuleFilter(sword::SWModule *module, const SwordOptions* options);
 	
-	static QString bookLink(const QString &modname, const sword::VerseKey *vk);
-	static QString bookLink(const QString &modname, const sword::SWKey *sk);
+		ModuleType getModuleType(sword::SWModule *module);
+		QString indexBible(sword::SWModule *module, const SwordOptions& options);
+		QString indexBook(sword::SWModule *module, const SwordOptions& options);
+		QString indexTree(sword::SWModule *module, const SwordOptions& options, bool fromTop, const int depth = -1);
+		
+		QString verseQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
+				ModuleType modtype, QString &navlinks);
+		QString treeQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
+				ModuleType modtype, QString &navlinks);
+		QString normalQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
+				ModuleType modtype, QString &navlinks);
+		
+		static QString renderText(sword::SWModule *module);
+		static QString chapterList(const QString &modname, const sword::VerseKey *vk, const SwordOptions& options);
+		
+		static QString chapterLink(const QString &modname, const sword::VerseKey *vk, const SwordOptions& options);
+		static QString chapterLink(const QString &modname, const sword::SWKey *sk, const SwordOptions& options);
+		
+		static QString bookLink(const QString &modname, const sword::VerseKey *vk, const SwordOptions& options);
+		static QString bookLink(const QString &modname, const sword::SWKey *sk, const SwordOptions& options);
+		
+		static QString bookChapter(const sword::SWKey *sk);
+		static QString bookChapter(const sword::VerseKey *vk);
+		
+		static QString bookName(const sword::SWKey *sk);
+		static QString bookName(const sword::VerseKey *vk);
+		
+		FilterBase *m_osisfilter;
+		FilterBase *m_gbffilter;
+		FilterBase *m_thmlfilter;
+		sword::SWFilter *m_plainfilter;
+		sword::SWFilter *m_rtffilter;
+		
+		std::set<sword::SWModule *, std::less<sword::SWModule *> > m_modset;
+		std::vector<const char *> m_moduleTypes;
+		std::vector<QString> m_moduleTypeNames;
 	
-	static QString bookChapter(const sword::SWKey *sk);
-	static QString bookChapter(const sword::VerseKey *vk);
-	
-	static QString bookName(const sword::SWKey *sk);
-	static QString bookName(const sword::VerseKey *vk);
-	
-	sword::SWFilter *m_osisfilter;
-	sword::SWFilter *m_gbffilter;
-	sword::SWFilter *m_thmlfilter;
-	sword::SWFilter *m_plainfilter;
-	sword::SWFilter *m_rtffilter;
-	
-	std::set<sword::SWModule *, std::less<sword::SWModule *> > m_modset;
-	std::vector<const char *> m_moduleTypes;
-	std::vector<QString> m_moduleTypeNames;
-
-};
-
-#endif
+	};
+}
+#endif // KS_SWORD_H
 

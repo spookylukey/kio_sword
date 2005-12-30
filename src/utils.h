@@ -25,10 +25,29 @@
 #define UTILS_H
 
 #include <qstring.h>
- 
-QString swordUrl(const QString &path);
-QString swordUrl(const QString &module, const QString &ref);
-QString shorten(const QString &ref, int len);
+namespace KioSword {
 
+	class SwordOptions;
 
+	typedef enum {  DEFMODULETYPE_NONE,
+			DEFBIBLE,
+			GREEKSTRONGS,
+			HEBREWSTRONGS,
+			GREEKMORPH,
+			HEBREWMORPH } DefModuleType;
+	
+	extern const char* DEFBIBLE_STR;
+	extern const char* GREEKSTRONGS_STR;
+	extern const char* HEBREWSTRONGS_STR;
+	extern const char* GREEKMORPH_STR;
+	extern const char* HEBREWMORPH_STR;
+	
+	QString swordUrl(const QString& path, const SwordOptions& options);
+	QString swordUrl(const QString& module, const QString& ref, const SwordOptions& options);
+	QString swordUrlForPage(const QString& page, const SwordOptions& options);
+	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions& options);
+	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions* options);
+	QString shorten(const QString& ref, uint len);
+
+}
 #endif

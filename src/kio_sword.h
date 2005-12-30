@@ -18,81 +18,75 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef KIO_SWORD_H
-#define KIO_SWORD_H
+#ifndef KIOSWORD_H
+#define KIOSWORD_H
 
+#include "utils.h"
 #include "cswordoptions.h"
 #include "csword.h"
 
 #include <kurl.h>
 #include <kconfig.h>
-//#include <kio/global.h>
 #include <kio/slavebase.h>
 
 #include <qstring.h>
 #include <qcstring.h>
 
-class SwordProtocol : public KIO::SlaveBase {
+namespace KioSword {
 
-
-public:
-	SwordProtocol(const QCString & pool_socket,
-			  const QCString & app_socket);
-	virtual ~SwordProtocol();
-	virtual void mimetype(const KURL & url);
-	virtual void get(const KURL & url);
-    
-protected:
-	void data(const QCString& text);
-	void data(const QByteArray& text);
-	
-	void parseURL(const KURL & url);
-	void readUserConfig();
-	QString saveUserConfig();
-	void setHTML();
-	
-	QCString header();
-	QCString footer();
-	
-	QString helpPage();
-	QString searchForm();
-	QString settingsForm();
-	
-	typedef enum { 	QUERY, 
-			REDIRECT_QUERY, 
-			SEARCH_FORM, 
-			SEARCH_QUERY, 
-			SETTINGS_FORM, 
-			SETTINGS_SAVE, 
-			RESET, 
-			HELP } ActionType;
-			
-	typedef enum {  DEFMODULETYPE_NONE,
-			DEFBIBLE,
-			GREEKSTRONGS,
-			HEBREWSTRONGS,
-			GREEKMORPH,
-			HEBREWMORPH } DefModuleType;
-
-	CSword 		m_sword;
-	CSwordOptions 	m_options;
-	ActionType 	m_action;
-	DefModuleType 	m_moduletype;	
-	QString 	m_path;
-	CSword::SearchType 	m_stype;
+	class SwordProtocol : public KIO::SlaveBase {
 		
-	struct {
-		QString query;
-		QString module;
-	} m_previous;
+	public:
+		SwordProtocol(const QCString & pool_socket,
+				const QCString & app_socket);
+		virtual ~SwordProtocol();
+		virtual void mimetype(const KURL & url);
+		virtual void get(const KURL & url);
 	
-	struct {
-		QString query;
-		QString module;
-	} m_redirect;
+	protected:
+		void data(const QCString& text);
+		void data(const QByteArray& text);
+		
+		void parseURL(const KURL & url);
+		void readUserConfig();
+		QString saveUserConfig();
+		
+		void sendPage(const QString &title, const QString &body);
+		
+		QString helpPage();
+		QString pageLinks(const SwordOptions& options);
+		QString searchForm();
+		QString settingsForm();
+		
+		typedef enum { 	QUERY, 
+				REDIRECT_QUERY, 
+				SEARCH_FORM, 
+				SEARCH_QUERY, 
+				SETTINGS_FORM, 
+				SETTINGS_SAVE, 
+				HELP } ActionType;
 	
-	KConfig *m_config;
-	
-};
+		Sword 		m_sword;
+		SwordOptions 	m_options;
+		ActionType 	m_action;
+		DefModuleType 	m_moduletype;	
+		QString 	m_path;
+		Sword::SearchType 	m_stype;
+		KURL		m_baseurl;
+			
+		struct {
+			QString query;
+			QString module;
+		} m_previous;
+		
+		struct {
+			QString query;
+			QString module;
+		} m_redirect;
+		
+		KConfig *m_config;
+		
+	};
+}
 
 #endif

@@ -29,37 +29,40 @@
  */
 using sword::VerseKey;
 
-bool entireBook(const VerseKey *vk) {
-	if (vk->LowerBound().Chapter() == 1 &&
-	    vk->LowerBound().Verse() == 1) {
-	    // lower bound is first verse in book
-		VerseKey cp(vk->UpperBound());
-		cp++;
-		if (cp._compare(vk->UpperBound()) == 0 ||
-		    cp.Error() ||
-		    cp.Book() != vk->UpperBound().Book()) {
-			// reached end of module, or
-			// another book
-			return true;
-		}
-	}
-	return false;
-}
+namespace KioSword {
 
-bool singleChapter(const VerseKey *vk) {
-	if (!vk) return false;
-	
-	if (vk->LowerBound().Verse() == 1 && 
-	    vk->LowerBound().Chapter() == vk->UpperBound().Chapter()) {
-		VerseKey cp(vk->UpperBound());
-		cp++;
-		if (cp._compare(vk->UpperBound()) == 0 ||
-		    cp.Error() ||
-		    cp.Chapter() != vk->UpperBound().Chapter()) {
-			// either reached end of module, or
-			// another chapter
-			return true;
+	bool entireBook(const VerseKey *vk) {
+		if (vk->LowerBound().Chapter() == 1 &&
+		vk->LowerBound().Verse() == 1) {
+		// lower bound is first verse in book
+			VerseKey cp(vk->UpperBound());
+			cp++;
+			if (cp._compare(vk->UpperBound()) == 0 ||
+			cp.Error() ||
+			cp.Book() != vk->UpperBound().Book()) {
+				// reached end of module, or
+				// another book
+				return true;
+			}
 		}
+		return false;
 	}
-	return false;
+	
+	bool singleChapter(const VerseKey *vk) {
+		if (!vk) return false;
+		
+		if (vk->LowerBound().Verse() == 1 && 
+		vk->LowerBound().Chapter() == vk->UpperBound().Chapter()) {
+			VerseKey cp(vk->UpperBound());
+			cp++;
+			if (cp._compare(vk->UpperBound()) == 0 ||
+			cp.Error() ||
+			cp.Chapter() != vk->UpperBound().Chapter()) {
+				// either reached end of module, or
+				// another chapter
+				return true;
+			}
+		}
+		return false;
+	}
 }

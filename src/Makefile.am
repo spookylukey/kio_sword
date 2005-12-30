@@ -1,22 +1,15 @@
-SUBDIRS     = data pics
+SUBDIRS = data pics
 
-INCLUDES    = $(all_includes)
+INCLUDES = -I/usr/include/qt3 $(all_includes)
 
 kde_module_LTLIBRARIES = kio_sword.la
 
-kio_sword_la_SOURCES = kio_sword.cpp \
-	csword.cpp \
-	ks_osishtml.cpp \
-	ks_gbfhtml.cpp \
-	ks_thmlhtml.cpp \
-	utils.cpp \
-	swordutils.cpp
+kio_sword_la_SOURCES = kio_sword.cpp csword.cpp ks_osishtml.cpp ks_gbfhtml.cpp \
+		ks_thmlhtml.cpp utils.cpp swordutils.cpp cswordoptions.cpp filter.cpp
 
-kio_sword_la_LIBADD = \
-	-lkio \
-	$(LIB_SWORD)
+kio_sword_la_LIBADD = -lqt-mt -lkio $(LIB_SWORD)
 	
-kio_sword_la_LDFLAGS = -module -avoid-version $(all_libraries) $(KDE_PLUGIN)
+kio_sword_la_LDFLAGS = -avoid-version -module $(all_libraries) $(KDE_PLUGIN)
 
 protocol_DATA = sword.protocol
 protocoldir = $(kde_servicesdir)
@@ -24,5 +17,5 @@ protocoldir = $(kde_servicesdir)
 messages: rc.cpp
 	$(XGETTEXT) *.cpp -o $(podir)/kio_sword.pot
 
-noinst_HEADERS =  kio_sword.h csword.h cswordoptions.h ks_osishtml.h \
-	ks_gbfhtml.h ks_thmlhtml.h utils.h swordutils.h
+noinst_HEADERS = kio_sword.h csword.h cswordoptions.h ks_osishtml.h \
+			ks_gbfhtml.h ks_thmlhtml.h utils.h swordutils.h option.h filter.h
