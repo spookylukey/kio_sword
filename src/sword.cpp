@@ -326,7 +326,7 @@ namespace KioSword
 		}
 		modtype = getModuleType(module);
 		
-		nav += QString("<ul><li class='first'>%1 <a href='%3'>%2</a>")
+		nav += QString("<ul><li class='first'>%1 <a href='%3'>%2</a></li>")
 			.arg(i18n("Module:"))
 			.arg(modname)
 			.arg(swordUrl(modname, options));
@@ -423,10 +423,9 @@ namespace KioSword
 		return QString::fromUtf8(module->RenderText());
 	}
 	
-	/* return formatted text for the query of a verse based module
-	* links are also return, written to navlinks
-	*/
-	
+	/** return formatted text for the query of a verse based module
+	 * links are also return, written to navlinks
+	 */
 	QString Sword::verseQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
 								ModuleType modtype, QString &navlinks) {
 		QString modname(module->Name());
@@ -458,13 +457,15 @@ namespace KioSword
 			for (int i = 0; i < lk.Count(); ++i) {
 				VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
 				if (element) {
-					char err = 0;
 					// Multiple verses
+					char err = 0;
+					
 					// Check whether we have an entire book selected
-					// (but count single chapter books as if they were just
+					// (but treat single chapter books as if they were just
 					// one chapter from a book)
 					if (element->UpperBound().Chapter() > 1 &&
-						entireBook(element) && !options.wholeBook()) {
+						isEntireBook(element) && !options.wholeBook()) {
+						// List books and link for viewing entire book
 						SwordOptions options_wholebook(options);
 						options_wholebook.wholeBook.set(true); // set just for creating the URL
 						text += QString("<h2>%1</h2>"
@@ -477,29 +478,36 @@ namespace KioSword
 								.arg(i18n("Chapters:"))
 								.arg(chapterList(modname, element, options));
 					} else {
+						// chapter or verse range selected
 						module->Key(element->LowerBound());
 						if (lk.Count() == 1) {
 							// add some navigation links 
-							if (singleChapter(element)) {
+							if (isSingleChapter(element)) {
+								// get link to previous chapter
 								module->decrement();
 								if (!module->Error()) {
 									navlinks += prev
 										.arg(bookChapter(module->getKey()))
 										.arg(chapterLink(modname, module->getKey(), options));
 								}
+								// get link to book
 								module->Key(element->LowerBound());
 								navlinks += genlink
 										.arg(bookName(element))
 										.arg(bookLink(modname, element, options));
 							} else {
+								// get link to book
 								navlinks += genlink
 										.arg(bookName(element))
 										.arg(bookLink(modname, element, options));
+								// get link to entire chapter
 								navlinks += genlink
 									.arg(bookChapter(element))
 									.arg(chapterLink(modname, element, options));
 							}
 						}
+						
+						// Headings plus text itself
 						do  {
 							VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
 							if (curvk->Book() != book || curvk->Testament() != testament) {
@@ -525,8 +533,9 @@ namespace KioSword
 							
 							module->increment(1);
 						} while (module->Key() <= element->UpperBound() && !(err = module->Error()));
+						
 						if (lk.Count() == 1) {
-							if (singleChapter(element)) {
+							if (isSingleChapter(element)) {
 							// add some navigation links 
 								if (!err) {
 									navlinks += next
@@ -669,6 +678,7 @@ namespace KioSword
 		SWKey *skey = module->getKey();
 		
 		output += QString("<h1 class=\"moduletitle\">%1</h1>").arg(module->Description());
+		
 		
 		if (ref.isEmpty()) {
 			doindex = true;
