@@ -193,7 +193,12 @@ namespace KioSword
 			// we must ensure that we only copy from an object
 			// of the same type.
 			const Option<T>* other2 = (Option<T>*)other;
-			set((*other2)());
+			
+			// m_configName, m_default_value, m_qsShortName and m_qsLongName
+			// have already been set up
+			m_value = other2->m_value;
+			m_config_value = other2->m_config_value;
+			isConfigValue = other2->isConfigValue;
 		}
 	};
 	
