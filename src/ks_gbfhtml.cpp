@@ -1,7 +1,7 @@
 /***************************************************************************
     File:         ks_gbfhtml.cpp
     Project:      kio-sword -- An ioslave for SWORD and KDE
-    Copyright:    Copyright (C) 2004 Luke Plant
+    Copyright:    Copyright (C) 2004-2005 Luke Plant
                   and CrossWire Bible Society 2003
                   (file based on gbfhtmlhref.cpp and osiscgi.cpp)
  ***************************************************************************/

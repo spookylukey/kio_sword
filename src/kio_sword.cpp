@@ -1,7 +1,7 @@
 /***************************************************************************
     File:         kio_sword.cpp
     Project:      kio-sword  -- An ioslave for SWORD and KDE
-    Copyright:    Copyright (C) 2004 Luke Plant
+    Copyright:    Copyright (C) 2004-2005 Luke Plant
  
     File info:    
  ***************************************************************************/
