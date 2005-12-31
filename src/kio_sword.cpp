@@ -222,14 +222,14 @@ namespace KioSword
 		switch (m_action) {
 			case QUERY:
 				if (!modname.isEmpty()) {
-					m_sword.moduleQuery(modname, query, m_options, title, body);
+					m_renderer.moduleQuery(modname, query, m_options, title, body);
 					sendPage(title, body);
 				} else {
 					title = i18n("Modules - Kio-Sword");
 					if (!error.isEmpty()) {
 						body = error;
 					}
-					body += m_sword.listModules(m_options);
+					body += m_renderer.listModules(m_options);
 					sendPage(title, body);
 				}
 				break;
@@ -239,7 +239,7 @@ namespace KioSword
 				break;
 						
 			case SEARCH_QUERY:
-				sendPage(i18n("Search Results - Kio-Sword"), m_sword.search(m_redirect.module, m_redirect.query, m_stype, m_options));
+				sendPage(i18n("Search Results - Kio-Sword"), m_renderer.search(m_redirect.module, m_redirect.query, m_stype, m_options));
 				break;
 				
 			case SETTINGS_FORM:
@@ -357,13 +357,13 @@ namespace KioSword
 			// search
 			else if (!strcasecmp(key, "stype")) {
 				if (!strcasecmp(val, "words")) {
-					m_stype = Sword::SEARCH_WORDS;
+					m_stype = Renderer::SEARCH_WORDS;
 				} else if (!strcasecmp(val, "phrase")) {
-					m_stype = Sword::SEARCH_PHRASE;
+					m_stype = Renderer::SEARCH_PHRASE;
 				} else if (!strcasecmp(val, "regex")) {
-					m_stype = Sword::SEARCH_REGEX;
+					m_stype = Renderer::SEARCH_REGEX;
 				} else {
-					m_stype = Sword::SEARCH_WORDS;
+					m_stype = Renderer::SEARCH_WORDS;
 				}
 			}
 	
@@ -486,7 +486,7 @@ namespace KioSword
 		
 		
 		output += separator_row.arg(i18n("Default modules"));
-		modules = m_sword.moduleList();
+		modules = m_renderer.moduleList();
 		
 		vector<QString> dm_desc, dm_names, dm_values;
 		vector<QString>::size_type i;
@@ -610,7 +610,7 @@ namespace KioSword
 			"</div>");
 			
 		if (search_form.isEmpty()) {
-			QStringList modules = m_sword.moduleList();
+			QStringList modules = m_renderer.moduleList();
 			QString temp;
 			QStringList::Iterator it;
 			
