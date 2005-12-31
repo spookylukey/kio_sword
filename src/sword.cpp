@@ -61,13 +61,12 @@ using std::set;
 
 using namespace sword;
 
-static const QString prev(" <li><a href='%3'>&laquo %1</a>");
-static const QString next(" <li><a href='%3'>%1 &raquo</a>");
-static const QString up(" <li><a href='%3'>%1 %2</a>");
-static const QString genlink(" <li><a href='%2'>%1</a>");
-
 namespace KioSword
 {
+	static const QString prev(" <li><a href='%3'>&laquo %1</a>");
+	static const QString next(" <li><a href='%3'>%1 &raquo</a>");
+	static const QString up(" <li><a href='%3'>%1 %2</a>");
+	static const QString genlink(" <li><a href='%2'>%1</a>");
 	
 	Sword::Sword() : 
 		sword::SWMgr(0, 0, true, new sword::EncodingFilterMgr(sword::ENC_UTF8)),

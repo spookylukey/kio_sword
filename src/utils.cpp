@@ -35,6 +35,8 @@ namespace KioSword {
 	const char* HEBREWSTRONGS_STR = "hebrewstrongs";
 	const char* GREEKMORPH_STR = "greekmorph";
 	const char* HEBREWMORPH_STR = "hebrewmorph";
+	
+	const char* SWORD_PROTOCOL = "sword";
 
 	static void mergeOptionsToURL(KURL& url, const SwordOptions* options)
 	{
@@ -58,7 +60,7 @@ namespace KioSword {
 	QString swordUrl(const QString& path, const SwordOptions& options) {
 		QString output;
 		KURL url;
-		url.setProtocol(QString("sword"));
+		url.setProtocol(SWORD_PROTOCOL);
 		if (path.at(0) != '/')
 			url.addPath("/");
 		url.addPath(path);
@@ -87,7 +89,7 @@ namespace KioSword {
 	{
 		QString output;
 		KURL url;
-		url.setProtocol(QString("sword"));
+		url.setProtocol(SWORD_PROTOCOL);
 		url.addPath("/");
 		url.addQueryItem(page, "");
 		mergeOptionsToURL(url, &options);
@@ -98,7 +100,7 @@ namespace KioSword {
 	{
 		QString output;
 		KURL url;
-		url.setProtocol(QString("sword"));
+		url.setProtocol(SWORD_PROTOCOL);
 		url.addPath("/");
 		url.addQueryItem("settings", "");
 		url.addQueryItem("previouspath", path);
@@ -139,7 +141,7 @@ namespace KioSword {
 			default:
 				return output;
 		}
-		url.setProtocol(QString("sword"));
+		url.setProtocol(SWORD_PROTOCOL);
 		url.addPath("/");
 		url.addQueryItem("modtype", modTypeStr);
 		url.addQueryItem("query", searchQuery);
