@@ -511,17 +511,34 @@ namespace KioSword
 						}
 						
 						// Headings plus text itself
+						bool inDirectionedDiv = false;
 						do  {
 							VerseKey *curvk = dynamic_cast<VerseKey*>(module->getKey());
 							if (curvk->Book() != book || curvk->Testament() != testament) {
+								if (inDirectionedDiv)
+								{
+									// close it before carrying on
+									text += "</div>";
+									inDirectionedDiv = false;
+								}
 								text += "<h2>" + QString(curvk->getBookName()) + "</h2>";
 								chapter = 0;
 							}
 							if (curvk->Chapter() != chapter) {
+								if (inDirectionedDiv)
+								{
+									// close it before carrying on
+									text += "</div>";
+									inDirectionedDiv = false;
+								}
 								text += "<h3>" + i18n("Chapter %1").arg(curvk->Chapter()) + "</h3>";
 							}
 							
-							text += QString("<div dir='%1'>").arg(modtextdir);
+							if (!inDirectionedDiv) {
+								text += QString("<div dir='%1'>").arg(modtextdir);
+								inDirectionedDiv = true;
+							}
+								
 							if (options.verseNumbers() && modtype == BIBLE) {
 								text += QString("<a class=\"versenumber\" href=\"%2\">%1</a> ")
 									  .arg(curvk->Verse())
@@ -529,15 +546,21 @@ namespace KioSword
 							}
 							text += renderText(module);
 							text += " ";
-							if (options.verseLineBreaks()) 
+							if (options.verseLineBreaks())
 								text += "<br />";
-							text += "</div>";
 							book = curvk->Book();
 							testament = curvk->Testament();
 							chapter = curvk->Chapter();
 							
 							module->increment(1);
 						} while (module->Key() <= element->UpperBound() && !(err = module->Error()));
+						
+						// Close the final div
+						if (inDirectionedDiv)
+						{
+							text += "</div>";
+							inDirectionedDiv = false;
+						}
 						
 						if (lk.Count() == 1) {
 							if (isSingleChapter(element)) {
