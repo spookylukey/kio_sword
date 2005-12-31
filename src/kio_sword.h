@@ -22,8 +22,8 @@
 #define KIOSWORD_H
 
 #include "utils.h"
-#include "cswordoptions.h"
-#include "csword.h"
+#include "swordoptions.h"
+#include "sword.h"
 
 #include <kurl.h>
 #include <kconfig.h>

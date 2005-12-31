@@ -24,7 +24,7 @@
  ***************************************************************************/
 
 // Mine
-#include "csword.h"
+#include "sword.h"
 #include "kio_sword.h"
 #include "utils.h"
 
