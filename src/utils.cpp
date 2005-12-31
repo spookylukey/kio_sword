@@ -94,6 +94,18 @@ namespace KioSword {
 		return url.url();
 	}
 	
+	QString swordUrlForSettings(const QString& path, const SwordOptions& options)
+	{
+		QString output;
+		KURL url;
+		url.setProtocol(QString("sword"));
+		url.addPath("/");
+		url.addQueryItem("settings", "");
+		url.addQueryItem("previouspath", path);
+		mergeOptionsToURL(url, &options);
+		return url.url();
+	}
+	
 	/** Get a URL for doing a search */
 	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions& options)
 	{

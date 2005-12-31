@@ -25,8 +25,11 @@
 #define SWORDUTILS_H
 
 #include <versekey.h>
+#include <swmodule.h>
+
 namespace KioSword {
 	bool isEntireBook(const sword::VerseKey *vk);
 	bool isSingleChapter(const sword::VerseKey *vk);
+	const char* textDirection(sword::SWModule* module);
 }
 #endif

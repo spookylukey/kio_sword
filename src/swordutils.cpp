@@ -24,13 +24,15 @@
 #include "swordutils.h"
 #include <versekey.h>
 
-/* \brief Return true if the verse key specifies an entire book of the Bible
- *
- */
+using namespace sword;
 using sword::VerseKey;
+using sword::SWModule;
 
 namespace KioSword {
 
+	/** \brief Return true if the verse key specifies an entire book of the Bible
+	*
+	*/
 	bool isEntireBook(const VerseKey *vk) {
 		if (vk->LowerBound().Chapter() == 1 &&
 		vk->LowerBound().Verse() == 1) {
@@ -64,5 +66,10 @@ namespace KioSword {
 			}
 		}
 		return false;
+	}
+	
+	const char* textDirection(SWModule* module)
+	{
+		return (module->Direction(-1) == (int)sword::DIRECTION_LTR ? "ltr" : "rtl");
 	}
 }

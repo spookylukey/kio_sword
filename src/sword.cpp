@@ -432,12 +432,15 @@ namespace KioSword
 		QString text;
 		QString output;
 		bool doindex = false;
+		const char* modtextdir; // text direction of the module
 		
 		ListKey lk;
 		VerseKey *vk = dynamic_cast<VerseKey*>(module->getKey());
 		
 		if (!vk) 
 			return output;
+		
+		modtextdir = textDirection(module);
 			
 		vk->AutoNormalize(0);
 		do { // dummy loop
@@ -517,16 +520,18 @@ namespace KioSword
 							if (curvk->Chapter() != chapter) {
 								text += "<h3>" + i18n("Chapter %1").arg(curvk->Chapter()) + "</h3>";
 							}
+							
+							text += QString("<div dir='%1'>").arg(modtextdir);
 							if (options.verseNumbers() && modtype == BIBLE) {
-								text += QString("<a class=\"versenumber\" href=\"%1\">%2</a>")
-										.arg(swordUrl(module->Name(),module->KeyText(), options))
-										.arg(curvk->Verse());
+								text += QString("<a class=\"versenumber\" href=\"%2\">%1</a> ")
+									  .arg(curvk->Verse())
+									  .arg(swordUrl(module->Name(), module->KeyText(), options));
 							}
 							text += renderText(module);
 							text += " ";
 							if (options.verseLineBreaks()) 
 								text += "<br />";
-								
+							text += "</div>";
 							book = curvk->Book();
 							testament = curvk->Testament();
 							chapter = curvk->Chapter();
@@ -554,7 +559,9 @@ namespace KioSword
 					module->Key(*lk.GetElement(i));
 					element = dynamic_cast<VerseKey*>(module->getKey());
 					text += QString("<h3>%1</h3>").arg(module->KeyText());
+					text += QString("<div dir='%1'>").arg(modtextdir);
 					text += renderText(module);
+					text += "</div>";
 					if (lk.Count() == 1)
 						navlinks += genlink
 							.arg(bookChapter(element))
