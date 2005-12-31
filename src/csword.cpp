@@ -1,5 +1,5 @@
 /***************************************************************************
-    File:         csword.cpp
+    File:         sword.cpp
     Project:      kio-sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004 Luke Plant
  ***************************************************************************/
@@ -22,8 +22,8 @@
  ***************************************************************************/
 
 // Mine
-#include "csword.h"
-#include "cswordoptions.h"
+#include "sword.h"
+#include "swordoptions.h"
 #include "ks_osishtml.h"
 #include "ks_gbfhtml.h"
 #include "ks_thmlhtml.h"

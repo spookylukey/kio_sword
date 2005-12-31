@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 #include "utils.h"
-#include "cswordoptions.h"
+#include "swordoptions.h"
 
 #include <kurl.h>
 #include <qstring.h>
