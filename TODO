@@ -4,6 +4,8 @@ Bugs are summarised at the end.
 ===================
 After release 0.1:
 ===================
+o  Currently the modules names are case sensitive - case insensitive 
+   would be good.
 
 o  HTML
 	- move to XHTML strict
@@ -23,36 +25,6 @@ o  Style sheet
    o package an 'empty' user.css file -- contains various selectors, with
      comments, but no actual content
 
-o Remove 'persist' option, and instead have 'propogate', in which all
-explicitly added options are propogated in the URLs.
-
-  o requires storing these options in CSwordOptions or similar, and using
-that data for all creation of sword URLs   - ** DOTHISFIRST **
-	o  'propagate' - set automatically in the 'settings' page
-	if you use 'test settings'.  URLs generated should add all the
-options needed i.e. where the option is different from the default value.
-		Need a COption class
-			- short name
-			- long name
-			- config name
-			- value - QVariant
-		CSwordOptions
-			- constructor 
-				- creates all the options in a hashtable
-				- uses i18n()
-			- fields -> functions that lookup hashtable
-				and call QVariant::toBool() etc
-			- can parse URL and set itself
-			- can create URL from itself and another
-			CSwordOptions (e.g. default options)
-			- or could create a copy which has null set 
-			for anything that doesn't need to be appended to URL
-				- YES - pass 2 CSwordOptions instances
-					one for options, one for propagating
-
-
-
-	o At some point we need to create a URL ...
 
 o add some nice CSS to do formatting
 
@@ -73,7 +45,6 @@ o  ThML cross refs - partic MHC - have tags that just specify a verse number or
    produce correct hrefs
 
 o  Lots of i18n issues:
-   o  Support for Non- Left-to-Right modules
    o  Support for non-English names for Bible books
       o in terms of querying e.g. sword:/KJV/Genèse  ??
       o and for displaying the book name
@@ -100,8 +71,6 @@ o  clean up/optimise lots of code according to the 'KDE mistakes' tutorial
 
 o  improve docbook documentation
 
-o  Searching - should default to user's default Bible
-
 o  Do HTML encoding on URLs that are generated
 
 o  Shortcut for accessing default module, perhaps by providing a search
@@ -112,8 +81,6 @@ o  'Bookmark' icon to make kio-sword pages appear with their own bookmark
 =============================
 Possible changes/new features
 =============================
-
-o  Clean up options system, perhaps using QVariant, or Q_PROPERTY ??
 
 o  Possible:  instead of returning QStrings from CSword functions, pass them
    some kind of iostream object they can write to directly, which calls SlaveBase::data(),

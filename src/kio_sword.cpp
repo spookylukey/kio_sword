@@ -410,10 +410,10 @@ namespace KioSword
 			.replace(HOMELINKCAPTION, i18n("Module list"))
 			.replace(SEARCHLINK, swordUrlForPage("search", options))
 			.replace(SEARCHLINKCAPTION, i18n("Search"))
-			.replace(SETTINGSLINK, swordUrlForPage("settings", options))
+			.replace(SETTINGSLINK, swordUrlForSettings(m_path, options))
 			.replace(SETTINGSLINKCAPTION,  i18n("Settings"))
 			.replace(HELPLINK, swordUrlForPage("help", options))
-			.replace(HELPLINKCAPTION, i18n("Help"));	
+			.replace(HELPLINKCAPTION, i18n("Help"));
 	}
 	
 	QString settingsBooleanOptionRow(const QString &description, const QString& name, const QString& shortname, bool value) {

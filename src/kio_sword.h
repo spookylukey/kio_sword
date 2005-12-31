@@ -69,7 +69,7 @@ namespace KioSword {
 		Sword 		m_sword;
 		SwordOptions 	m_options;
 		ActionType 	m_action;
-		DefModuleType 	m_moduletype;	
+		DefModuleType 	m_moduletype;
 		QString 	m_path;
 		Sword::SearchType 	m_stype;
 		KURL		m_baseurl;

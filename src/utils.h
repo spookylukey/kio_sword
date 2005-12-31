@@ -45,6 +45,7 @@ namespace KioSword {
 	QString swordUrl(const QString& path, const SwordOptions& options);
 	QString swordUrl(const QString& module, const QString& ref, const SwordOptions& options);
 	QString swordUrlForPage(const QString& page, const SwordOptions& options);
+	QString swordUrlForSettings(const QString& path, const SwordOptions& options);
 	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions& options);
 	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions* options);
 	QString shorten(const QString& ref, uint len);
