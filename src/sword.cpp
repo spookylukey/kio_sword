@@ -68,7 +68,7 @@ namespace KioSword
 	static const QString up(" <li><a href='%3'>%1 %2</a>");
 	static const QString genlink(" <li><a href='%2'>%1</a>");
 	
-	Sword::Sword() : 
+	Renderer::Renderer() : 
 		sword::SWMgr(0, 0, true, new sword::EncodingFilterMgr(sword::ENC_UTF8)),
 		m_osisfilter(0),
 		m_gbffilter(0),
@@ -93,7 +93,7 @@ namespace KioSword
 	}
 	
 	
-	Sword::~Sword() {
+	Renderer::~Renderer() {
 		delete m_osisfilter;
 		delete m_gbffilter;
 		delete m_thmlfilter;
@@ -102,7 +102,7 @@ namespace KioSword
 	}
 	
 	
- 	void Sword::setOptions(const SwordOptions& options) {
+ 	void Renderer::setOptions(const SwordOptions& options) {
 		setGlobalOption("Footnotes",		(options.footnotes() ? "On" : "Off"));
 		setGlobalOption("Headings",		(options.headings() ? "On" : "Off"));
 		setGlobalOption("Strong's Numbers",	(options.strongs() ? "On" : "Off"));
@@ -126,7 +126,7 @@ namespace KioSword
 	/** Return an HTML hyperlinked list of all modules,
 	 * categorised, and including descriptions
 	 */
-	QString Sword::listModules(const SwordOptions &options) {
+	QString Renderer::listModules(const SwordOptions &options) {
 		QString output;
 		QString temp;
 		ModMap::iterator it;
@@ -163,7 +163,7 @@ namespace KioSword
 	*
 	*/
 	
-	QStringList Sword::moduleList() {
+	QStringList Renderer::moduleList() {
 		QStringList output;
 		ModMap::iterator it;
 		SWModule *curMod;
@@ -176,7 +176,7 @@ namespace KioSword
 		return output;
 	}
 	
-	Sword::ModuleType Sword::getModuleType(sword::SWModule *module) {
+	Renderer::ModuleType Renderer::getModuleType(sword::SWModule *module) {
 		ModuleType modtype;
 		vector<const char *>::size_type i;
 		
@@ -198,7 +198,7 @@ namespace KioSword
 	* create or attach another, but ensure the options used
 	*
 	*/
-	void Sword::setModuleFilter(SWModule *module, const SwordOptions* options) {
+	void Renderer::setModuleFilter(SWModule *module, const SwordOptions* options) {
 		SectionMap::iterator sit;
 		ConfigEntMap::iterator eit;
 		SWTextMarkup modformat = FMT_UNKNOWN;
@@ -285,7 +285,7 @@ namespace KioSword
 	
 	}
 	
-	void Sword::moduleQuery(const QString &modname, const QString &ref, const SwordOptions &options, QString &title, QString &output) {
+	void Renderer::moduleQuery(const QString &modname, const QString &ref, const SwordOptions &options, QString &title, QString &output) {
 		QString nav;
 		
 		SWModule *module = 0;
@@ -348,7 +348,7 @@ namespace KioSword
 	
 	}
 	
-	QString Sword::search(const QString &modname, const QString &query, const SearchType searchType, const SwordOptions &options) {
+	QString Renderer::search(const QString &modname, const QString &query, const SearchType searchType, const SwordOptions &options) {
 		SWModule *module = 0;
 		QString output;
 		ListKey lk;
@@ -418,14 +418,14 @@ namespace KioSword
 		return output;
 	}
 	
-	QString Sword::renderText(SWModule *module) {
+	QString Renderer::renderText(SWModule *module) {
 		return QString::fromUtf8(module->RenderText());
 	}
 	
 	/** return formatted text for the query of a verse based module
 	 * links are also return, written to navlinks
 	 */
-	QString Sword::verseQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
+	QString Renderer::verseQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
 								ModuleType modtype, QString &navlinks) {
 		QString modname(module->Name());
 		QString text;
@@ -626,7 +626,7 @@ namespace KioSword
 		return output;
 	}
 	
-	QString Sword::treeQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
+	QString Renderer::treeQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
 								ModuleType modtype, QString &navlinks) {
 		QString output;
 		QString modname(module->Name());
@@ -699,7 +699,7 @@ namespace KioSword
 		return output;
 	}
 	
-	QString Sword::normalQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
+	QString Renderer::normalQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
 								ModuleType modtype, QString &navlinks) {
 		QString output;
 		QString modname(module->Name());
@@ -769,7 +769,7 @@ namespace KioSword
 	* @param module The module to retrieve. Must be a Bible/commentary
 	*/
 	
-	QString Sword::indexBible(SWModule *module, const SwordOptions& options) {
+	QString Renderer::indexBible(SWModule *module, const SwordOptions& options) {
 		QString output;
 		char book;
 		char testament;
@@ -811,7 +811,7 @@ namespace KioSword
 	* @param module The module to retrieve. Must have key type SWKey
 	*/
 	
-	QString Sword::indexBook(SWModule *module, const SwordOptions& options) {
+	QString Renderer::indexBook(SWModule *module, const SwordOptions& options) {
 		QString output;
 		QString ref;
 		
@@ -834,7 +834,7 @@ namespace KioSword
 	* @param fromTop If true, get the index from the top level
 	* @param depth   How many levels to scan, -1 for all
 	*/
-	QString Sword::indexTree(SWModule *module, const SwordOptions& options, bool fromTop, const int depth) {
+	QString Renderer::indexTree(SWModule *module, const SwordOptions& options, bool fromTop, const int depth) {
 		QString output;
 		QString ref;
 		bool gonext;
@@ -893,7 +893,7 @@ namespace KioSword
 		
 	}
 	
-	QString Sword::chapterList(const QString &modname, const VerseKey *vk, const SwordOptions& options) {
+	QString Renderer::chapterList(const QString &modname, const VerseKey *vk, const SwordOptions& options) {
 		VerseKey cp(vk->LowerBound());
 		QString output;
 		do {
@@ -907,11 +907,11 @@ namespace KioSword
 		return output;
 	}
 	
-	QString Sword::chapterLink(const QString &modname, const VerseKey *vk, const SwordOptions& options) {
+	QString Renderer::chapterLink(const QString &modname, const VerseKey *vk, const SwordOptions& options) {
 		return swordUrl(modname, bookChapter(vk), options);
 	}
 	
-	QString Sword::chapterLink(const QString &modname, const SWKey *sk, const SwordOptions& options) {
+	QString Renderer::chapterLink(const QString &modname, const SWKey *sk, const SwordOptions& options) {
 		const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
 		if (vk)
 			return chapterLink(modname, vk, options);
@@ -919,11 +919,11 @@ namespace KioSword
 			return QString::null;
 	}
 	
-	QString Sword::bookLink(const QString &modname, const VerseKey *vk, const SwordOptions& options) {
+	QString Renderer::bookLink(const QString &modname, const VerseKey *vk, const SwordOptions& options) {
 		return swordUrl(modname, bookName(vk), options);
 	}
 	
-	QString Sword::bookLink(const QString &modname, const SWKey *sk, const SwordOptions& options) {
+	QString Renderer::bookLink(const QString &modname, const SWKey *sk, const SwordOptions& options) {
 		const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
 		if (vk)
 			return bookLink(modname, vk, options);
@@ -931,11 +931,11 @@ namespace KioSword
 			return QString::null;
 	}
 	
-	QString Sword::bookChapter(const VerseKey *vk)  {
+	QString Renderer::bookChapter(const VerseKey *vk)  {
 		return QString("%1 %2").arg(vk->getBookName()).arg(vk->Chapter());
 	}
 	
-	QString Sword::bookChapter(const SWKey *sk)  {
+	QString Renderer::bookChapter(const SWKey *sk)  {
 		const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
 		if (vk)
 			return bookChapter(vk);
@@ -943,11 +943,11 @@ namespace KioSword
 			return QString::null;
 	}
 	
-	QString Sword::bookName(const VerseKey *vk)  {
+	QString Renderer::bookName(const VerseKey *vk)  {
 		return QString(vk->getBookName());
 	}
 	
-	QString Sword::bookName(const SWKey *sk)  {
+	QString Renderer::bookName(const SWKey *sk)  {
 		const VerseKey *vk = dynamic_cast<const VerseKey*>(sk);
 		if (vk)
 			return bookName(vk);

@@ -20,8 +20,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef KS_SWORD_H
-#define KS_SWORD_H
+#ifndef KS_RENDERER_H
+#define KS_RENDERER_H
 
 #include "filter.h"
 
@@ -39,7 +39,7 @@
 
 /** Handles sword backend and prints modules 
  *
- * Sword inherits from sword::SWMgr and handles the majority of
+ * Renderer inherits from sword::SWMgr and handles the majority of
  * the sword stuff.  It also adds functions to 'print' text from
  * a specified module and to list available modules.
  *
@@ -53,11 +53,11 @@
 namespace KioSword {
 	class SwordOptions;
 	
-	class Sword : public sword::SWMgr {
+	class Renderer : public sword::SWMgr {
 	
 	public:
-		Sword();
-		virtual ~Sword();
+		Renderer();
+		virtual ~Renderer();
 	
 		typedef enum {  SEARCH_WORDS,
 				SEARCH_PHRASE,
@@ -126,5 +126,5 @@ namespace KioSword {
 	
 	};
 }
-#endif // KS_SWORD_H
+#endif // KS_RENDERER_H
 

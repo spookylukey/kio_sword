@@ -66,12 +66,12 @@ namespace KioSword {
 				SETTINGS_SAVE, 
 				HELP } ActionType;
 	
-		Sword 		m_sword;
+	 Renderer 		m_renderer;
 		SwordOptions 	m_options;
 		ActionType 	m_action;
 		DefModuleType 	m_moduletype;
 		QString 	m_path;
-		Sword::SearchType 	m_stype;
+		Renderer::SearchType 	m_stype;
 		KURL		m_baseurl;
 			
 		struct {
