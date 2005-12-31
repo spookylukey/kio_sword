@@ -182,9 +182,12 @@ namespace KioSword
 		{
 			// overloads for KConfig::writeEntry cater
 			// for everything we need so far
-			config->writeEntry(m_configName, m_value);
-			m_config_value = m_value;
-			isConfigValue = true;
+			if (m_value != m_default_value) // keep settings file tidy
+			{
+				config->writeEntry(m_configName, m_value);
+				m_config_value = m_value;
+				isConfigValue = true;
+			}
 		}
 		
 		/** copy value from another */
