@@ -174,6 +174,7 @@ namespace KioSword
 				set(m_default_value);
 			}
 			m_config_value = m_value;
+			isConfigValue = true;
 		}
 		
 		/** save the value to the config file */
