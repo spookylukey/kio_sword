@@ -225,7 +225,7 @@ namespace KioSword
 					m_sword.moduleQuery(modname, query, m_options, title, body);
 					sendPage(title, body);
 				} else {
-					title = i18n("Kio-Sword: error");
+					title = i18n("Modules - Kio-Sword");
 					if (!error.isEmpty()) {
 						body = error;
 					}
@@ -235,19 +235,19 @@ namespace KioSword
 				break;
 			
 			case SEARCH_FORM:
-				sendPage(i18n("Kio-Sword: Search"), searchForm());
+				sendPage(i18n("Search - Kio-Sword"), searchForm());
 				break;
 						
 			case SEARCH_QUERY:
-				sendPage(i18n("Kio-Sword: Search Results"), m_sword.search(m_redirect.module, m_redirect.query, m_stype, m_options));
+				sendPage(i18n("Search Results - Kio-Sword"), m_sword.search(m_redirect.module, m_redirect.query, m_stype, m_options));
 				break;
 				
 			case SETTINGS_FORM:
-				sendPage(i18n("Kio-Sword: Settings"), settingsForm());
+				sendPage(i18n("Settings - Kio-Sword"), settingsForm());
 				break;
 				
 			case SETTINGS_SAVE:
-				sendPage(i18n("Kio-Sword: Settings saved"), saveUserConfig());
+				sendPage(i18n("Settings saved - Kio-Sword"), saveUserConfig());
 				break;
 								
 			case HELP:
@@ -291,6 +291,8 @@ namespace KioSword
 		QString message;
 		m_options.saveToConfig(m_config);
 		m_config->sync();
+		// search form depends on settings, so force it to be recreated
+		search_form.truncate(0);
 		message = "<p>" + i18n("Settings saved.") + "</p>";
 		return message;
 	}
@@ -614,9 +616,10 @@ namespace KioSword
 			
 			temp = "<option value=''></option>";
 			for (it = modules.begin(); it != modules.end(); ++it ) {
-				temp += QString("<option value='%1'>%2</option>")
+				temp += QString("<option value='%1' %3>%2</option>")
 						.arg(*it)
-						.arg(*it);
+						.arg(*it)
+						.arg((*it == m_options.defaultBible()) ? "selected='selected'" : "");
 			}
 			search_form = search_form_tmpl
 					.arg(i18n("Search"))
