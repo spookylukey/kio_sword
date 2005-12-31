@@ -36,6 +36,11 @@ namespace KioSword
 {
 	SwordOptions::SwordOptions()
 	{
+		init();
+	}
+	
+	void SwordOptions::init()
+	{
 		// Setup all the options
 		propagate.setup		(true,		"", "p", "propagate");
 		verseNumbers.setup	(true, 		"VerseNumbers", "vn", "versenumbers");
@@ -84,13 +89,12 @@ namespace KioSword
 		m_optionList.push_back(&defaultHebrewStrongs);
 		m_optionList.push_back(&defaultGreekMorph);
 		m_optionList.push_back(&defaultHebrewMorph);
-
 	}
 	
 	/** Copy constuctor */
 	SwordOptions::SwordOptions(const SwordOptions& other)
 	{
-		SwordOptions();
+		init();
 		vector<OptionBase*>::const_iterator it_other;
 		vector<OptionBase*>::const_iterator it_end = other.m_optionList.end();
 		

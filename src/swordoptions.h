@@ -85,7 +85,8 @@ namespace KioSword {
 		
 		private:
 		/** options that are read/saved in the config or propagated */
-		vector<OptionBase*> m_optionList;		
+		vector<OptionBase*> m_optionList;
+		void init();
 		
 	};
 }
