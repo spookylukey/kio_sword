@@ -528,7 +528,7 @@ namespace KioSword
 		}
 	
 		output += separator_row.arg(i18n("Other options"));
-		output += settingsBooleanOptionRow(i18n("Make formatting options propagate.  This makes kio-sword remember any options specified in the command line for the length of a session or until it is overridden.  Navigation options are excluded from this setting."),
+		output += settingsBooleanOptionRow(i18n("Make formatting options propagate.  This makes kio-sword remember formatting settings that you have set, by propagating them in the links.  (Some navigation options are always excluded from this behaviour)."),
 									m_options.propagate.m_qsLongName, m_options.propagate.m_qsShortName, m_options.propagate());
 		
 		output += QString("</table>"
