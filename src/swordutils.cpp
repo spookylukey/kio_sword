@@ -31,7 +31,7 @@ using sword::VerseKey;
 
 namespace KioSword {
 
-	bool entireBook(const VerseKey *vk) {
+	bool isEntireBook(const VerseKey *vk) {
 		if (vk->LowerBound().Chapter() == 1 &&
 		vk->LowerBound().Verse() == 1) {
 		// lower bound is first verse in book
@@ -48,7 +48,7 @@ namespace KioSword {
 		return false;
 	}
 	
-	bool singleChapter(const VerseKey *vk) {
+	bool isSingleChapter(const VerseKey *vk) {
 		if (!vk) return false;
 		
 		if (vk->LowerBound().Verse() == 1 && 

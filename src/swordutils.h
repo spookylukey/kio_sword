@@ -26,7 +26,7 @@
 
 #include <versekey.h>
 namespace KioSword {
-	bool entireBook(const sword::VerseKey *vk);
-	bool singleChapter(const sword::VerseKey *vk);
+	bool isEntireBook(const sword::VerseKey *vk);
+	bool isSingleChapter(const sword::VerseKey *vk);
 }
 #endif
