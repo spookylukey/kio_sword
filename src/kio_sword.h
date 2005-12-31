@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2004 by Luke Plant                                      *
+ *   Copyright (C) 2004-2005 by Luke Plant                                      *
  *   L.Plant.98@cantab.net                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
