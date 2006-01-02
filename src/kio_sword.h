@@ -33,6 +33,7 @@
 #include <qcstring.h>
 
 namespace KioSword {
+	class Template;
 
 	class SwordProtocol : public KIO::SlaveBase {
 		
@@ -51,7 +52,7 @@ namespace KioSword {
 		void readUserConfig();
 		QString saveUserConfig();
 		
-		void sendPage(const QString &title, const QString &body);
+		void sendPage(const Template* tmplt);
 		
 		QString helpPage();
 		QString pageLinks(const SwordOptions& options);
@@ -66,7 +67,7 @@ namespace KioSword {
 				SETTINGS_SAVE, 
 				HELP } ActionType;
 	
-	 Renderer 		m_renderer;
+		Renderer	m_renderer;
 		SwordOptions 	m_options;
 		ActionType 	m_action;
 		DefModuleType 	m_moduletype;
