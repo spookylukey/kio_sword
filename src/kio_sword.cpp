@@ -27,13 +27,14 @@
 #include "renderer.h"
 #include "kio_sword.h"
 #include "utils.h"
+#include "template.h"
 
 // KDE
 #include <kdebug.h>
 #include <kglobal.h>
-#include <kstandarddirs.h>
 #include <klocale.h>
 #include <kurl.h>
+#include <kstandarddirs.h>
 
 // Qt 
 #include <qcstring.h>
@@ -78,49 +79,7 @@ namespace KioSword
 	static QString search_form;
 	static QString help_page;
 	
-	// placeholders
-	static const char* PAGETITLE = "{$pagetitle}";
-	static const char* BASECSS   = "{$basecss}";
-	static const char* USERCSS   = "{$usercss}";
-	static const char* CONTENT   = "{$content}";
-	static const char* PAGELINKS = "{$pagelinks}";
-	static const char* HOMELINK =  "{$homelink}";
-	static const char* HOMELINKCAPTION = "{$homelinkcaption}";
-	static const char* SEARCHLINK =  "{$searchlink}";
-	static const char* SEARCHLINKCAPTION = "{$searchlinkcaption}";
-	static const char* SETTINGSLINK =  "{$settingslink}";
-	static const char* SETTINGSLINKCAPTION = "{$settingslinkcaption}";
-	static const char* HELPLINK =  "{$helplink}";
-	static const char* HELPLINKCAPTION = "{$helplinkcaption}";
-	
-	// static HTML fragments -------------------------------------------------------------------------------------------------------
-	static const QString &html_page(QString("") + 
-					"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\""
-					"\"http://www.w3.org/TR/html4/strict.dtd\">\n"
-					"<html><head>\n"
-					"<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>\n"
-					"<title>" + PAGETITLE + "</title>\n"
-					"<link rel=\"StyleSheet\" href=\"file:" + BASECSS + "\" TYPE=\"text/css\">\n"
-					"<link rel=\"StyleSheet\" href=\"file:" + USERCSS + "\" TYPE=\"text/css\">\n"		// user.css FIXME
-					"</head>\n"
-					"<body class=\"kiosword\">"
-					"<div class=\"page\">"
-					"	<div class=\"content\">" + CONTENT + "</div>\n"
-					"" + PAGELINKS + "\n"
-					"</div>\n"
-					"</body>\n"
-					"</html>\n");
-	
-	
-	static const QString &page_links(QString("") +
-					"<div class=\"links\">\n"
-					"	<ul>\n"
-					"		<li><a href=\"" + HOMELINK + "\">" + HOMELINKCAPTION + "</a></li>\n"
-					"		<li><a href=\"" + SEARCHLINK + "\">" + SEARCHLINKCAPTION + "</a></li>\n"
-					"		<li><a href=\"" + SETTINGSLINK + "\">" + SETTINGSLINKCAPTION + "</a></li>\n"
-					"		<li><a href=\"" + HELPLINK + "\">" + HELPLINKCAPTION + "</a></li>\n"
-					"	</ul>\n"
-					"</div>\n");
+
 				
 	SwordProtocol::SwordProtocol(const QCString & pool_socket,
 					const QCString & app_socket)
@@ -141,8 +100,6 @@ namespace KioSword
 		QString modname;
 		QString query;
 		QString error;
-		QString body;
-		QString title;
 		
 		kdDebug() << "SwordProtocol::get(const KURL& url)" << endl;
 		
@@ -153,7 +110,7 @@ namespace KioSword
 		
 		// Send the mimeType as soon as it is known
 		mimeType("text/html");
-		
+			
 		// Set user defaults from user config file
 		// (with internal defaults supplied if any options
 		//  are missing from users config file)
@@ -202,7 +159,7 @@ namespace KioSword
 			}
 			
 			if (modname.isEmpty()) {
-				error = "<p class='usererror'>" + error + "</p><hr>";
+				error = "<p class='usererror'>" + error + "</p><hr />";
 				m_action = QUERY; // revert back to displaying list of modules
 			} else {
 				KURL newurl(url);
@@ -219,47 +176,55 @@ namespace KioSword
 		}
 				
 		// Send the data
+		Template* tmplt = new Template();
+		tmplt->setCurrentPath(m_path);
+
 		switch (m_action) {
 			case QUERY:
 				if (!modname.isEmpty()) {
-					m_renderer.moduleQuery(modname, query, m_options, title, body);
-					sendPage(title, body);
+					m_renderer.moduleQuery(modname, query, m_options, tmplt);
 				} else {
-					title = i18n("Modules - Kio-Sword");
+					QString body;
+					tmplt->setTitle(i18n("Modules - Kio-Sword"));
 					if (!error.isEmpty()) {
 						body = error;
 					}
 					body += m_renderer.listModules(m_options);
-					sendPage(title, body);
+					tmplt->setContent(body);
 				}
 				break;
 			
 			case SEARCH_FORM:
-				sendPage(i18n("Search - Kio-Sword"), searchForm());
+				tmplt->setTitle(i18n("Search - Kio-Sword"));
+				tmplt->setContent(searchForm());
 				break;
 						
 			case SEARCH_QUERY:
-				sendPage(i18n("Search Results - Kio-Sword"), m_renderer.search(m_redirect.module, m_redirect.query, m_stype, m_options));
+				tmplt->setTitle(i18n("Search Results - Kio-Sword"));
+				tmplt->setContent(m_renderer.search(m_redirect.module, m_redirect.query, m_stype, m_options));
 				break;
 				
 			case SETTINGS_FORM:
-				sendPage(i18n("Settings - Kio-Sword"), settingsForm());
+				tmplt->setTitle(i18n("Settings - Kio-Sword"));
+				tmplt->setContent(settingsForm());
 				break;
 				
 			case SETTINGS_SAVE:
-				sendPage(i18n("Settings saved - Kio-Sword"), saveUserConfig());
+				tmplt->setTitle(i18n("Settings saved - Kio-Sword"));
+				tmplt->setContent(saveUserConfig());
 				break;
 								
 			case HELP:
-				sendPage(i18n("Kio-Sword Help"), helpPage());
+				tmplt->setTitle(i18n("Kio-Sword Help"));
+				tmplt->setContent(helpPage());
 				break;
 				
 			default:
 				break;
 		}
-		
-		data(QByteArray());     // empty array means we're done sending the data
-		finished();
+		sendPage(tmplt);
+		delete tmplt;
+
 	}
 	
 	
@@ -390,31 +355,12 @@ namespace KioSword
 	#undef ENUM_OPTION
 
 	
-	void SwordProtocol::sendPage(const QString &title, const QString &body) {
-		QString cssdir = KGlobal::dirs()->findResourceDir("data", "kio_sword/base.css") + "kio_sword/";
-	
-		QString output = html_page;
-		output = output.replace(BASECSS,  cssdir + "base.css");
-		output = output.replace(PAGETITLE, title);
-		output = output.replace(CONTENT, body);
-		output = output.replace(PAGELINKS, pageLinks(m_options));
-	
-		data(output.utf8());
+	void SwordProtocol::sendPage(const Template* tplt) {
+		data(tplt->render(m_options));
+		data(QByteArray());     // empty array means we're done sending the data
+		finished();
 	}
 	
-	
-	QString SwordProtocol::pageLinks(const SwordOptions& options) {
-		QString output = page_links;
-		return output
-			.replace(HOMELINK, swordUrl("", options))
-			.replace(HOMELINKCAPTION, i18n("Module list"))
-			.replace(SEARCHLINK, swordUrlForPage("search", options))
-			.replace(SEARCHLINKCAPTION, i18n("Search"))
-			.replace(SETTINGSLINK, swordUrlForSettings(m_path, options))
-			.replace(SETTINGSLINKCAPTION,  i18n("Settings"))
-			.replace(HELPLINK, swordUrlForPage("help", options))
-			.replace(HELPLINKCAPTION, i18n("Help"));
-	}
 	
 	QString settingsBooleanOptionRow(const QString &description, const QString& name, const QString& shortname, bool value) {
 		static const QString boolean_option_row(

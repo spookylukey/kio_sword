@@ -52,6 +52,7 @@
 
 namespace KioSword {
 	class SwordOptions;
+	class Template;
 	
 	class Renderer : public sword::SWMgr {
 	
@@ -68,10 +69,9 @@ namespace KioSword {
 		* @param module The sword module to print from
 		* @param key    The text description of the key from the users URL
 		* @param options Options for rendering text
-		* @param title Output parameter to hold title of page
-		* @param body Output parameter to hold HTML body
+		* @param tmplt Output parameter that should be filled with title and content
 		*/
-		void moduleQuery(const QString &module, const QString &ref, const SwordOptions &options, QString &title, QString &body);
+		void moduleQuery(const QString &module, const QString &ref, const SwordOptions &options, Template* tmplt);
 		
 		QString search(const QString &module, const QString &query, SearchType stype, const SwordOptions &options);
 		
@@ -92,12 +92,12 @@ namespace KioSword {
 		QString indexBook(sword::SWModule *module, const SwordOptions& options);
 		QString indexTree(sword::SWModule *module, const SwordOptions& options, bool fromTop, const int depth = -1);
 		
-		QString verseQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
-				ModuleType modtype, QString &navlinks);
-		QString treeQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
-				ModuleType modtype, QString &navlinks);
-		QString normalQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
-				ModuleType modtype, QString &navlinks);
+		void verseQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
+				ModuleType modtype, Template* tmplt, QString &navlinks);
+		void treeQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
+				ModuleType modtype, Template* tmplt, QString &navlinks);
+		void normalQuery(sword::SWModule *module, const QString &query, const SwordOptions &options,
+				ModuleType modtype, Template* tmplt, QString &navlinks);
 		
 		static QString renderText(sword::SWModule *module);
 		static QString chapterList(const QString &modname, const sword::VerseKey *vk, const SwordOptions& options);

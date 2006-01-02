@@ -29,6 +29,7 @@
 #include "ks_thmlhtml.h"
 #include "utils.h"
 #include "swordutils.h"
+#include "template.h"
 
 // Sword
 #include <swmgr.h>
@@ -285,9 +286,8 @@ namespace KioSword
 	
 	}
 	
-	void Renderer::moduleQuery(const QString &modname, const QString &ref, const SwordOptions &options, QString &title, QString &output) {
+	void Renderer::moduleQuery(const QString &modname, const QString &ref, const SwordOptions &options, Template* tmplt) {
 		QString nav;
-		
 		SWModule *module = 0;
 		SWKey *skey = 0;
 		KeyType keyt = SWKEY;
@@ -296,56 +296,53 @@ namespace KioSword
 		
 		ModuleType modtype;	
 	
-		title = "A title"; // FIXME - do something better
-		
+		// Set the sword::Mgr options
 		setOptions(options);
 	
 		// Find the module	
 		module = getModule(modname.latin1());
 		
-		if (module == 0) { 
+		if (module == 0) {
+			QString output;
 			output += "<p><span class='error'>" 
 				+ i18n("The module '%1' could not be found.").arg(modname) 
-				+ "</span></p><hr>";
+				+ "</span></p><hr/>";
 			output += listModules(options);
-			return;
+			tmplt->setContent(output);
+			tmplt->setTitle(i18n("Module not found - Kio-Sword"));
 		}
-		setModuleFilter(module, &options);
-		
-		// Determine key type.
-		skey = module->getKey();
-		if (!(vk = dynamic_cast<VerseKey*>(skey))) {
-			if (!(tk = dynamic_cast<TreeKey*>(skey))) {
-				keyt = SWKEY;
+		else
+		{
+			setModuleFilter(module, &options);
+			
+			// Determine key type.
+			skey = module->getKey();
+			if (!(vk = dynamic_cast<VerseKey*>(skey))) {
+				if (!(tk = dynamic_cast<TreeKey*>(skey))) {
+					keyt = SWKEY;
+				} else {
+					keyt = TREEKEY;
+				}
 			} else {
-				keyt = TREEKEY;
+				keyt = VERSEKEY;
 			}
-		} else {
-			keyt = VERSEKEY;
+			modtype = getModuleType(module);
+			
+			nav += QString("<li class='first'>%1 <a href='%3'>%2</a></li>")
+				.arg(i18n("Module:"))
+				.arg(modname)
+				.arg(swordUrl(modname, options));
+			
+			if (keyt == VERSEKEY) {  // Should be just bibles and commentaries
+				verseQuery(module, ref, options, modtype, tmplt, nav);
+			} else if (keyt == TREEKEY) {
+				treeQuery(module, ref, options, modtype, tmplt, nav);
+			} else if (keyt == SWKEY) {
+				normalQuery(module, ref, options, modtype, tmplt, nav);
+			}			
+			tmplt->setNav("<ul>" + nav + "</ul>");
 		}
-		modtype = getModuleType(module);
-		
-		nav += QString("<ul><li class='first'>%1 <a href='%3'>%2</a></li>")
-			.arg(i18n("Module:"))
-			.arg(modname)
-			.arg(swordUrl(modname, options));
-		
-		if (keyt == VERSEKEY) {  // Should be just bibles and commentaries
-			output += verseQuery(module, ref, options, modtype, nav);
-		} else if (keyt == TREEKEY) {
-			output += treeQuery(module, ref, options, modtype, nav);
-		} else if (keyt == SWKEY) {
-			output += normalQuery(module, ref, options, modtype, nav);
-		}
-	
-		if (!nav.isEmpty()) {
-			output = "<div class='navtop'>" + nav + "</ul></div><div class='text'>" +
-				output +
-				"</div><div class='navbottom'>" + nav + "</ul></div>";
-		} else {
-			output = "<div class='text'>" +  output + "</div>";
-		}
-	
+		return;
 	}
 	
 	QString Renderer::search(const QString &modname, const QString &query, const SearchType searchType, const SwordOptions &options) {
@@ -422,14 +419,13 @@ namespace KioSword
 		return QString::fromUtf8(module->RenderText());
 	}
 	
-	/** return formatted text for the query of a verse based module
-	 * links are also return, written to navlinks
+	/** Fill in template with formatted text for the query of a verse based module
+	 * Links are appended to navlinks.
 	 */
-	QString Renderer::verseQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
-								ModuleType modtype, QString &navlinks) {
+	void Renderer::verseQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
+								ModuleType modtype, Template* tmplt, QString &navlinks) {
 		QString modname(module->Name());
 		QString text;
-		QString output;
 		bool doindex = false;
 		const char* modtextdir; // text direction of the module
 		
@@ -437,7 +433,7 @@ namespace KioSword
 		VerseKey *vk = dynamic_cast<VerseKey*>(module->getKey());
 		
 		if (!vk) 
-			return output;
+			return;
 		
 		modtextdir = textDirection(module);
 			
@@ -595,63 +591,76 @@ namespace KioSword
 		} while (false);
 		
 		// Title: depends on what got printed above
+		QString title;
 		if (doindex) {
-			if (!text.isEmpty())  // an error message was printed
+			if (!text.isEmpty()) { // an error message was printed
 				text = QString("<h1 class=\"moduletitle\">%1</h1>").arg(module->Description()).arg(ref) 
 					+ text;
+				title = "Error - Kio-Sword";
+			} 
+			else
+			{
+				title = QString("%1 - Kio-Sword").arg(module->Name());
+			}
 		} else {
-			if (modtype == COMMENTARY) { 
+			if (modtype == COMMENTARY) {
 				text = QString("<h1 class=\"moduletitle\">%1</h1>").arg(module->Description())
 					+ text;
+				title = QString("%1 - %2 - Kio-Sword")
+						.arg(lk.getShortText())
+						.arg(module->Name());
 			} else if (modtype == BIBLE) {
 				text += QString("<div class=\"biblename\">(%1)</div>").arg(module->Description());
+				title = QString("%1 - %2 - Kio-Sword")
+						.arg(lk.getShortText())
+						.arg(module->Name());
 			}
 		}
-		output += text;
+		tmplt->setTitle(title);
 		
 		if (doindex) {
 			if (!text.isEmpty())
-				output += "<hr>\n";
+				text += "<hr/>\n";
 			if (options.doBibleIndex()) {
-				output += "<h2>" + i18n("Books:") + "</h2>";
-				output += indexBible(module, options);
+				text += "<h2>" + i18n("Books:") + "</h2>";
+				text += indexBible(module, options);
 			} else {
 				SwordOptions options_doindex(options);
 				options_doindex.doBibleIndex.set(true);
-				output += QString("<p><a href=\"%1\">%2</a></p>")
+				text += QString("<p><a href=\"%1\">%2</a></p>")
 						.arg(swordUrl(modname, options_doindex))
 						.arg(i18n("Index of books"));
 			}
 		}
-		return output;
+		tmplt->setContent(text);
 	}
 	
-	QString Renderer::treeQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
-								ModuleType modtype, QString &navlinks) {
+	void Renderer::treeQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
+								ModuleType modtype, Template* tmplt, QString &navlinks) {
 		QString output;
 		QString modname(module->Name());
 		bool doindex;
 		TreeKey *tk = dynamic_cast<TreeKey*>(module->getKey());
 		
 		if (!tk)
-			return output;
+			return;
 		
-		output += QString("<h1 class=\"moduletitle\">%1</h1>").arg(module->Description());	
+		output += QString("<h1 class=\"moduletitle\">%1</h1>").arg(module->Description());
 		if (ref.isEmpty()) {
 			doindex = true;
 		} else {
 			tk->Error(); // clear
-			tk->setText(ref.local8Bit());  // FIXME is this correct?
+			tk->setText(ref.local8Bit());  // FIXME ? local8Bit or utf8
 			doindex = false;
 			if (tk->Error()) {
 				output += "<p class=\"error\">" + i18n("Couldn't find section '%1'.").arg(ref) + "</p>";
-				output += "<hr>";
+				output += "<hr/>";
 				doindex = true;
 			} else {
 				QString link;
 				output += renderText(module);
 				if (tk->previousSibling()) {
-					link = QString::fromLocal8Bit(module->KeyText());
+					link = QString::fromLocal8Bit(module->KeyText()); // FIXME ? local8Bit or utf8
 					navlinks += prev.arg(shorten(link.section('/', -1, -1), 20))
 							.arg(swordUrl(modname, link, options));
 					tk->nextSibling();
@@ -673,7 +682,7 @@ namespace KioSword
 				}
 				if (tk->hasChildren()) {
 					if (tk->firstChild());
-					output += "<hr>";
+					output += "<hr/>";
 					output += indexTree(module, options, false, 1);
 				}
 			}
@@ -695,12 +704,19 @@ namespace KioSword
 						.arg(swordUrl(modname, options_doindex))
 						.arg(i18n("View full index"));
 			}
+			tmplt->setTitle(QString("%1 - %2 - Kio-Sword").arg(tk->getShortText()).arg(module->Name()));
 		}
-		return output;
+		else
+		{
+			tmplt->setTitle(QString("%1 - Kio-Sword").arg(module->Name()));
+		}
+		tmplt->setContent(output);
+		
+		
 	}
 	
-	QString Renderer::normalQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
-								ModuleType modtype, QString &navlinks) {
+	void Renderer::normalQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
+								ModuleType modtype, Template* tmplt, QString &navlinks) {
 		QString output;
 		QString modname(module->Name());
 		bool doindex;
@@ -708,12 +724,11 @@ namespace KioSword
 		
 		output += QString("<h1 class=\"moduletitle\">%1</h1>").arg(module->Description());
 		
-		
 		if (ref.isEmpty()) {
 			doindex = true;
 		} else {
 			skey->Error(); // clear
-			skey->setText(ref.local8Bit());
+			skey->setText(ref.local8Bit()); // FIXME?
 			doindex = false;
 			if (skey->Error()) {
 				output += "<p class=\"error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
@@ -760,8 +775,13 @@ namespace KioSword
 						.arg(swordUrl(modname, options_doindex))
 						.arg(i18n("View complete index"));
 			}
+			tmplt->setTitle(QString("%1 - Kio-Sword").arg(module->Name()));
 		}
-		return output;
+		else
+		{
+			tmplt->setTitle(QString("%1 - %2 - Kio-Sword").arg(skey->getShortText()).arg(module->Name()));
+		}	
+		tmplt->setContent(output);
 	}
 	
 	/** Retrieves an HTML list of all the books in the module
@@ -778,7 +798,6 @@ namespace KioSword
 		if (!vk)
 			return output;
 			
-	
 		module->setSkipConsecutiveLinks(true);
 		vk->AutoNormalize(1);
 		module->setPosition(sword::TOP);
