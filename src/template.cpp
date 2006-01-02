@@ -23,6 +23,7 @@
 
 #include "template.h"
 #include "utils.h"
+#include "swordoptions.h"
 
 #include <kglobal.h>
 #include <klocale.h>
@@ -48,6 +49,7 @@ namespace KioSword {
 	static const char* HELPLINKCAPTION = "{$helplinkcaption}";
 	static const char* TOPNAV = "{$topnav}";
 	static const char* BOTTOMNAV = "{$bottomnav}";
+	static const char* TOGGLES = "{$toggles}";
 	
 	// static HTML fragments -------------------------------------------------------------------------------------------------------
 	static const QString &html_page(QString("") + 
@@ -60,23 +62,30 @@ namespace KioSword {
 					"<link rel=\"StyleSheet\" href=\"file:" + USERCSS + "\" TYPE=\"text/css\">\n"		// user.css FIXME implement
 					"</head>\n"
 					"<body class=\"kiosword\">"
-					"<div class=\"page\">"
+					"<div class=\"page\"><div class='inner'>"
 					"	" + TOPNAV + "\n"
-					"	<div class=\"content\">" + CONTENT + "</div>\n"
+					"	<div class=\"content\"><div class='inner'>" + CONTENT + "</div></div>\n"
 					"	" + BOTTOMNAV + "\n"
-					"	<div class=\"links\">\n"
+					"	" + TOGGLES + "\n"
+					"	<div class=\"links\"><div class='inner'>\n"
 					"		<ul>\n"
 					"			<li><a href=\"" + HOMELINK + "\">" + HOMELINKCAPTION + "</a></li>\n"
 					"			<li><a href=\"" + SEARCHLINK + "\">" + SEARCHLINKCAPTION + "</a></li>\n"
 					"			<li><a href=\"" + SETTINGSLINK + "\">" + SETTINGSLINKCAPTION + "</a></li>\n"
 					"			<li><a href=\"" + HELPLINK + "\">" + HELPLINKCAPTION + "</a></li>\n"
 					"		</ul>\n"
-					"	</div>\n"
-					"</div>\n"
+					"	</div></div>\n"
+					"</div></div>\n"
 					"</body>\n"
 					"</html>\n");
 					
 
+
+	Template::Template()
+	{
+ 		m_showToggles = false;
+ 	}
+ 	
 	QCString Template::render(const SwordOptions& options) const
 	{
 	
@@ -106,15 +115,52 @@ namespace KioSword {
 		if (!m_nav.isEmpty())
 		{
 			output = output
-					.replace(TOPNAV, "<div class='navtop'>" + m_nav + "</div>")
-					.replace(BOTTOMNAV, "<div class='navbottom'>" + m_nav + "</div>");
+					.replace(TOPNAV, "<div class='navtop'><div class='inner'>" + m_nav + "</div></div>")
+					.replace(BOTTOMNAV, "<div class='navbottom'><div class='inner'>" + m_nav + "</div></div>");
 		}
 		else
 		{
 			output = output
 					.replace(TOPNAV, "")
 					.replace(BOTTOMNAV, "");
-		}			
+		}
+		if (m_showToggles)
+		{
+			QString toggles;
+			SwordOptions toggledOptions(options);
+			
+			toggledOptions.verseNumbers.set(!toggledOptions.verseNumbers());
+			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='v'>" 
+				+ i18n("Verse Numbers") + "</a></li>";
+			toggledOptions.verseNumbers.set(!toggledOptions.verseNumbers());
+				
+			toggledOptions.verseLineBreaks.set(!toggledOptions.verseLineBreaks());
+			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='l'>" 
+				+ i18n("Verse Line Breaks") + "</a></li>";
+			toggledOptions.verseLineBreaks.set(!toggledOptions.verseLineBreaks());
+
+			toggledOptions.headings.set(!toggledOptions.headings());
+			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='h'>" 
+				+ i18n("Headings") + "</a></li>";
+			toggledOptions.headings.set(!toggledOptions.headings());
+
+			toggledOptions.strongs.set(!toggledOptions.strongs());
+			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='s'>" 
+				+ i18n("Strongs") + "</a></li>";
+			toggledOptions.strongs.set(!toggledOptions.strongs());
+			
+			toggledOptions.morph.set(!toggledOptions.morph());
+			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='m'>" 
+				+ i18n("Morphological tags") + "</a></li>";
+			toggledOptions.morph.set(!toggledOptions.morph());
+
+			output = output.replace(TOGGLES, "<div class='toggles'><div class='inner'><ul>" + toggles + "</ul></div></div>");
+			
+		}
+		else
+		{
+			output = output.replace(TOGGLES, "");
+		}
 		return output.utf8();
 	}
 	
@@ -136,6 +182,11 @@ namespace KioSword {
 	void Template::setCurrentPath(const QString& currentPath)
 	{
 		m_currentPath = currentPath;
+	}
+	
+	void Template::setShowToggles(bool showToggles)
+	{
+		m_showToggles = showToggles;
 	}
 }
 
