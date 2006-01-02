@@ -42,29 +42,29 @@ namespace KioSword
 	void SwordOptions::init()
 	{
 		// Setup all the options
-		propagate.setup		(true,		"", "p", "propagate");
-		verseNumbers.setup	(true, 		"VerseNumbers", "vn", "versenumbers");
-		verseLineBreaks.setup	(true, 		"VerseLineBreaks", "lb", "linebreaks");
-		redWords.setup		(true, 		"RedWords", "rw", "redwords");
-		footnotes.setup		(false, 	"Footnotes", "fn", "footnotes");
-		headings.setup		(true, 		"Headings", "hd", "headings");
-		strongs.setup		(false, 	"StrongsNumbers", "st", "strongs");
-		morph.setup		(false, 	"MorphologicalTags", "mt", "morph");
-		cantillation.setup	(true, 		"Cantillation", "hc", "cantillation");
-		hebrewVowelPoints.setup (true, 		"HebrewVowelPoints", "hvp", "vowelpoints");
-		greekAccents.setup	(true, 		"GreekAccents", "ga", "accents");
-		styleSheet.setup	("default.css",	"StyleSheet", "ss", "stylesheet");
-		variants.setup		(0,		"Variants", "vr", "variants");
-		wholeBook.setup		(false, 	QString::null, "wb", "wholebook");
-		doBibleIndex.setup	(true, 		QString::null, "bi", "bibleindex");
-		doDictIndex.setup	(false, 	QString::null, "di", "dictindex");
-		doFullTreeIndex.setup	(false, 	QString::null, "fi", "fullindex");
-		doOtherIndex.setup	(false, 	QString::null, "oi", "otherindex");
-		defaultBible.setup		("", 	"DefaultBible", "", "defaultbible");
-		defaultGreekStrongs.setup	("", 	"DefaultGreekStrongs", "", "defaultgreekstrongs");
-		defaultHebrewStrongs.setup	("", 	"DefaultHebrewStrongs", "", "defaulthebrewstrongs");
-		defaultGreekMorph.setup		("", 	"DefaultGreekMorph", "", "defaultgreekmorph");
-		defaultHebrewMorph.setup	("", 	"DefaultHebrewMorph", "", "defaulthebrewmorph");
+		propagate.setup		(true,		"", "p", "propagate", true);
+		verseNumbers.setup	(true, 		"VerseNumbers", "vn", "versenumbers", true);
+		verseLineBreaks.setup	(true, 		"VerseLineBreaks", "lb", "linebreaks", true);
+		redWords.setup		(true, 		"RedWords", "rw", "redwords", true);
+		footnotes.setup		(false, 	"Footnotes", "fn", "footnotes", true);
+		headings.setup		(true, 		"Headings", "hd", "headings", true);
+		strongs.setup		(false, 	"StrongsNumbers", "st", "strongs", true);
+		morph.setup		(false, 	"MorphologicalTags", "mt", "morph", true);
+		cantillation.setup	(true, 		"Cantillation", "hc", "cantillation", true);
+		hebrewVowelPoints.setup (true, 		"HebrewVowelPoints", "hvp", "vowelpoints", true);
+		greekAccents.setup	(true, 		"GreekAccents", "ga", "accents", true);
+		styleSheet.setup	("default.css",	"StyleSheet", "ss", "stylesheet", true);
+		variants.setup		(0,		"Variants", "vr", "variants", true);
+		wholeBook.setup		(false, 	QString::null, "wb", "wholebook", false);
+		doBibleIndex.setup	(true, 		QString::null, "bi", "bibleindex", false);
+		doDictIndex.setup	(false, 	QString::null, "di", "dictindex", false);
+		doFullTreeIndex.setup	(false, 	QString::null, "fi", "fullindex", false);
+		doOtherIndex.setup	(false, 	QString::null, "oi", "otherindex", false);
+		defaultBible.setup		("", 	"DefaultBible", "", "defaultbible", true);
+		defaultGreekStrongs.setup	("", 	"DefaultGreekStrongs", "", "defaultgreekstrongs", true);
+		defaultHebrewStrongs.setup	("", 	"DefaultHebrewStrongs", "", "defaulthebrewstrongs", true);
+		defaultGreekMorph.setup		("", 	"DefaultGreekMorph", "", "defaultgreekmorph", true);
+		defaultHebrewMorph.setup	("", 	"DefaultHebrewMorph", "", "defaulthebrewmorph", true);
 	
 		m_optionList.push_back(&propagate);
 		m_optionList.push_back(&verseNumbers);
