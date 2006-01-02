@@ -128,27 +128,27 @@ namespace KioSword {
 			SwordOptions toggledOptions(options);
 			
 			toggledOptions.verseNumbers.set(!toggledOptions.verseNumbers());
-			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='v'>" 
+			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='v'>" 
 				+ i18n("Verse Numbers") + "</a></li>";
 			toggledOptions.verseNumbers.set(!toggledOptions.verseNumbers());
 				
 			toggledOptions.verseLineBreaks.set(!toggledOptions.verseLineBreaks());
-			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='l'>" 
+			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='l'>" 
 				+ i18n("Verse Line Breaks") + "</a></li>";
 			toggledOptions.verseLineBreaks.set(!toggledOptions.verseLineBreaks());
 
 			toggledOptions.headings.set(!toggledOptions.headings());
-			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='h'>" 
+			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='h'>" 
 				+ i18n("Headings") + "</a></li>";
 			toggledOptions.headings.set(!toggledOptions.headings());
 
 			toggledOptions.strongs.set(!toggledOptions.strongs());
-			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='s'>" 
+			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='s'>" 
 				+ i18n("Strongs") + "</a></li>";
 			toggledOptions.strongs.set(!toggledOptions.strongs());
 			
 			toggledOptions.morph.set(!toggledOptions.morph());
-			toggles += "<li><a href='" + swordUrl(m_currentPath, toggledOptions) + "' accesskey='m'>" 
+			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='m'>" 
 				+ i18n("Morphological tags") + "</a></li>";
 			toggledOptions.morph.set(!toggledOptions.morph());
 

@@ -48,6 +48,16 @@ namespace KioSword {
 		}
 	}
 	
+	static QString htmlEncode(const QString& text)
+	{
+		QString output = text;
+		return output
+			.replace("&", "&amp;")
+			.replace("<", "&lt;")
+			.replace(">", "&gt;")
+			.replace("\"", "&quot;");
+	}
+	
 	/**
 	* return a valid sword URL to be used in anchors
 	*
@@ -57,7 +67,7 @@ namespace KioSword {
 	*
 	* @param path path to be encode
 	*/
-	QString swordUrl(const QString& path, const SwordOptions& options) {
+	QString swordUrl(const QString& path, const SwordOptions& options, bool htmlEncodeOutput) {
 		QString output;
 		KURL url;
 		url.setProtocol(SWORD_PROTOCOL);
@@ -65,7 +75,10 @@ namespace KioSword {
 			url.addPath("/");
 		url.addPath(path);
 		mergeOptionsToURL(url, &options);
-		return url.url();
+		if (htmlEncodeOutput)
+			return htmlEncode(url.url());
+		else
+			return url.url();
 	}
 	
 	/** 
@@ -74,18 +87,18 @@ namespace KioSword {
 	* @param module name of module
 	* @param reference within module
 	*/
-	QString swordUrl(const QString& module, const QString& ref, const SwordOptions& options) {
+	QString swordUrl(const QString& module, const QString& ref, const SwordOptions& options, bool htmlEncodeOutput) {
 		if (ref.at(0) == '/')
-			return swordUrl(module + ref, options);
+			return swordUrl(module + ref, options, htmlEncodeOutput);
 		else
-			return swordUrl(module + "/" + ref, options);
+			return swordUrl(module + "/" + ref, options, htmlEncodeOutput);
 	}
 	
 	/**
 	 * return a valid sword URL for 'pages' such as 'help', 'settings' etc,
 	 * which are defined using a query parameter
 	 */
-	QString swordUrlForPage(const QString& page, const SwordOptions& options)
+	QString swordUrlForPage(const QString& page, const SwordOptions& options, bool htmlEncodeOutput)
 	{
 		QString output;
 		KURL url;
@@ -93,10 +106,13 @@ namespace KioSword {
 		url.addPath("/");
 		url.addQueryItem(page, "");
 		mergeOptionsToURL(url, &options);
-		return url.url();
+		if (htmlEncodeOutput)
+			return htmlEncode(url.url());
+		else
+			return url.url();
 	}
 	
-	QString swordUrlForSettings(const QString& path, const SwordOptions& options)
+	QString swordUrlForSettings(const QString& path, const SwordOptions& options, bool htmlEncodeOutput)
 	{
 		QString output;
 		KURL url;
@@ -105,17 +121,20 @@ namespace KioSword {
 		url.addQueryItem("settings", "");
 		url.addQueryItem("previouspath", path);
 		mergeOptionsToURL(url, &options);
-		return url.url();
+		if (htmlEncodeOutput)
+			return htmlEncode(url.url());
+		else
+			return url.url();
 	}
 	
 	/** Get a URL for doing a search */
-	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions& options)
+	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions& options, bool htmlEncodeOutput)
 	{
-		return swordUrlForSearch(modType, searchQuery, &options);
+		return swordUrlForSearch(modType, searchQuery, &options, htmlEncodeOutput);
 	}
 	
 	/** Get a URL for doing a search */
-	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions* options)
+	QString swordUrlForSearch(DefModuleType modType, const QString& searchQuery, const SwordOptions* options, bool htmlEncodeOutput)
 	{
 		QString modTypeStr;
 		QString output;
@@ -146,7 +165,10 @@ namespace KioSword {
 		url.addQueryItem("modtype", modTypeStr);
 		url.addQueryItem("query", searchQuery);
 		mergeOptionsToURL(url, options);
-		return url.url();
+		if (htmlEncodeOutput)
+			return htmlEncode(url.url());
+		else
+			return url.url();
 	}
 	
 	/** truncate a string to len chars, adding an ellipsis if necessary */
@@ -156,4 +178,5 @@ namespace KioSword {
 			output = output.left(len-2) + "...";
 		return output;
 	}
+	
 }
