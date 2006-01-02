@@ -47,11 +47,12 @@ namespace KioSword
 	class Option : public OptionBase
 	{
 	protected:
-		T m_value;         // actual value
+		T m_value;         // current value
+		T m_propagate_value; // value we are going to propagate when creating URLs
 		T m_default_value; // KioSWord internal default
 		T m_config_value;  // User's default
 		QString m_configName;
-		bool isConfigValue; // True if the value is equal to the saved config value
+		bool m_propagate; // true if this option can be propagated
 		
 		/** Convert a value from a string to the option's type */
 		static const T fromString(const QString& val)
@@ -63,7 +64,7 @@ namespace KioSword
 		}
 		
 		/** Convert the option to a string for use in query strings */
-		QString toString()
+		QString toString(T val)
 		{
 			// Will specialise this later
 			QString result;
@@ -101,16 +102,18 @@ namespace KioSword
 		 * @param configName the name the option has in the config file, or "" to never save or read from config
 		 * @param qsShortName the short name for the option when used in a query string
 		 * @param qsLongName the long name for the option when use in a query string
+		 * @param propagate true if this parameter can be propagated in generated query strings
 		*/
-		void setup(const T& default_value, const QString& configName, const QString& qsShortName, const QString& qsLongName)
+		void setup(const T& default_value, const QString& configName, const QString& qsShortName, const QString& qsLongName, bool propagate)
 		{
 			m_value = default_value;
 			m_default_value = default_value;
 			m_config_value = default_value; // assume this for now
+			m_propagate_value = m_value;
 			m_configName = configName;
 			m_qsShortName = qsShortName;
 			m_qsLongName = qsLongName;
-			isConfigValue = true;
+			m_propagate = propagate;
 		}
 
 		/** Get the value of the option */
@@ -119,46 +122,60 @@ namespace KioSword
 			return m_value;
 		}
 		
-		/** Set the value of the option */
+		/** Set the value of the option (including the value to propagate) */
 		void set(const T& value)
 		{
-			isConfigValue = (value == m_config_value);
 			m_value = value;
+			m_propagate_value = value;
 		}
 		
 		/** read and set the option from the querystring */
 		virtual void readFromQueryString(QMap<QString, QString> params)
 		{
+			T newval;
+			bool found = false;
+			
+/*			// Start with defaults.  We have to do this
+			// because these objects are re-used from one request to the next
+			m_value = m_config_value;
+			m_propagate_value = m_config_value;*/
+			
 			QMap<QString, QString>::const_iterator it = params.find(m_qsShortName);
 			if (it != params.end())
 			{
-				set(fromString(it.data()));
-				return;
+				newval = fromString(it.data());
+				found = true;
 			}
-			it = params.find(m_qsLongName);
-			if (it != params.end())
+			if (!found) {
+				it = params.find(m_qsLongName);
+				if (it != params.end())
+				{
+					newval = fromString(it.data());
+					found = true;
+				}
+			}
+			if (found)
 			{
-				set(fromString(it.data()));
-				return;
+				m_value = newval;
+				if (m_propagate) {
+					m_propagate_value = newval;
+				}
 			}
-			
 		}
 		
 		/** set the name and value of a query string pair */
 		virtual void getQueryStringPair(QString& name, QString& val)
-		{
+		{			
 			// To keep things tidy, we don't propagate in the 
 			// query string values that wouldn't make a difference
 			// i.e. if current value is the same as config,
-			// don't propagate
-			
-			if (!isConfigValue)
-			{
+			// don't propagate	
+			if (m_propagate_value != m_config_value) {
 				if (m_qsShortName.isEmpty())
 					name.append(m_qsLongName);
 				else
 					name.append(m_qsShortName.copy());
-				val.append(toString());
+				val.append(toString(m_propagate_value));
 			}
 		}
 		
@@ -174,7 +191,6 @@ namespace KioSword
 				set(m_default_value);
 			}
 			m_config_value = m_value;
-			isConfigValue = true;
 		}
 		
 		/** save the value to the config file */
@@ -186,7 +202,6 @@ namespace KioSword
 			{
 				config->writeEntry(m_configName, m_value);
 				m_config_value = m_value;
-				isConfigValue = true;
 			}
 		}
 		
@@ -197,11 +212,12 @@ namespace KioSword
 			// of the same type.
 			const Option<T>* other2 = (Option<T>*)other;
 			
-			// m_configName, m_default_value, m_qsShortName and m_qsLongName
-			// have already been set up
+			// m_configName, m_default_value, m_qsShortName and m_qsLongName, and m_propagate
+			// have already been set up correctly (those don't change fromString
+			// the values given in the setup() method)
 			m_value = other2->m_value;
 			m_config_value = other2->m_config_value;
-			isConfigValue = other2->isConfigValue;
+			m_propagate_value = other2->m_propagate_value;
 		}
 	};
 	
@@ -231,21 +247,21 @@ namespace KioSword
 	
 	// toString specialisations
 	template<>
-	inline QString Option<bool>::toString()
+	inline QString Option<bool>::toString(bool val)
 	{
-		return m_value ? QString("1"): QString("0");
+		return val ? QString("1"): QString("0");
 	}
 	
 	template<>
-	inline QString Option<QString>::toString()
+	inline QString Option<QString>::toString(QString val)
 	{
-		return m_value;
+		return val;
 	}
 	
 	template<>
-	inline QString Option<int>::toString()
+	inline QString Option<int>::toString(int val)
 	{
-		return QString::number(m_value);
+		return QString::number(val);
 	}
 	
 	// readConfigSetting specialisations
