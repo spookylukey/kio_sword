@@ -100,14 +100,14 @@ namespace KioSword {
 							val = strchr(attrib, ':');
 							val = (val) ? (val + 1) : attrib;
 							if (*val == 'G') {
-								buf.append(QString(" <span class='strongs'>&lt;<a href=\"%1\">%2</a>&gt;</span> ")
-										.arg(swordUrlForSearch(GREEKSTRONGS, val+1, m_swordoptions))
+								buf.append(QString(" <span class='strongs'>&lt;<a href=\"%2\">%1</a>&gt;</span> ")
 										.arg(val+1)
+										.arg(swordUrlForSearch(GREEKSTRONGS, val+1, m_swordoptions))
 										.utf8());
 							} else if (*val == 'H') {
-								buf.append(QString(" <span class='strongs'>&lt;<a href=\"%1\">%2</a>&gt;</span> ")
-										.arg(swordUrlForSearch(HEBREWSTRONGS, val+1, m_swordoptions))
+								buf.append(QString(" <span class='strongs'>&lt;<a href=\"%2\">%1</a>&gt;</span> ")
 										.arg(val+1)
+										.arg(swordUrlForSearch(HEBREWSTRONGS, val+1, m_swordoptions))
 										.utf8());
 							}
 						} while (++i < count);
@@ -121,20 +121,20 @@ namespace KioSword {
 							val = strchr(attrib, ':');
 							val = (val) ? (val + 1) : attrib;
 							if (!strncmp(attrib, "x-Robinson",10)) { //robinson codes
-								buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span> ")
-										.arg(swordUrlForSearch(GREEKMORPH, val, m_swordoptions))
+								buf.append(QString(" <span class='morph'>(<a href=\"%2\">%1</a>)</span> ")
 										.arg(val)
+										.arg(swordUrlForSearch(GREEKMORPH, val, m_swordoptions))
 										.utf8());
 							} else if ((*val == 'T'))  {
 								if (val[1] == 'G') {
-									buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span> ")
-											.arg(swordUrlForSearch(GREEKMORPH, val+1, m_swordoptions))
+									buf.append(QString(" <span class='morph'>(<a href=\"%2\">%1</a>)</span> ")
 											.arg(val+1)
+											.arg(swordUrlForSearch(GREEKMORPH, val+1, m_swordoptions))
 											.utf8());
 								} else if (val[1] == 'H') {
-									buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span> ")
-											.arg(swordUrlForSearch(HEBREWMORPH, val+1, m_swordoptions))
+									buf.append(QString(" <span class='morph'>(<a href=\"%2\">%1</a>)</span> ")
 											.arg(val+1)
+											.arg(swordUrlForSearch(HEBREWMORPH, val+1, m_swordoptions))
 											.utf8());
 								}
 							}

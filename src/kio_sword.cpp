@@ -120,8 +120,29 @@ namespace KioSword
 		parseURL(url);
 		
 		if (!m_path.isEmpty() && m_path != "/") {
-			modname = m_path.section('/', 0, 0, QString::SectionSkipEmpty);
-			query = m_path.section('/', 1, -1, QString::SectionSkipEmpty);
+			if (!m_path.startsWith("/")) {
+				// sword:xxx is a shortcut for bible verses
+				modname = m_options.defaultBible();
+				if (modname.isEmpty())
+				{
+					error = i18n("No default Bible has been specified.");
+				}
+				else
+				{
+					// do redirection
+					query = m_path;
+					KURL newurl(url);
+					newurl.setPath('/' + modname + '/' + query);
+					redirection(newurl);
+					finished();
+					return;
+				}
+			}
+			else
+			{
+				modname = m_path.section('/', 0, 0, QString::SectionSkipEmpty);
+				query = m_path.section('/', 1, -1, QString::SectionSkipEmpty);
+			}	
 		}
 		
 		// handle redirections first
@@ -135,7 +156,7 @@ namespace KioSword
 				switch (m_moduletype) {
 					case DEFBIBLE:
 						modname = m_options.defaultBible();
-						error = i18n("No default bible has been specified.");
+						error = i18n("No default Bible has been specified.");
 						break;
 					case GREEKSTRONGS:
 						modname = m_options.defaultGreekStrongs();

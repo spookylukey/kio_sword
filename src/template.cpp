@@ -78,8 +78,6 @@ namespace KioSword {
 					"</div></div>\n"
 					"</body>\n"
 					"</html>\n");
-					
-
 
 	Template::Template()
 	{

@@ -148,10 +148,10 @@ namespace KioSword
 			for (it = Modules.begin(); it != Modules.end(); it++) {
 				curMod = (*it).second;
 				if (!strcmp(curMod->Type(), m_moduleTypes[i])) {
-					output += QString("<li class='module'><a class='module' href=\"%1\">%2</a> : %3\n")
-						.arg(swordUrl(curMod->Name(), options))
+					output += QString("<li class='module'><a class='module' href=\"%3\">%1</a> : %2\n")
 						.arg(curMod->Name())
-						.arg(curMod->Description());
+						.arg(curMod->Description())
+						.arg(swordUrl(curMod->Name(), options));
 				}
 			}
 			output += "</ul>";
@@ -468,14 +468,14 @@ namespace KioSword
 						SwordOptions options_wholebook(options);
 						options_wholebook.wholeBook.set(true); // set just for creating the URL
 						text += QString("<h2>%1</h2>"
-								"<p>%4</p>"
-								"<p class='chapterlist'>%5</p>"
-								"<p><a href='%2'>%3</a></p>")
+								"<p>%2</p>"
+								"<p class='chapterlist'>%3</p>")
 								.arg(element->getBookName())
-								.arg(swordUrl(module->Name(), element->getBookName(), options_wholebook))
-								.arg(i18n("View entire book."))
 								.arg(i18n("Chapters:"))
-								.arg(chapterList(modname, element, options));
+								.arg(chapterList(modname, element, options))
+							+ QString("<p><a href='%2'>%1</a></p>")
+								.arg(i18n("View entire book."))
+								.arg(swordUrl(module->Name(), element->getBookName(), options_wholebook));
 					} else {
 						// chapter or verse range selected
 						module->Key(element->LowerBound());
@@ -628,9 +628,9 @@ namespace KioSword
 			} else {
 				SwordOptions options_doindex(options);
 				options_doindex.doBibleIndex.set(true);
-				text += QString("<p><a href=\"%1\">%2</a></p>")
-						.arg(swordUrl(modname, options_doindex))
-						.arg(i18n("Index of books"));
+				text += QString("<p><a href=\"%2\">%1</a></p>")
+						.arg(i18n("Index of books"))
+						.arg(swordUrl(modname, options_doindex));
 			}
 		}
 		tmplt->setContent(text);
@@ -695,15 +695,15 @@ namespace KioSword
 			if (options.doFullTreeIndex()) {
 				options_doindex.doFullTreeIndex.set(false);
 				output += indexTree(module, options, true, -1);
-				output += QString("<p><a href=\"%1\">%2</a></p>")
-						.arg(swordUrl(modname, options_doindex))
-						.arg(i18n("View simple index"));
+				output += QString("<p><a href=\"%2\">%1</a></p>")
+						.arg(i18n("View simple index"))
+						.arg(swordUrl(modname, options_doindex));
 			} else {
 				options_doindex.doFullTreeIndex.set(true);			
 				output += indexTree(module, options, true, 1);
-				output += QString("<p><a href=\"%1\">%2</a></p>")
-						.arg(swordUrl(modname, options_doindex))
-						.arg(i18n("View full index"));
+				output += QString("<p><a href=\"%2\">%1</a></p>")
+						.arg(i18n("View full index"))
+						.arg(swordUrl(modname, options_doindex));
 			}
 			tmplt->setTitle(QString("%1 - %2 - Kio-Sword").arg(tk->getShortText()).arg(module->Name()));
 		}
@@ -766,15 +766,15 @@ namespace KioSword
 				output += QString("<form action='%1' method='get'>"
 							"%2 <input type='text' name='query'>"
 							"</form>")
-							.arg(swordUrl(modname, options))
-							.arg(i18n("Enter query term: "));
+							.arg(i18n("Enter query term: "))
+							.arg(swordUrl(modname, options));
 				
 				SwordOptions options_doindex(options);
 				options_doindex.doDictIndex.set(true);
 				options_doindex.doOtherIndex.set(true);
-				output += QString("<p><a href=\"%1\">%2</a></p>")
-						.arg(swordUrl(modname, options_doindex))
-						.arg(i18n("View complete index"));
+				output += QString("<p><a href=\"%2\">%1</a></p>")
+						.arg(i18n("View complete index"))
+						.arg(swordUrl(modname, options_doindex));
 			}
 			tmplt->setTitle(QString("%1 - Kio-Sword").arg(module->Name()));
 		}
@@ -839,7 +839,7 @@ namespace KioSword
 		output += "<ul>\n";
 		do {
 			ref = QString::fromLocal8Bit(module->KeyText());
-			output += QString("<li><a href=\"%2\">%1</a>")
+			output += QString("<li><a href=\"%2\">%1</a></li>")
 					.arg(ref)
 					.arg(swordUrl(module->Name(), ref, options));
 			(*module)++;
