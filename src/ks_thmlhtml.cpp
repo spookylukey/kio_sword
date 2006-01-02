@@ -69,12 +69,12 @@ namespace KioSword {
 					const char *value = tag.getAttribute("value");
 					if (strlen(value)) {
 						buf.appendFormatted
-							(" <span class='swordlemma'>&lt;%s&gt;</span>", value);
+							(" <span class='lemma'>&lt;%s&gt;</span>", value);
 					}
 				} else if (tag.getAttribute("type") && !strcasecmp(tag.getAttribute("type"), "morph")) {  // Morph
 					const char *value = tag.getAttribute("value");
 					if (value) {
-						buf.append(QString(" <span class='swordmorph'>(<a href=\"%1\">%2</a>)</span>")
+						buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span>")
 								.arg(swordUrlForSearch(GREEKMORPH, value, m_swordoptions))
 								.arg(value)
 								.utf8());
@@ -84,13 +84,13 @@ namespace KioSword {
 						tag.getAttribute("value");
 					if (value && value[0] == 'H') { // hewbrew strongs number
 						// value + 1 => skip the H
-						buf.append(QString(" <span class='swordstrongs'>&lt;<a href=\"%1\">%2</a>&gt;</span>")
+						buf.append(QString(" <span class='strongs'>&lt;<a href=\"%1\">%2</a>&gt;</span>")
 								.arg(swordUrlForSearch(HEBREWSTRONGS, value + 1, m_swordoptions))
 								.arg(value + 1)
 								.utf8());
 					} else if (value && value[0] == 'G') {  //greek strongs number
 						// value + 1 => skip the G
-						buf.append(QString(" <span class='swordstrongs'>&lt;<a href=\"%1\">%2</a>&gt;</span>")
+						buf.append(QString(" <span class='strongs'>&lt;<a href=\"%1\">%2</a>&gt;</span>")
 								.arg(swordUrlForSearch(GREEKSTRONGS, value + 1, m_swordoptions))
 								.arg(value + 1)
 								.utf8());

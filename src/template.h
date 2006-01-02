@@ -39,13 +39,14 @@ namespace KioSword {
 		QString m_content;
 		QString m_nav;
 		QString m_currentPath;
-		static QString page_html;
+		bool m_showToggles;
 	public:
-	
+		Template();
 		void setContent(const QString& content);
 		void setNav(const QString& nav);
 		void setTitle(const QString& title);
 		void setCurrentPath(const QString& currentPath);
+		void setShowToggles(bool showToggles);
 		QCString render(const SwordOptions& options) const;
 	
 	};

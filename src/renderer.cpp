@@ -341,6 +341,7 @@ namespace KioSword
 				normalQuery(module, ref, options, modtype, tmplt, nav);
 			}			
 			tmplt->setNav("<ul>" + nav + "</ul>");
+			tmplt->setShowToggles(true);
 		}
 		return;
 	}

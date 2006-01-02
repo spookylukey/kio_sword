@@ -100,12 +100,12 @@ namespace KioSword {
 							val = strchr(attrib, ':');
 							val = (val) ? (val + 1) : attrib;
 							if (*val == 'G') {
-								buf.append(QString(" <span class='swordstrongs'>&lt;<a href=\"%1\">%2</a>&gt;</span> ")
+								buf.append(QString(" <span class='strongs'>&lt;<a href=\"%1\">%2</a>&gt;</span> ")
 										.arg(swordUrlForSearch(GREEKSTRONGS, val+1, m_swordoptions))
 										.arg(val+1)
 										.utf8());
 							} else if (*val == 'H') {
-								buf.append(QString(" <span class='swordstrongs'>&lt;<a href=\"%1\">%2</a>&gt;</span> ")
+								buf.append(QString(" <span class='strongs'>&lt;<a href=\"%1\">%2</a>&gt;</span> ")
 										.arg(swordUrlForSearch(HEBREWSTRONGS, val+1, m_swordoptions))
 										.arg(val+1)
 										.utf8());
@@ -121,18 +121,18 @@ namespace KioSword {
 							val = strchr(attrib, ':');
 							val = (val) ? (val + 1) : attrib;
 							if (!strncmp(attrib, "x-Robinson",10)) { //robinson codes
-								buf.append(QString(" <span class='swordmorph'>(<a href=\"%1\">%2</a>)</span> ")
+								buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span> ")
 										.arg(swordUrlForSearch(GREEKMORPH, val, m_swordoptions))
 										.arg(val)
 										.utf8());
 							} else if ((*val == 'T'))  {
 								if (val[1] == 'G') {
-									buf.append(QString(" <span class='swordmorph'>(<a href=\"%1\">%2</a>)</span> ")
+									buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span> ")
 											.arg(swordUrlForSearch(GREEKMORPH, val+1, m_swordoptions))
 											.arg(val+1)
 											.utf8());
 								} else if (val[1] == 'H') {
-									buf.append(QString(" <span class='swordmorph'>(<a href=\"%1\">%2</a>)</span> ")
+									buf.append(QString(" <span class='morph'>(<a href=\"%1\">%2</a>)</span> ")
 											.arg(swordUrlForSearch(HEBREWMORPH, val+1, m_swordoptions))
 											.arg(val+1)
 											.utf8());
@@ -224,7 +224,7 @@ namespace KioSword {
 			// <title>
 			else if (!strcmp(tag.getName(), "title")) {
 				if ((!tag.isEndTag()) && (!tag.isEmpty())) {
-					buf += "<div class='swordtitle'>";
+					buf += "<div class='title'>";
 				}
 				else if (tag.isEndTag()) {
 					buf += "</div>";
@@ -272,9 +272,9 @@ namespace KioSword {
 						buf += (level % 2) ? '\"' : '\'';
 					
 					if (who == "Jesus")
-						buf += "<span class='swordjesusquote'>";
+						buf += "<span class='jesusquote'>";
 					else 
-						buf += "<span class='swordquote'>";
+						buf += "<span class='quote'>";
 				}
 				else if (tag.isEndTag()) {
 					buf += "</span>";

@@ -50,7 +50,7 @@ namespace KioSword {
 		addTokenSubstitute("Fi", "</i>");
 		addTokenSubstitute("FB", "<b>"); // bold begin
 		addTokenSubstitute("Fb", "</b>");
-		addTokenSubstitute("FR", "<span class='swordjesusquote'>"); // words of Jesus begin
+		addTokenSubstitute("FR", "<span class='jesusquote'>"); // words of Jesus begin
 		addTokenSubstitute("Fr", "</span>");
 		addTokenSubstitute("FU", "<u>"); // underline begin
 		addTokenSubstitute("Fu", "</u>");
@@ -60,7 +60,7 @@ namespace KioSword {
 		addTokenSubstitute("Fs", "</sup>");
 		addTokenSubstitute("FV", "<sub>"); // Subscript begin
 		addTokenSubstitute("Fv", "</sub>");
-		addTokenSubstitute("TT", "<span class='swordtitle'>"); // Book title begin
+		addTokenSubstitute("TT", "<span class='title'>"); // Book title begin
 		addTokenSubstitute("Tt", "</span>");
 		addTokenSubstitute("PP", "<cite>"); //  poetry  begin
 		addTokenSubstitute("Pp", "</cite>");
@@ -94,7 +94,7 @@ namespace KioSword {
 						*valto++ = *num;
 					*valto = 0;
 					if (atoi((!isdigit(*val))?val+1:val) < 5627) {
-						buf += " <span class='swordstrongs'>&lt;<a href=\"";
+						buf += " <span class='strongs'>&lt;<a href=\"";
 						buf += swordUrlForSearch(GREEKSTRONGS, val, m_swordoptions).utf8();
 						buf += "\">";
 						for (tok = (!isdigit(*val))?val+1:val; *tok; tok++)
@@ -117,7 +117,7 @@ namespace KioSword {
 					for (num+=18; ((*num) && (*num != '\"')); num++)
 						*valto++ = *num;
 					*valto = 0;
-					buf += " <span class='swordmorph'>(<a href=\"";
+					buf += " <span class='morph'>(<a href=\"";
 					buf += swordUrlForSearch(GREEKMORPH, val, m_swordoptions).utf8();
 					buf += "\">";
 					for (tok = val; *tok; tok++)				
@@ -128,7 +128,7 @@ namespace KioSword {
 			}
 			
 			else if (!strncmp(token, "WG", 2) || !strncmp(token, "WH", 2)) { // strong's numbers
-				buf += " <span class='swordstrongs'>&lt;<a href=\"";
+				buf += " <span class='strongs'>&lt;<a href=\"";
 				buf += swordUrlForSearch(GREEKSTRONGS, token + 2, m_swordoptions).utf8();
 				buf += "\">";
 				for (tok = token + 2; *tok; tok++)
@@ -138,7 +138,7 @@ namespace KioSword {
 			}
 	
 			else if (!strncmp(token, "WTG", 3) || !strncmp(token, "WTH", 3)) { // strong's numbers tense
-				buf += " <span class='swordmorph'>(<a href=\"";
+				buf += " <span class='morph'>(<a href=\"";
 				buf += swordUrlForSearch(GREEKMORPH, token + 3, m_swordoptions).utf8();
 				buf += "\">";
 				for (tok = token + 3; *tok; tok++)
@@ -148,7 +148,7 @@ namespace KioSword {
 			}
 	
 			else if (!strncmp(token, "WT", 2) && strncmp(token, "WTH", 3) && strncmp(token, "WTG", 3)) { // morph tags
-				buf += " <span class='swordmorph'>(<a href=\"";
+				buf += " <span class='morph'>(<a href=\"";
 				buf += swordUrlForSearch(GREEKMORPH, token + 2, m_swordoptions).utf8();
 				buf += "\">";
 				for (tok = token + 2; *tok; tok++)				
