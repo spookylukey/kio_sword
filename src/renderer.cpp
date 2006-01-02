@@ -64,10 +64,10 @@ using namespace sword;
 
 namespace KioSword
 {
-	static const QString prev(" <li><a href='%3'>&laquo %1</a>");
-	static const QString next(" <li><a href='%3'>%1 &raquo</a>");
-	static const QString up(" <li><a href='%3'>%1 %2</a>");
-	static const QString genlink(" <li><a href='%2'>%1</a>");
+	static const QString prev(" <li><a href=\"%2\">&laquo %1</a>");
+	static const QString next(" <li><a href=\"%2\">%1 &raquo</a>");
+	static const QString up(" <li><a href=\"%3\">%1 %2</a>");
+	static const QString genlink(" <li><a href=\"%2\">%1</a>");
 	
 	Renderer::Renderer() : 
 		sword::SWMgr(0, 0, true, new sword::EncodingFilterMgr(sword::ENC_UTF8)),
@@ -330,7 +330,7 @@ namespace KioSword
 			}
 			modtype = getModuleType(module);
 			
-			nav += QString("<li class='first'>%1 <a href='%3'>%2</a></li>")
+			nav += QString("<li class='first'>%1 <a href=\"%3\">%2</a></li>")
 				.arg(i18n("Module:"))
 				.arg(modname)
 				.arg(swordUrl(modname, options));
@@ -401,13 +401,13 @@ namespace KioSword
 				ref = QString::fromLocal8Bit(lk.getElement(i)->getText());
 				if (modtype == BIBLE) {
 					module->setKey(lk.getElement(i));
-					output += QString("<li><a href='%3'>%1</a>: %2</li>")
+					output += QString("<li><a href=\"%3\">%1</a>: %2</li>")
 							.arg(ref)
 							.arg(renderText(module))
 							.arg(swordUrl(modname, ref, options));
 					
 				} else {
-					output += QString("<li><a href='%2'>%1</a></li>")
+					output += QString("<li><a href=\"%2\">%1</a></li>")
 							.arg(ref)
 							.arg(swordUrl(modname, ref, options));
 				}
@@ -475,7 +475,7 @@ namespace KioSword
 								.arg(element->getBookName())
 								.arg(i18n("Chapters:"))
 								.arg(chapterList(modname, element, options))
-							+ QString("<p><a href='%2'>%1</a></p>")
+							+ QString("<p><a href=\"%2\">%1</a></p>")
 								.arg(i18n("View entire book."))
 								.arg(swordUrl(module->Name(), element->getBookName(), options_wholebook));
 					} else {
@@ -765,8 +765,8 @@ namespace KioSword
 				output += indexBook(module, options);
 			} else {
 				
-				output += QString("<form action='%1' method='get'>"
-							"%2 <input type='text' name='query'>"
+				output += QString("<form action='%2' method='get'>"
+							"%1 <input type='text' name='query'>"
 							"</form>")
 							.arg(i18n("Enter query term: "))
 							.arg(swordUrl(modname, options));
@@ -921,7 +921,7 @@ namespace KioSword
 		do {
 			cp.Verse(0);
 			if (!output.isNull()) output += " | ";
-			output += QString("<a href='%2'>%1</a>")
+			output += QString("<a href=\"%2\">%1</a>")
 					.arg(cp.Chapter())
 					.arg(chapterLink(modname, &cp, options));
 			cp.Chapter(cp.Chapter()+1);

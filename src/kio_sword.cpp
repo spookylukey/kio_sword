@@ -521,17 +521,17 @@ namespace KioSword
 	QString SwordProtocol::helpPage() {
 		if (help_page.isEmpty()) {
 			help_page += i18n("<h1>Help</h1>"
-			"<p>For full documentation, see <a href='help:/kio_sword'>installed help files</a>.</p>"
+			"<p>For full documentation, see <a href=\"help:/kio_sword\">installed help files</a>.</p>"
 			"<p>Kio-Sword allows you to view SWORD modules (such as Bibles and commentaries) from Konqueror.\n"
-			"  These modules must already be installed - you can download them from <a href='http://www.crosswire.org/'>"
-			"crosswire.org</a> or you can use a program such as <a href='http:/www.bibletime.info'>BibleTime</a> to help"
+			"  These modules must already be installed - you can download them from <a href=\"http://www.crosswire.org/\">"
+			"crosswire.org</a> or you can use a program such as <a href=\"http:/www.bibletime.info\">BibleTime</a> to help"
 			" install them."
 			"<h3>Quick help</h3>\n"
 			"<ul>\n"
-			"  <li>To start, simply type <b><a href='sword:/'>sword:/</a></b> in the location bar, and follow the links like any normal web page<br /><br />\n"
+			"  <li>To start, simply type <b><a href=\"sword:/\">sword:/</a></b> in the location bar, and follow the links like any normal web page<br /><br />\n"
 			"  <li>You can type the exact reference in the Location bar, instead of browsing to it, e.g.<br />\n"
 			"      <b>sword:/KJV/Hebrews 1:3-5</b> will look up Hebrews chapter 1 verses 3 to 5 in the King James Bible.<br /><br />\n"
-			"  <li>You can specify various formatting options in the URL - see <a href='sword:/?settings'>Settings</a> for more info.<br /><br />\n"
+			"  <li>You can specify various formatting options in the URL - see <a href=\"sword:/?settings\">Settings</a> for more info.<br /><br />\n"
 			"  <li>To use a default Bible, the easiest way is to add a web shortcut. For example, \n"
 			"       if you set<br/>"
 			"       Search URI: <b>sword:/KJV/\\{@}</b><br/>"
@@ -541,8 +541,8 @@ namespace KioSword
 			"  <li>You can bookmark Kio-Sword pages just like any other web page.<br /><br />\n"
 			"</ul>\n"
 			"<p>Problems, comments, feature requests? Email the author. "
-			"<p>Author: <a href='mailto:L.Plant.98@cantab.net'>L.Plant.98@cantab.net</a>"
-			"<p>Website: <a href='http://kio-sword.lukeplant.me.uk'>kio-sword.lukeplant.me.uk</a>.");
+			"<p>Author: <a href=\"mailto:L.Plant.98@cantab.net\">L.Plant.98@cantab.net</a>"
+			"<p>Website: <a href=\"http://kio-sword.lukeplant.me.uk\">kio-sword.lukeplant.me.uk</a>.");
 		}
 		return help_page;
 	}
