@@ -24,7 +24,7 @@
  ***************************************************************************/
 
 // Mine
-#include "sword.h"
+#include "renderer.h"
 #include "kio_sword.h"
 #include "utils.h"
 
