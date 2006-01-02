@@ -23,7 +23,7 @@
 
 #include "utils.h"
 #include "swordoptions.h"
-#include "sword.h"
+#include "renderer.h"
 
 #include <kurl.h>
 #include <kconfig.h>
