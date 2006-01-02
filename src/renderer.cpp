@@ -251,6 +251,7 @@ namespace KioSword
 			case FMT_GBF:
 				if (!m_gbffilter)
 					m_gbffilter = new GBFHTML();
+				m_gbffilter->setSwordOptions(options);
 				filter = m_gbffilter;
 				break;
 				
@@ -269,6 +270,7 @@ namespace KioSword
 			case FMT_OSIS:
 				if (!m_osisfilter)
 					m_osisfilter = new OSISHTML();
+				m_osisfilter->setSwordOptions(options);
 				filter = m_osisfilter;
 				break;
 			
