@@ -69,7 +69,7 @@ namespace KioSword {
 					"	" + TOGGLES + "\n"
 					"	<div class=\"links\"><div class='inner'>\n"
 					"		<ul>\n"
-					"			<li><a href=\"" + HOMELINK + "\">" + HOMELINKCAPTION + "</a></li>\n"
+					"			<li><a accesskey=\"t\" href=\"" + HOMELINK + "\">" + HOMELINKCAPTION + "</a></li>\n"
 					"			<li><a href=\"" + SEARCHLINK + "\">" + SEARCHLINKCAPTION + "</a></li>\n"
 					"			<li><a href=\"" + SETTINGSLINK + "\">" + SETTINGSLINKCAPTION + "</a></li>\n"
 					"			<li><a href=\"" + HELPLINK + "\">" + HELPLINKCAPTION + "</a></li>\n"
@@ -87,16 +87,8 @@ namespace KioSword {
 	QCString Template::render(const SwordOptions& options) const
 	{
 	
-		QString cssdir = KGlobal::dirs()->findResourceDir("data", "kio_sword/base.css") + "kio_sword/";
+		QString cssdir = KGlobal::dirs()->findResourceDir("data", "kio_sword/kio_sword.css") + "kio_sword/";
 	
-/* TODO - restore		if (!nav.isEmpty()) {
-				output = "<div class='navtop'>" + nav + "</ul></div><div class='text'>" +
-					output +
-					"</div><div class='navbottom'>" + nav + "</ul></div>";
-			} else {
-				output = "<div class='text'>" +  output + "</div>";
-		}*/
-
 		QString output = html_page;
 		output = output
 			.replace(HOMELINK, swordUrl("", options))
@@ -107,7 +99,7 @@ namespace KioSword {
 			.replace(SETTINGSLINKCAPTION,  i18n("Settings"))
 			.replace(HELPLINK, swordUrlForPage("help", options))
 			.replace(HELPLINKCAPTION, i18n("Help"))
-			.replace(BASECSS,  cssdir + "base.css")
+			.replace(BASECSS,  cssdir + "kio_sword.css")
 			.replace(PAGETITLE, m_title)
 			.replace(CONTENT, m_content);
 		if (!m_nav.isEmpty())

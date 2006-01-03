@@ -9,6 +9,7 @@ kiosworddata_DATA = kio_sword.css \
 	header_caption.png \
 	header_tl.png \
 	header_t.png \
-	header_tr.png
+	header_tr.png \
+	sword1.png
 
 EXTRA_DIST = $(kiosworddata_DATA)

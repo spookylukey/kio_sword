@@ -64,9 +64,10 @@ using namespace sword;
 
 namespace KioSword
 {
-	static const QString prev(" <li><a href=\"%2\">&laquo %1</a>");
-	static const QString next(" <li><a href=\"%2\">%1 &raquo</a>");
-	static const QString up(" <li><a href=\"%3\">%1 %2</a>");
+	static const QString prev(" <li><a href=\"%2\" accesskey=\"p\">&laquo %1</a>");
+	static const QString next(" <li><a href=\"%2\" accesskey=\"n\">%1 &raquo</a>");
+	static const QString treeup(" <li><a href=\"%3\" accesskey=\"u\">%1 %2</a>");
+	static const QString bibleup(" <li><a href=\"%2\" accesskey=\"u\">%1</a>");
 	static const QString genlink(" <li><a href=\"%2\">%1</a>");
 	
 	Renderer::Renderer() : 
@@ -493,18 +494,19 @@ namespace KioSword
 								}
 								// get link to book
 								module->Key(element->LowerBound());
-								navlinks += genlink
+								navlinks += bibleup
 										.arg(bookName(element))
 										.arg(bookLink(modname, element, options));
 							} else {
+								// less than a single chapter
 								// get link to book
 								navlinks += genlink
 										.arg(bookName(element))
 										.arg(bookLink(modname, element, options));
-								// get link to entire chapter
-								navlinks += genlink
-									.arg(bookChapter(element))
-									.arg(chapterLink(modname, element, options));
+								// get link to chapter
+								navlinks += bibleup
+										.arg(bookChapter(element))
+										.arg(chapterLink(modname, element, options));
 							}
 						}
 						
@@ -584,7 +586,7 @@ namespace KioSword
 					text += renderText(module);
 					text += "</div>";
 					if (lk.Count() == 1)
-						navlinks += genlink
+						navlinks += bibleup
 							.arg(bookChapter(element))
 							.arg(chapterLink(modname, element, options));
 				}
@@ -671,7 +673,7 @@ namespace KioSword
 				SWKey *saved = tk->clone();
 				if (tk->parent()) {
 					link = QString::fromLocal8Bit(module->KeyText());
-					navlinks += up.arg(i18n("Up:"))
+					navlinks += treeup.arg(i18n("Up:"))
 						.arg(shorten(link.section('/', -1, -1), 20))
 						.arg(swordUrl(modname, link, options));
 					tk->copyFrom(*saved);

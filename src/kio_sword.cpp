@@ -407,7 +407,7 @@ namespace KioSword
 		QString temp;
 				
 		static const QString separator_row(
-					"<tr><td class='swordsettings_category' colspan='4'>%1</td></tr>");
+					"<tr><td class='settingscategory' colspan='4'>%1</td></tr>");
 	
 		static const QString module_option_row(
 					"<tr><td>%1</td><td colspan='2'><select name='%2'>%3</select></td><td>%4</td></tr>");
@@ -419,7 +419,7 @@ namespace KioSword
 				
 		output += QString(
 				"<form action='sword:/' method='GET'>"
-				"<table class='swordsettings' border=0 cellspacing=0>"
+				"<table class='settings' border=0 cellspacing=0>"
 				"  <tr><th>%1</th><th>%2</th><th>%3</th><th>%4</th></tr>")
 				.arg(i18n("Description"))
 				.arg(i18n("Value"))
@@ -549,10 +549,10 @@ namespace KioSword
 	
 	QString SwordProtocol::searchForm() {
 		static const QString search_form_tmpl(
-			"<h1 class='swordsearchform'>%1</h1>"			// title
-			"<div class='swordsearchform'>"
+			"<h1 class='searchform'>%1</h1>"			// title
+			"<div class='searchform'>"
 			"<form action='sword:/' method='GET'>"
-			"  <table class='swordsearchform'>"
+			"  <table class='searchform'>"
 			"    <tr>"
 			"      <td><label for='query'>%2</label></td>"		// Search terms
 			"      <td><input type='text' name='query'></td>"

@@ -1,12 +1,60 @@
 body { 
 	background-color: #e0e0e0;
-	margin: 20px; 
+	margin: 0px; 
+	padding: 0px;
 	line-height: 1.2em;
 }
+
+
+div.page
+{
+	background-image: url('file:///usr/share/apps/kio_sword/sword1.png');
+	background-repeat: no-repeat;
+	background-position: 5px 100%;
+	padding-bottom: 80px;
+	margin: 10px;
+}
+
+div.page > .inner
+{
+
+}
+
+div.content
+{
+	padding: 5px 5px 5px 25px;
+	margin: 0px;
+	background: white;
+	border-top: solid black 1px;
+	border-bottom: solid black 1px;
+	border-left: solid #e0e0e0 1px;
+	border-right: solid #e0e0e0 1px;
+}
+
 
 h1, h2, h3 { 
 	color: #404040; 
 }
+
+h1 { 
+	font-size: 135%;
+	margin-left: -20px;
+}
+
+h2
+{
+	font-size: 120%;
+	margin-left: -9px;
+}
+
+h3
+{
+	font-size: 110%;
+	margin-left: -5px;
+}
+
+h4, h5, h6 { font-size: 100%; }
+
 
 hr { 
 	text-align: center ;
@@ -75,15 +123,65 @@ h1.moduleslist {
 	text-align: center; 
 }
 
-.links { 
-	font-size: small;
-	text-align: center;
-}
+/* Page links */
 div.links { 
-	margin-top: 5px;
-	padding-top: 5px;
-	border-top: solid black 1px;
+	font-size: 90%;
+	text-align: center;
+	clear: both;
+	margin-top: 2px;
 }
+
+div.links ul { 
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
+div.links li {
+	display: inline;
+	margin: 0px;
+	padding: 0px;
+}
+
+div.links li:before {
+	display: inline;
+	content: " | ";
+}
+div.links li:first-child:before {
+	display: inline;
+	content: "";
+}
+
+/* Page toggles */
+.toggles { 
+	font-size: 90%;
+	text-align: right;
+}
+div.toggles { 
+	border-top: 1px solid #808080;
+	border-bottom: 1px solid black;
+}
+
+div.toggles ul { 
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
+div.toggles li {
+	display: inline;
+	margin: 0px;
+	padding: 0px;
+}
+
+div.toggles li:before {
+	display: inline;
+	content: " | ";
+}
+div.toggles li:first-child:before {
+	display: inline;
+	content: "Toggles: ";
+}
+
+/* Settings page */
 
 table.settings {  
 	border-top: 1px solid black; 
@@ -119,6 +217,8 @@ table.settings  td.settings_category {
 	background-color: #e0e0e0;
 }
 
+/* Search form */
+
 h1.searchform { 
 	text-align: center;
 }
@@ -130,12 +230,7 @@ div.searchform table {
 	margin: auto;
 }
 
-
-.strongs, .morph {
-	font-size: small;
-	font-style: italic;
-}
-
+/* Nav links */
 div.navbottom,
 div.navtop { 
 	font-size: 0.9em; 
@@ -143,13 +238,11 @@ div.navtop {
 	margin-top: 1em;
 }
 div.navbottom {
-	border-top: solid #808080 1px;
 	padding-top: 0px;
 	margin-top: 0px;
 }
 
 div.navtop { 
-	border-bottom: solid #808080 1px;
 	padding-bottom: 0px;
 	margin-bottom: 0px;
 }
@@ -157,6 +250,7 @@ div.navtop {
 div.navtop li,
 div.navbottom li {
 	display: inline;
+	margin: 0px;
 }
 
 div.navtop li:before,
@@ -175,89 +269,12 @@ div.navbottom ul {
 	margin-top: 0px
 }
 
-/*******************************/
-/*    Simple page settings     */
+
+/* Misc */
 
 
-body.simplepage div.text {
-/*	width: 85%;*/
+.strongs, .morph {
+	font-size: small;
+	font-style: italic;
 }
 
-
-body.simplepage div.links {
-	float: clear;
-
-}
-
-
-body.simplepage { 
-	margin: 0px;
-	background: white;
-}
-
-div.simplepage { 
-	background: #e0e0ff;
-	margin: 30px 0px 30px 0px;
-	padding: 15px;
-	border-top: 3px double black;
-	border-bottom: 3px double black;
-}
-
-div.simplepage > * { 
-	margin-top: 0px;
-	padding-top: 0px;
-}
-div.simplepage > * > *{ 
-	margin-top: 0px;
-	padding-top: 0px;
-}
-
-body.simplepage a { 
-	color: blue;
-    	font-weight: bold; 
-}
-
-body.simplepage a:link, a:visited { 
-	text-decoration: none ;
-}
-
-body.simplepage h1, 
-body.simplepage h2, 
-body.simplepage h3 { 
-	color: #000040; 
-}
-
-
-body.simplepage div.navbottom {
-	display: none;
-}
-
-body.simplepage div.navtop {
-	float: right;
-	font-size: 0.9em; 
-	text-align: left;
-	border:  1px solid black;
-	background-color: #e8e8ff;
-}
-
-body.simplepage div.navtop li {
-	display: list-item;
-	margin-left: 0px;
-	padding-left: 0px;
-	white-space: nowrap;
-	list-style-position: inside;
-}
-
-body.simplepage div.navtop li:before {
-	content: ""
-}
-
-body.simplepage div.navtop ul {
-	margin: 1em;
-	padding: 0em;
-
-}
-
-body.simplepage div.links {
-	float: clear;
-}
