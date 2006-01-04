@@ -34,7 +34,7 @@ namespace KioSword
 	class OptionBase
 	{
 		public:
-		virtual void readFromQueryString(QMap<QString, QString> params) = 0;
+		virtual void readFromQueryString(QMap<QString, QString> params, bool allowPropagating) = 0;
 		virtual void getQueryStringPair(QString& name, QString& val) = 0;
 		virtual void readFromConfig(const KConfig* config) = 0;
 		virtual void saveToConfig(KConfig* config) = 0;
@@ -130,7 +130,7 @@ namespace KioSword
 		}
 		
 		/** read and set the option from the querystring */
-		virtual void readFromQueryString(QMap<QString, QString> params)
+		virtual void readFromQueryString(QMap<QString, QString> params, bool allowPropagating)
 		{
 			T newval;
 			bool found = false;
@@ -154,10 +154,9 @@ namespace KioSword
 					found = true;
 				}
 			}
-			if (found)
-			{
+			if (found) {
 				m_value = newval;
-				if (m_propagate) {
+				if (m_propagate && allowPropagating) {
 					m_propagate_value = newval;
 				}
 			}
@@ -196,12 +195,19 @@ namespace KioSword
 		/** save the value to the config file */
 		virtual void saveToConfig(KConfig* config)
 		{
-			// overloads for KConfig::writeEntry cater
-			// for everything we need so far
-			if (m_value != m_default_value) // keep settings file tidy
+			if (!m_configName.isEmpty())
 			{
-				config->writeEntry(m_configName, m_value);
-				m_config_value = m_value;
+				// overloads for KConfig::writeEntry cater
+				// for everything we need so far
+				if (m_value != m_default_value) // keep settings file tidy
+				{
+					config->writeEntry(m_configName, m_value);
+					m_config_value = m_value;
+				}
+				else
+				{
+					config->deleteEntry(m_configName);
+				}
 			}
 		}
 		

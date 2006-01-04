@@ -42,7 +42,7 @@ namespace KioSword
 	void SwordOptions::init()
 	{
 		// Setup all the options
-		propagate.setup		(true,		"", "p", "propagate", true);
+		propagate.setup		(true,		"PropagateOptions", "p", "propagate", true);
 		verseNumbers.setup	(true, 		"VerseNumbers", "vn", "versenumbers", true);
 		verseLineBreaks.setup	(true, 		"VerseLineBreaks", "lb", "linebreaks", true);
 		redWords.setup		(true, 		"RedWords", "rw", "redwords", true);
@@ -119,7 +119,7 @@ namespace KioSword
 
 		for(it = m_optionList.begin(); it != it_end; ++it)
 		{
-			(*it)->readFromQueryString(items);
+			(*it)->readFromQueryString(items, propagate());
 		}
 	}
 	
@@ -153,20 +153,18 @@ namespace KioSword
 	{
 		QMap<QString, QString> result;
 		
-		if (propagate())
+
+		vector<OptionBase*>::const_iterator it;
+		vector<OptionBase*>::const_iterator it_end = m_optionList.end();
+
+		for(it = m_optionList.begin(); it != it_end; ++it)
 		{
-			vector<OptionBase*>::const_iterator it;
-			vector<OptionBase*>::const_iterator it_end = m_optionList.end();
-	
-			for(it = m_optionList.begin(); it != it_end; ++it)
+			QString name = QString::null;
+			QString value = QString::null;
+			(*it)->getQueryStringPair(name, value);
+			if (!name.isNull() && !name.isEmpty())
 			{
-				QString name = QString::null;
-				QString value = QString::null;
-				(*it)->getQueryStringPair(name, value);
-				if (!name.isNull() && !name.isEmpty())
-				{
-					result[name] = value;
-				}
+				result[name] = value;
 			}
 		}
 		return result;
