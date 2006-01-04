@@ -442,7 +442,7 @@ namespace KioSword
 		output += separator_row.arg(i18n("Navigation options"));
 		output += settingsBooleanOptionRow(i18n("Display the whole book when a Bible book is selected, instead of an index of the chapters"),
 									m_options.wholeBook.m_qsLongName, m_options.wholeBook.m_qsShortName, m_options.wholeBook());
-		output += settingsBooleanOptionRow(i18n("Display an the booklist for bibles if no book is requested"),	
+		output += settingsBooleanOptionRow(i18n("Display the booklist for bibles if no book is requested"),	
 									m_options.doBibleIndex.m_qsLongName, m_options.doBibleIndex.m_qsShortName, m_options.doBibleIndex());
 		output += settingsBooleanOptionRow(i18n("Display an index for dictionaries if no entry is requested"),	
 									m_options.doDictIndex.m_qsLongName, m_options.doDictIndex.m_qsShortName, m_options.doDictIndex());
