@@ -1,5 +1,5 @@
 body { 
-	background-color: #e0e0e0;
+	background-color: #d0d0d0;
 	margin: 0px; 
 	padding: 0px;
 	line-height: 1.2em;
@@ -8,27 +8,18 @@ body {
 
 div.page
 {
-	background-image: url('file:///usr/share/apps/kio_sword/sword1.png');
-	background-repeat: no-repeat;
-	background-position: 5px 100%;
-	padding-bottom: 80px;
 	margin: 10px;
-}
-
-div.page > .inner
-{
-
 }
 
 div.content
 {
 	padding: 5px 5px 5px 25px;
 	margin: 0px;
-	background: white;
-	border-top: solid black 1px;
-	border-bottom: solid black 1px;
-	border-left: solid #e0e0e0 1px;
-	border-right: solid #e0e0e0 1px;
+	background: #ffffff;
+	border: solid #808080 1px;
+	background-image: url('file:///usr/share/apps/kio_sword/swordvertical.png');
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
 }
 
 
@@ -38,13 +29,13 @@ h1, h2, h3 {
 
 h1 { 
 	font-size: 135%;
-	margin-left: -20px;
+	margin-left: -15px;
 }
 
 h2
 {
 	font-size: 120%;
-	margin-left: -9px;
+	margin-left: -10px;
 }
 
 h3
@@ -128,7 +119,7 @@ div.links {
 	font-size: 90%;
 	text-align: center;
 	clear: both;
-	margin-top: 2px;
+	padding-top: 5px;
 }
 
 div.links ul { 
@@ -152,13 +143,15 @@ div.links li:first-child:before {
 }
 
 /* Page toggles */
-.toggles { 
+div.toggles { 
 	font-size: 90%;
 	text-align: right;
-}
-div.toggles { 
-	border-top: 1px solid #808080;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #808080;
+	border-left: 1px solid #808080;
+	border-right: 1px solid #808080;
+	padding-left: 2px;
+	padding-right: 2px;
+	background: #e0e0e0;
 }
 
 div.toggles ul { 
@@ -210,7 +203,7 @@ table.settings td {
 }
 
 
-table.settings  td.settings_category { 
+table.settings  td.settingscategory { 
 	text-align: center; 
 	vertical-align: middle; 
 	font-weight: bold ;
