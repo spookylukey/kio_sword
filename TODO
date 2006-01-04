@@ -9,8 +9,6 @@ o  Currently the modules names are case sensitive - case insensitive
 
 o  HTML
 	- move to XHTML strict
-	- simplify HTML
-	- create it consistently, and using placeholders
 
 o  Style sheet
    o have a system stylesheet base.css
@@ -24,7 +22,6 @@ o  Style sheet
      changes will be included
    o package an 'empty' user.css file -- contains various selectors, with
      comments, but no actual content
-
 
 o add some nice CSS to do formatting
 
@@ -62,19 +59,12 @@ language
 o  BUG: Bibles that don't have e.g. OT should produce an error if you request
   an OT verse
 
-o  Return an appropriate title for the text being browsed and put between the
-   <title></title> tags, so that you can bookmark pages with a meaningful title
-
-o  clean up/standardise the way we do initialising of HTML fragments.
+o  BUG: Luther's commentary on Galatians lists everything from Galatians -
+Rev  in the index
 
 o  clean up/optimise lots of code according to the 'KDE mistakes' tutorial
 
 o  improve docbook documentation
-
-o  Do HTML encoding on URLs that are generated
-
-o  Shortcut for accessing default module, perhaps by providing a search
-provider (web shortcut) for 'bible'
 
 o  'Bookmark' icon to make kio-sword pages appear with their own bookmark
 
