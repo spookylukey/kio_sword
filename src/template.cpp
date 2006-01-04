@@ -37,7 +37,6 @@ namespace KioSword {
 	// placeholders
 	static const char* PAGETITLE = "{$pagetitle}";
 	static const char* BASECSS   = "{$basecss}";
-	static const char* USERCSS   = "{$usercss}";
 	static const char* CONTENT   = "{$content}";
 	static const char* HOMELINK =  "{$homelink}";
 	static const char* HOMELINKCAPTION = "{$homelinkcaption}";
@@ -59,14 +58,13 @@ namespace KioSword {
 					"<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>\n"
 					"<title>" + PAGETITLE + "</title>\n"
 					"<link rel=\"StyleSheet\" href=\"file:" + BASECSS + "\" TYPE=\"text/css\">\n"
-					"<link rel=\"StyleSheet\" href=\"file:" + USERCSS + "\" TYPE=\"text/css\">\n"		// user.css FIXME implement
 					"</head>\n"
 					"<body class=\"kiosword\">"
 					"<div class=\"page\"><div class='inner'>"
 					"	" + TOPNAV + "\n"
 					"	<div class=\"content\"><div class='inner'>" + CONTENT + "</div></div>\n"
-					"	" + BOTTOMNAV + "\n"
 					"	" + TOGGLES + "\n"
+					"	" + BOTTOMNAV + "\n"
 					"	<div class=\"links\"><div class='inner'>\n"
 					"		<ul>\n"
 					"			<li><a accesskey=\"t\" href=\"" + HOMELINK + "\">" + HOMELINKCAPTION + "</a></li>\n"
