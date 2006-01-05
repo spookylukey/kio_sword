@@ -37,10 +37,10 @@
 #include <versekey.h>
 #include <treekey.h>
 #include <treekeyidx.h>
-
 #include <plainhtml.h>
 #include <rtfhtml.h>
 #include <encfiltmgr.h>
+#include <localemgr.h>
 
 
 // KDE
@@ -59,6 +59,7 @@
 using std::string;
 using std::vector;
 using std::set;
+using std::list;
 
 using namespace sword;
 
@@ -115,6 +116,7 @@ namespace KioSword
 		setGlobalOption("Lemmas",		(options.lemmas() ? "On" : "Off"));
 		setGlobalOption("Cross-references",	(options.crossRefs() ? "On" : "Off"));
 		setGlobalOption("Words of Christ in Red",(options.redWords() ? "On" : "Off"));
+		
 	
 		if (options.variants() == -1)
 			setGlobalOption("Variants", "All Readings");
@@ -122,7 +124,8 @@ namespace KioSword
 			setGlobalOption("Variants", "Secondary Readings");
 		else
 			setGlobalOption("Variants", "Primary Readings");
-		
+			
+		LocaleMgr::getSystemLocaleMgr()->setDefaultLocaleName(options.locale());
 	}
 	
 	/** Return an HTML hyperlinked list of all modules,
@@ -134,6 +137,8 @@ namespace KioSword
 		ModMap::iterator it;
 		vector<const char *>::size_type i;
 		SWModule *curMod;
+		
+		setOptions(options);
 		
 		if (Modules.empty()) {
 			output += ("<p>" + i18n("No modules installed!") + "</p>\n");
@@ -357,6 +362,8 @@ namespace KioSword
 		QString stypename;
 		ModuleType modtype;
 		
+		setOptions(options);
+		
 		// Find the module
 		module = getModule(modname.latin1());
 		
@@ -439,6 +446,9 @@ namespace KioSword
 		if (!vk) 
 			return;
 		
+		// FIXME - why do I need this call to setLocale()?
+		vk->setLocale(LocaleMgr::getSystemLocaleMgr()->getDefaultLocaleName());
+		
 		modtextdir = textDirection(module);
 			
 		vk->AutoNormalize(0);
@@ -447,7 +457,7 @@ namespace KioSword
 				doindex = true;
 				break;
 			}
-			lk = vk->ParseVerseList(ref, "Gen1:1", true);
+			lk = vk->ParseVerseList(ref, "Genesis 1:1", true);
 			if (lk.Count() == 0) {
 				text += "<p class=\"error\">" + i18n("Couldn't find reference '%1'.").arg(ref) + "</p>";
 				doindex = true;
@@ -456,6 +466,7 @@ namespace KioSword
 			char book = 0;
 			char testament = 0;
 			int chapter = 0;
+			bool upToBookListShown = false;
 			for (int i = 0; i < lk.Count(); ++i) {
 				VerseKey *element = dynamic_cast<VerseKey*>(lk.GetElement(i));
 				if (element) {
@@ -479,6 +490,13 @@ namespace KioSword
 							+ QString("<p><a href=\"%2\">%1</a></p>")
 								.arg(i18n("View entire book."))
 								.arg(swordUrl(module->Name(), element->getBookName(), options_wholebook));
+						if (!upToBookListShown)
+						{
+							navlinks += bibleup
+								.arg(i18n("Books"))
+								.arg(swordUrl(modname, options));
+							upToBookListShown = true;
+						}
 					} else {
 						// chapter or verse range selected
 						module->Key(element->LowerBound());
@@ -802,6 +820,7 @@ namespace KioSword
 		
 		if (!vk)
 			return output;
+		vk->setLocale(LocaleMgr::getSystemLocaleMgr()->getDefaultLocaleName());
 			
 		module->setSkipConsecutiveLinks(true);
 		vk->AutoNormalize(1);
@@ -977,5 +996,19 @@ namespace KioSword
 			return bookName(vk);
 		else
 			return QString::null;
+	}
+	
+	QStringList Renderer::availableLocales()
+	{
+		// FIXME - this won't work with sword 1.5.7
+		list<SWBuf> locales = LocaleMgr::getSystemLocaleMgr()->getAvailableLocales();
+		list<SWBuf>::const_iterator it;
+		list<SWBuf>::const_iterator it_end = locales.end();
+		QStringList output;
+		for (it = locales.begin(); it != it_end; it++)
+		{
+			output.append(QString((*it).c_str()));
+		}
+		return output;
 	}
 }
