@@ -17,7 +17,7 @@ div.content
 	margin: 0px;
 	background: #ffffff;
 	border: solid #808080 1px;
-	background-image: url('file:///usr/share/apps/kio_sword/swordvertical.png');
+	background-image: url('file://@prefix@/share/apps/kio_sword/swordvertical.png');
 	background-repeat: no-repeat;
 	background-position: 50% 50%;
 }
