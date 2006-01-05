@@ -127,11 +127,6 @@ namespace KioSword {
 				+ i18n("Verse Line Breaks") + "</a></li>";
 			toggledOptions.verseLineBreaks.set(!toggledOptions.verseLineBreaks());
 
-			toggledOptions.headings.set(!toggledOptions.headings());
-			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='h'>" 
-				+ i18n("Headings") + "</a></li>";
-			toggledOptions.headings.set(!toggledOptions.headings());
-
 			toggledOptions.strongs.set(!toggledOptions.strongs());
 			toggles += "<li><a href=\"" + swordUrl(m_currentPath, toggledOptions) + "\" accesskey='s'>" 
 				+ i18n("Strongs") + "</a></li>";
