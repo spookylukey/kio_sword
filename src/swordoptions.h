@@ -42,6 +42,11 @@ using std::vector;
 
 namespace KioSword {
 	class SwordOptions {
+	
+		// There are 3 lists of options:
+		//  - Here 
+		//  - 2* in SwordOptions::init()
+		// Also, they usually need to be added to the settings form
 		public:
 		// Need to duplicate
 		Option<bool> propagate;		// Allow options set in one 'get' command to persist to later 'get' commands
@@ -72,6 +77,8 @@ namespace KioSword {
 		Option<QString> defaultHebrewStrongs;
 		Option<QString> defaultGreekMorph;
 		Option<QString> defaultHebrewMorph;
+		
+		Option<QString> locale;
 	
 		SwordOptions();
 		SwordOptions(const SwordOptions& copyFrom);

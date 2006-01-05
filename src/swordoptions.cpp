@@ -65,6 +65,7 @@ namespace KioSword
 		defaultHebrewStrongs.setup	("", 	"DefaultHebrewStrongs", "", "defaulthebrewstrongs", true);
 		defaultGreekMorph.setup		("", 	"DefaultGreekMorph", "", "defaultgreekmorph", true);
 		defaultHebrewMorph.setup	("", 	"DefaultHebrewMorph", "", "defaulthebrewmorph", true);
+		locale.setup		("",		"Locale", "l", "locale", true);
 	
 		m_optionList.push_back(&propagate);
 		m_optionList.push_back(&verseNumbers);
@@ -89,6 +90,7 @@ namespace KioSword
 		m_optionList.push_back(&defaultHebrewStrongs);
 		m_optionList.push_back(&defaultGreekMorph);
 		m_optionList.push_back(&defaultHebrewMorph);
+		m_optionList.push_back(&locale);
 	}
 	
 	/** Copy constuctor */

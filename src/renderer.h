@@ -80,6 +80,7 @@ namespace KioSword {
 		QString listModules(const SwordOptions &options);
 		void setOptions(const SwordOptions &options);
 		QStringList moduleList();
+		QStringList availableLocales();
 		
 		
 	protected:

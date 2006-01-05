@@ -409,8 +409,9 @@ namespace KioSword
 		static const QString separator_row(
 					"<tr><td class='settingscategory' colspan='4'>%1</td></tr>");
 	
-		static const QString module_option_row(
+		static const QString general_option_row(
 					"<tr><td>%1</td><td colspan='2'><select name='%2'>%3</select></td><td>%4</td></tr>");
+					
 		// Start output
 		output += i18n("<h1>Settings</h1>"
 				"<p>Select the settings using the form below.  Use the 'Save settings' button to "
@@ -434,7 +435,24 @@ namespace KioSword
 		output += settingsBooleanOptionRow(i18n("Display strongs numbers (for Bibles that include them)."), m_options.strongs.m_qsLongName, m_options.strongs.m_qsShortName, m_options.strongs());
 		output += settingsBooleanOptionRow(i18n("Display morphological tags (for Bibles that include them)."), m_options.morph.m_qsLongName, m_options.morph.m_qsShortName, m_options.morph());
 		
-		output += separator_row.arg(i18n("Language specific"));
+		output += separator_row.arg(i18n("Language"));
+		
+		QStringList locales = m_renderer.availableLocales();
+		temp = "";
+		for (int i = 0; i < locales.size(); i++)
+		{
+			temp += QString("<option value='%1' %3>%2</option>")
+					.arg(locales[i])
+					.arg(locales[i])
+					.arg((m_options.locale() == locales[i]) ? "selected" : "");
+		}
+		
+		output += general_option_row
+					.arg(i18n("Locale"))
+					.arg(m_options.locale.m_qsShortName)
+					.arg(temp)
+					.arg(m_options.locale.m_qsShortName + ", " + m_options.locale.m_qsLongName);
+		
 		output += settingsBooleanOptionRow(i18n("Use Hebrew cantillation."), 			m_options.cantillation.m_qsLongName, m_options.cantillation.m_qsShortName, m_options.cantillation());
 		output += settingsBooleanOptionRow(i18n("Show Hebrew vowel points."), 			m_options.hebrewVowelPoints.m_qsLongName, m_options.hebrewVowelPoints.m_qsShortName, m_options.hebrewVowelPoints());
 		output += settingsBooleanOptionRow(i18n("Show Greek accents."), 			m_options.greekAccents.m_qsLongName, m_options.greekAccents.m_qsShortName, m_options.greekAccents());
@@ -487,7 +505,7 @@ namespace KioSword
 						.arg(*it)
 						.arg(((*it) == dm_values[i] ? "selected" : ""));
 			}
-			output += module_option_row
+			output += general_option_row
 					.arg(dm_desc[i])
 					.arg(dm_names[i])
 					.arg(temp)
