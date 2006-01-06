@@ -1,0 +1,52 @@
+Index: src/renderer.cpp
+===================================================================
+--- src/renderer.cpp	(revision 100)
++++ src/renderer.cpp	(working copy)
+@@ -125,7 +125,7 @@
+ 		else
+ 			setGlobalOption("Variants", "Primary Readings");
+ 			
+-		LocaleMgr::systemLocaleMgr.setDefaultLocaleName(options.locale());
++		LocaleMgr::getSystemLocaleMgr()->setDefaultLocaleName(options.locale());
+ 	}
+ 	
+ 	/** Return an HTML hyperlinked list of all modules,
+@@ -447,7 +447,7 @@
+ 			return;
+ 		
+ 		// FIXME - why do I need this call to setLocale()?
+-		vk->setLocale(LocaleMgr::systemLocaleMgr.getDefaultLocaleName());
++		vk->setLocale(LocaleMgr::getSystemLocaleMgr()->getDefaultLocaleName());
+ 		
+ 		modtextdir = textDirection(module);
+ 			
+@@ -820,7 +820,7 @@
+ 		
+ 		if (!vk)
+ 			return output;
+-		vk->setLocale(LocaleMgr::systemLocaleMgr.getDefaultLocaleName());
++		vk->setLocale(LocaleMgr::getSystemLocaleMgr()->getDefaultLocaleName());
+ 			
+ 		module->setSkipConsecutiveLinks(true);
+ 		vk->AutoNormalize(1);
+@@ -1000,7 +1000,7 @@
+ 	
+ 	QStringList Renderer::availableLocales()
+ 	{
+-		list<SWBuf> locales = LocaleMgr::systemLocaleMgr.getAvailableLocales();
++		list<SWBuf> locales = LocaleMgr::getSystemLocaleMgr()->getAvailableLocales();
+ 		list<SWBuf>::const_iterator it;
+ 		list<SWBuf>::const_iterator it_end = locales.end();
+ 		QStringList output;
+Index: configure.in.in
+===================================================================
+--- configure.in.in	(revision 100)
++++ configure.in.in	(working copy)
+@@ -4,6 +4,6 @@
+ AC_C_BIGENDIAN
+ AC_CHECK_KDEMAXPATHLEN
+ 
+-AC_CHECK_SWORD(1.5.7, [$ac_use_static])
++AC_CHECK_SWORD(1.5.8, [$ac_use_static])
+ 
+ AC_CONFIG_FILES([ src/data/kio_sword.css ])
