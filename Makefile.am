@@ -15,7 +15,7 @@ package-messages:
 	cd $(top_srcdir) && $(MAKE) -f admin/Makefile.common package-messages
 	$(MAKE) -C po merge
 
-EXTRA_DIST = admin COPYING configure.in.in debian
+EXTRA_DIST = admin COPYING configure.in.in debian sword_1_5_8_fix.patch
 
 dist-hook:
 	cd $(top_distdir) && perl admin/am_edit -padmin
