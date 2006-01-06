@@ -1,3 +1,9 @@
+kio-sword (0.2) unstable; urgency=low
+
+  * New upstream release, see NEWS for details
+
+ -- Luke Plant <L.Plant.98@cantab.net>  Fri,  6 Jan 2006 00:49:30 +0000
+
 kio-sword (0.1-1) unstable; urgency=low
 
   * Initial Release.

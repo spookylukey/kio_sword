@@ -1,45 +1,29 @@
 Feedback/votes for any of these are appreciated - e-mail the author.
-Bugs are summarised at the end.
 
-===================
-After release 0.1:
-===================
-o  Currently the modules names are case sensitive - case insensitive 
-   would be good.
+KNOWN BUGS/ISSUES
+=================
+o  Lots of the filters are incomplete, and don't render everything
+   correctly, especially:
+   o  footnotes
+   o  cross references
+   o  lemmas
 
-o  HTML
-	- move to XHTML strict
+o  i18n: Support for RTL text in the main page
 
-o  Style sheet
-   o have a system stylesheet base.css
-   o have an additional user stylesheet:
-     - automatically search the kio_sword dirs for CSS files,
-       and allow the user to choose one
-   o Still allow the default.css to be overridden by a copy in users
-     dir, but not the suggested way of doing it.  Instead,
-     include the user.css file after default.css, so it overrides
-     anyway.  This way when a new version is installed, new style sheet
-     changes will be included
-   o package an 'empty' user.css file -- contains various selectors, with
-     comments, but no actual content
+o  Support for RTL modules that aren't Bibles
 
-o add some nice CSS to do formatting
+o  footnotes - not implemented at all yet
 
-o  Read some config defaults from the BibleTime settings
-
-o  Headings in Lexicons - use the proper name, not the user's query text 
+o  ThML cross refs - partic MHC - have tags that just specify a verse number or
+   verse and chapter, the rest of the reference should be inferred by the context
+   (e.g. in commentary on John 5, '2' means John 5:2).  We need to get these to
+   produce correct hrefs
 
 o  Strongs and morph tags:
    o  these won't work properly in all modules yet. In GBF, all
       strongs hrefs go to greekstrongs - I need to look up some docs to 
       about the markup.
 
-o  footnotes
-
-o  ThML cross refs - partic MHC - have tags that just specify a verse number or
-   verse and chapter, the rest of the reference should be inferred by the context
-   (e.g. in commentary on John 5, '2' means John 5:2).  We need to get these to
-   produce correct hrefs
 
 o  Lots of i18n issues:
    o  Support for non-English names for Bible books
@@ -54,59 +38,33 @@ o  Lots of i18n issues:
       o construction of URL for redirection, or going back
         to previous page - encoding issues?
    o  add dir=RTL|LTR and lang attributes according to the user's chosen
-language
+      language
 
-o  BUG: Bibles that don't have e.g. OT should produce an error if you request
-  an OT verse
 
-o  BUG: Luther's commentary on Galatians lists everything from Galatians -
-Rev  in the index
+o  Bibles that don't have e.g. OT should produce an error if you request
+   an OT verse
+
+o  Luther's commentary on Galatians lists everything from Galatians -
+   Rev  in the index.  Probably others similarly
+
+POSSIBLE FEATURES/CHANGES
+=========================
+
+o  Make modules names case insensitive
+
+o  HTML
+	- move to XHTML strict
+
+o  Style sheet
+	- get someone to do a better design for the page
+
+o  Read some config defaults from the BibleTime settings
+
+o  Headings in Lexicons - use the proper name, not the user's query text 
 
 o  clean up/optimise lots of code according to the 'KDE mistakes' tutorial
 
 o  improve docbook documentation
 
 o  'Bookmark' icon to make kio-sword pages appear with their own bookmark
-
-=============================
-Possible changes/new features
-=============================
-
-o  Possible:  instead of returning QStrings from CSword functions, pass them
-   some kind of iostream object they can write to directly, which calls SlaveBase::data(),
-   and so return the page as it is being generated.  This would be especially 
-   important with searches
-   o in reality, SWORD's search function returns all the results at once, so there is 
-     no advantage in this - you have to wait for the function to complete
-  
-o  For searches, fork a thread off which then
-   waits for SlaveBase::wasKilled(), and calls CSword::cancelSearch(), which in turn
-   sets the SWModule::terminateSearch boolean. (problem - how do we get hold
-   of the SWModule object CSword::search() is using?)
-   o  Also report %age status of searches - this could be done using the same
-      method:
-        CSword::search() sets a call back when calling SWModule::search() which sets
-        a data member of CSword with the %age completion.  Our thread which monitors
-        for wasKilled() also checks this variable and calls SlaveBase::processPercent()
-        so that Konqueror's progress bar will display the %age of the searching done
-
-o  'Edit stylesheet' option ?? 
-     o  Should pull in system kio_sword.css file or user's modified version
-        into a <textarea>, allow editing and then save to ~/.kde/share/apps/kio_sword
-   
-     
- 
-======
- BUGS
-======
- o  no thread safety/re-entrancy! Multiple simultaneous get requests to a single
-    kio-sword process will likely cause incorrect results/crashes.  However 1) you
-    wouldn't normally want to do this for kio-sword 2) doing it in Konqueror seems quite
-    difficult - it always spawns another kio_sword process if the previous one has not 
-    returned.
-    Maybe this means I don't need to support this, but I need to find out.
-    
- o  i18n issues described above
- 
- o  Lots of the cross refs from MHC to the bible have incorrect links
  

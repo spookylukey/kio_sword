@@ -1,5 +1,16 @@
 Kio-Sword installation 
 ======================
+
+In brief
+========
+
+./configure --prefix=`kde-config --prefix` && make && sudo make install
+
+(but see note about version compatibility below)
+
+Details
+=======
+
 To compile, you will need header files for the following
 libraries, as well as the libraries themselves:
 	-  kdelibs >= 3 
@@ -15,9 +26,19 @@ Then type:
   export KDEDIR=<your KDE dir>
   ./configure --prefix=<your KDE DIR>
   make
-  su			<enter root password>
+
+Then as root (using su or sudo)
+
   make install
 
+Version Compatibility
+=====================
+
+If you have sword 1.5.8 or later, you will need to patch the source 
+due to a change in an API.  The patch is provided, so you just have
+to run this command before running configure etc.
+
+patch -p0 < sword_1_5_8_fix.patch
 
 
 
