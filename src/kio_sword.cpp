@@ -571,7 +571,7 @@ namespace KioSword
 			"</ul>\n"
 			"<p>Problems, comments, feature requests? Email the author. "
 			"<p>Author: <a href=\"mailto:L.Plant.98@cantab.net\">L.Plant.98@cantab.net</a>"
-			"<p>Website: <a href=\"http://lukeplant.me.uk/kio-sword/\">kio-sword.lukeplant.me.uk</a>.");
+			"<p>Website: <a href=\"http://lukeplant.me.uk/kio-sword/\">http://lukeplant.me.uk/kio-sword/</a>.");
 		}
 		return help_page;
 	}
