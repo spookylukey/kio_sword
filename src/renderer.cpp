@@ -125,7 +125,7 @@ namespace KioSword
 		else
 			setGlobalOption("Variants", "Primary Readings");
 			
-		LocaleMgr::getSystemLocaleMgr()->setDefaultLocaleName(options.locale());
+		LocaleMgr::systemLocaleMgr.setDefaultLocaleName(options.locale());
 	}
 	
 	/** Return an HTML hyperlinked list of all modules,
@@ -447,7 +447,7 @@ namespace KioSword
 			return;
 		
 		// FIXME - why do I need this call to setLocale()?
-		vk->setLocale(LocaleMgr::getSystemLocaleMgr()->getDefaultLocaleName());
+		vk->setLocale(LocaleMgr::systemLocaleMgr.getDefaultLocaleName());
 		
 		modtextdir = textDirection(module);
 			
@@ -820,7 +820,7 @@ namespace KioSword
 		
 		if (!vk)
 			return output;
-		vk->setLocale(LocaleMgr::getSystemLocaleMgr()->getDefaultLocaleName());
+		vk->setLocale(LocaleMgr::systemLocaleMgr.getDefaultLocaleName());
 			
 		module->setSkipConsecutiveLinks(true);
 		vk->AutoNormalize(1);
@@ -1000,8 +1000,7 @@ namespace KioSword
 	
 	QStringList Renderer::availableLocales()
 	{
-		// FIXME - this won't work with sword 1.5.7
-		list<SWBuf> locales = LocaleMgr::getSystemLocaleMgr()->getAvailableLocales();
+		list<SWBuf> locales = LocaleMgr::systemLocaleMgr.getAvailableLocales();
 		list<SWBuf>::const_iterator it;
 		list<SWBuf>::const_iterator it_end = locales.end();
 		QStringList output;
