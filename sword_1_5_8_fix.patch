@@ -38,15 +38,3 @@ Index: src/renderer.cpp
  		list<SWBuf>::const_iterator it;
  		list<SWBuf>::const_iterator it_end = locales.end();
  		QStringList output;
-Index: configure.in.in
-===================================================================
---- configure.in.in	(revision 100)
-+++ configure.in.in	(working copy)
-@@ -4,6 +4,6 @@
- AC_C_BIGENDIAN
- AC_CHECK_KDEMAXPATHLEN
- 
--AC_CHECK_SWORD(1.5.7, [$ac_use_static])
-+AC_CHECK_SWORD(1.5.8, [$ac_use_static])
- 
- AC_CONFIG_FILES([ src/data/kio_sword.css ])
