@@ -32,11 +32,11 @@
 <!-- TRANS:ROLES_OF_TRANSLATORS -->
 
 <copyright>
-<year>2004-2005</year>
+<year>2004-2006</year>
 <holder>Luke Plant</holder>
 </copyright>
 <!-- Translators: put here the copyright notice of the translation -->
-<legalnotice>&FDLNotice;</legalnotice>
+<legalnotice>&GPLNotice;</legalnotice>
 
 <!-- Date and version information of the documentation
 Don't forget to include this last date and this last revision number, we
@@ -45,8 +45,8 @@ Please respect the format of the date (YYYY-MM-DD) and of the version
 (V.MM.LL), it could be used by automation scripts.
 Do NOT change these in the translation. -->
 
-<date>2004-2005-05-05</date>
-<releaseinfo>0.0.1</releaseinfo>
+<date>2006-08-12</date>
+<releaseinfo>0.2.0</releaseinfo>
 
 <!-- Abstract about this handbook -->
 
@@ -163,12 +163,11 @@ Program copyright 2004-2005 Luke Plant <email>L&#46;Plant&#46;98&#64;cantab&#46;
 </para>
 
 <para>
-Documentation copyright 2004-2005 Luke Plant <email>L&#46;Plant&#46;98&#64;cantab&#46;net</email>
+Documentation copyright 2004-2005 Luke Plant <email>L&#46;Plant&#46;98&#64;cantab&#46;net</email>, 
+licensed under the terms of the GNU General Public License.
 </para>
 
 <!-- TRANS:CREDIT_FOR_TRANSLATORS -->
-
-&underFDL;               <!-- FDL: do not remove -->
 
 <!-- Determine which license your application is licensed under, 
      and delete all the remaining licenses below:
