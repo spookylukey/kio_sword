@@ -2,6 +2,10 @@ Feedback/votes for any of these are appreciated - e-mail the author.
 
 KNOWN BUGS/ISSUES
 =================
+o  The fact that you can replace the CSS file easily needs documenting
+
+o  Background image is annoying
+
 o  Lots of the filters are incomplete, and don't render everything
    correctly, especially:
    o  footnotes
@@ -35,6 +39,7 @@ o  Lots of i18n issues:
          and using CSS, if possible
    o  Need to investigate these issues:
       o reading of supplied URL - what encoding is it in?
+	o DEFINITE bug here -- in e-mail
       o construction of URL for redirection, or going back
         to previous page - encoding issues?
    o  add dir=RTL|LTR and lang attributes according to the user's chosen
