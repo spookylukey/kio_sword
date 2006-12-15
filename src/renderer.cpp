@@ -66,10 +66,34 @@ using namespace sword;
 namespace KioSword
 {
 	static const QString prev(" <li><a href=\"%2\" accesskey=\"p\">&laquo %1</a>");
+	static QString makePrevLink(const QString& caption, const QString& url)
+	{
+		return prev.arg(caption).arg(url);
+	}
+	
 	static const QString next(" <li><a href=\"%2\" accesskey=\"n\">%1 &raquo</a>");
+	static QString makeNextLink(const QString& caption, const QString& url)
+	{
+		return next.arg(caption).arg(url);
+	}
+	
 	static const QString treeup(" <li><a href=\"%3\" accesskey=\"u\">%1 %2</a>");
+	static QString makeTreeUpLink(const QString& caption1, const QString& caption2, const QString& url)
+	{
+		return treeup.arg(caption1).arg(caption2).arg(url);
+	}
+
 	static const QString bibleup(" <li><a href=\"%2\" accesskey=\"u\">%1</a>");
+	static QString makeBibleUpLink(const QString& caption, const QString& url)
+	{
+		return bibleup.arg(caption).arg(url);
+	}
+
 	static const QString genlink(" <li><a href=\"%2\">%1</a>");
+	static QString makeGeneralLink(const QString& caption, const QString& url)
+	{
+		return genlink.arg(caption).arg(url);
+	}
 	
 	Renderer::Renderer() : 
 		sword::SWMgr(0, 0, true, new sword::EncodingFilterMgr(sword::ENC_UTF8)),
@@ -492,9 +516,8 @@ namespace KioSword
 								.arg(swordUrl(module->Name(), element->getBookName(), options_wholebook));
 						if (!upToBookListShown)
 						{
-							navlinks += bibleup
-								.arg(i18n("Books"))
-								.arg(swordUrl(modname, options));
+							navlinks += makeBibleUpLink(i18n("Books"),
+										    swordUrl(modname, options));
 							upToBookListShown = true;
 						}
 					} else {
@@ -506,25 +529,21 @@ namespace KioSword
 								// get link to previous chapter
 								module->decrement();
 								if (!module->Error()) {
-									navlinks += prev
-										.arg(bookChapter(module->getKey()))
-										.arg(chapterLink(modname, module->getKey(), options));
+									navlinks += makePrevLink(bookChapter(module->getKey()), 
+											     chapterLink(modname, module->getKey(), options));
 								}
 								// get link to book
 								module->Key(element->LowerBound());
-								navlinks += bibleup
-										.arg(bookName(element))
-										.arg(bookLink(modname, element, options));
+								navlinks += makeBibleUpLink(bookName(element),
+											    bookLink(modname, element, options));
 							} else {
 								// less than a single chapter
 								// get link to book
-								navlinks += genlink
-										.arg(bookName(element))
-										.arg(bookLink(modname, element, options));
+								navlinks += makeGeneralLink(bookName(element),
+										bookLink(modname, element, options));
 								// get link to chapter
-								navlinks += bibleup
-										.arg(bookChapter(element))
-										.arg(chapterLink(modname, element, options));
+								navlinks += makeBibleUpLink(bookChapter(element),
+											    chapterLink(modname, element, options));
 							}
 						}
 						
@@ -584,9 +603,8 @@ namespace KioSword
 							if (isSingleChapter(element)) {
 							// add some navigation links 
 								if (!err) {
-									navlinks += next
-										.arg(bookChapter(module->getKey()))
-										.arg(chapterLink(modname, module->getKey(), options));
+									navlinks += makeNextLink(bookChapter(module->getKey()),
+												 chapterLink(modname, module->getKey(), options));
 								}
 							}
 						}
@@ -604,9 +622,8 @@ namespace KioSword
 					text += renderText(module);
 					text += "</div>";
 					if (lk.Count() == 1)
-						navlinks += bibleup
-							.arg(bookChapter(element))
-							.arg(chapterLink(modname, element, options));
+						navlinks += makeBibleUpLink(bookChapter(element),
+									    chapterLink(modname, element, options));
 				}
 				if (i+1 != lk.Count())
 					text += "<br />";
@@ -659,7 +676,7 @@ namespace KioSword
 	}
 	
 	void Renderer::treeQuery(SWModule *module, const QString &ref, const SwordOptions &options, 
-								ModuleType modtype, Template* tmplt, QString &navlinks) {
+				ModuleType modtype, Template* tmplt, QString &navlinks) {
 		QString output;
 		QString modname(module->Name());
 		bool doindex;
@@ -684,23 +701,23 @@ namespace KioSword
 				output += renderText(module);
 				if (tk->previousSibling()) {
 					link = QString::fromLocal8Bit(module->KeyText()); // FIXME ? local8Bit or utf8
-					navlinks += prev.arg(shorten(link.section('/', -1, -1), 20))
-							.arg(swordUrl(modname, link, options));
+					navlinks += makePrevLink(shorten(link.section('/', -1, -1), 20),
+								 swordUrl(modname, link, options));
 					tk->nextSibling();
 				}
 				SWKey *saved = tk->clone();
 				if (tk->parent()) {
 					link = QString::fromLocal8Bit(module->KeyText());
-					navlinks += treeup.arg(i18n("Up:"))
-						.arg(shorten(link.section('/', -1, -1), 20))
-						.arg(swordUrl(modname, link, options));
+					navlinks += makeTreeUpLink(i18n("Up:"),
+							shorten(link.section('/', -1, -1), 20),
+							swordUrl(modname, link, options));
 					tk->copyFrom(*saved);
 				}
 				delete saved;
 				if (tk->nextSibling()) {
 					link = QString::fromLocal8Bit(module->KeyText());
-					navlinks += next.arg(shorten(link.section('/', -1, -1), 20))
-							.arg(swordUrl(modname, link, options));
+					navlinks += makeNextLink(shorten(link.section('/', -1, -1), 20),
+								 swordUrl(modname, link, options));
 					tk->previousSibling();
 				}
 				if (tk->hasChildren()) {
@@ -764,15 +781,13 @@ namespace KioSword
 				QString link;
 				if (!module->Error()) {
 					link = module->KeyText();
-					navlinks += prev.arg(link)
-							.arg(swordUrl(modname, link, options));
+					navlinks += makePrevLink(link, swordUrl(modname, link, options));
 					module->increment();
 				}
 				module->increment();
 				if (!module->Error()) {
 					link = module->KeyText();
-					navlinks += next.arg(link)
-							.arg(swordUrl(modname, link, options));
+					navlinks += makeNextLink(link, swordUrl(modname, link, options));
 					module->decrement();
 				}
 			}
