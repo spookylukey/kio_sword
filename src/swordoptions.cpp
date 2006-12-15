@@ -55,10 +55,10 @@ namespace KioSword
 		greekAccents.setup	(true, 		"GreekAccents", "ga", "accents", true);
 		styleSheet.setup	("default.css",	"StyleSheet", "ss", "stylesheet", true);
 		variants.setup		(0,		"Variants", "vr", "variants", true);
-		wholeBook.setup		(false, 	QString::null, "wb", "wholebook", false);
-		doBibleIndex.setup	(true, 		QString::null, "bi", "bibleindex", false);
+		wholeBook.setup		(false, 	"WholeBook", "wb", "wholebook", false);
+		doBibleIndex.setup	(true, 		"BibleIndex", "bi", "bibleindex", false);
 		doDictIndex.setup	(false, 	QString::null, "di", "dictindex", false);
-		doFullTreeIndex.setup	(false, 	QString::null, "fi", "fullindex", false);
+		doFullTreeIndex.setup	(false, 	"FullTreeIndex", "fi", "fullindex", false);
 		doOtherIndex.setup	(false, 	QString::null, "oi", "otherindex", false);
 		defaultBible.setup		("", 	"DefaultBible", "", "defaultbible", true);
 		defaultGreekStrongs.setup	("", 	"DefaultGreekStrongs", "", "defaultgreekstrongs", true);
