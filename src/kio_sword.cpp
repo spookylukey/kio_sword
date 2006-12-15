@@ -28,6 +28,7 @@
 #include "kio_sword.h"
 #include "utils.h"
 #include "template.h"
+#include "option.h"
 
 // KDE
 #include <kdebug.h>
@@ -473,43 +474,39 @@ namespace KioSword
 		output += separator_row.arg(i18n("Default modules"));
 		modules = m_renderer.moduleList();
 		
-		vector<QString> dm_desc, dm_names, dm_values;
+		vector<QString> dm_desc;
+		vector<Option<QString> > dm_options;
 		vector<QString>::size_type i;
 		dm_desc.push_back(i18n("Default Bible"));
-		dm_names.push_back(m_options.defaultBible.m_qsLongName);
-		dm_values.push_back(m_options.defaultBible());
+		dm_options.push_back(m_options.defaultBible);
 		
 		dm_desc.push_back(i18n("Default Greek Strong's Lexicon"));
-		dm_names.push_back(m_options.defaultGreekStrongs.m_qsLongName);
-		dm_values.push_back(m_options.defaultGreekStrongs());
+		dm_options.push_back(m_options.defaultGreekStrongs);
 		
 		dm_desc.push_back(i18n("Default Hebrew Strong's Lexicon"));
-		dm_names.push_back(m_options.defaultHebrewStrongs.m_qsLongName);
-		dm_values.push_back(m_options.defaultHebrewStrongs());
+		dm_options.push_back(m_options.defaultHebrewStrongs);
 		
 		dm_desc.push_back(i18n("Default Greek Morphological Lexicon"));
-		dm_names.push_back(m_options.defaultGreekMorph.m_qsLongName);
-		dm_values.push_back(m_options.defaultGreekMorph());
+		dm_options.push_back(m_options.defaultGreekMorph);
 		
 		dm_desc.push_back(i18n("Default Hebrew Morphological Lexicon"));
-		dm_names.push_back(m_options.defaultHebrewMorph.m_qsLongName);
-		dm_values.push_back(m_options.defaultHebrewMorph());
+		dm_options.push_back(m_options.defaultHebrewMorph);
 		
-		for (i = 0; i < dm_desc.size(); i++) {
+		for (i = 0; i < dm_options.size(); i++) {
 			temp = QString("<option value='' %1> </option>")
-				.arg(dm_values[i].stripWhiteSpace().isEmpty() ? "selected" : "");
+				.arg(dm_options[i]().stripWhiteSpace().isEmpty() ? "selected" : "");
 				
 			for (it = modules.begin(); it != modules.end(); ++it ) {
 				temp += QString("<option value='%1' %3>%2</option>")
 						.arg(*it)
 						.arg(*it)
-						.arg(((*it) == dm_values[i] ? "selected" : ""));
+						.arg(((*it) == dm_options[i]() ? "selected" : ""));
 			}
 			output += general_option_row
 					.arg(dm_desc[i])
-					.arg(dm_names[i])
+					.arg(dm_options[i].m_qsLongName)
 					.arg(temp)
-					.arg(dm_names[i]);
+					.arg(dm_options[i].m_qsLongName);
 		}
 	
 		output += separator_row.arg(i18n("Other options"));
