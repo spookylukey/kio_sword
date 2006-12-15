@@ -43,6 +43,11 @@ namespace KioSword
 		virtual ~OptionBase() {};
 	};
 
+	/** 
+	 * Template class for options that can be read/saved to a query string
+	 * or config file and are used at run time to determine various things
+	 *
+	 */
 	template <class T>
 	class Option : public OptionBase
 	{
@@ -51,8 +56,6 @@ namespace KioSword
 		T m_propagate_value; // value we are going to propagate when creating URLs
 		T m_default_value; // KioSWord internal default
 		T m_config_value;  // User's default
-		QString m_configName;
-		bool m_propagate; // true if this option can be propagated
 		
 		/** Convert a value from a string to the option's type */
 		static const T fromString(const QString& val)
@@ -80,8 +83,10 @@ namespace KioSword
 		}	
 	
 	public:
-		QString m_qsShortName;
-		QString m_qsLongName;
+		QString m_qsShortName; // short name in querystring
+		QString m_qsLongName;  // long name in querystring
+		bool m_propagate;      // true if this option can be propagated
+		QString m_configName;  // name of config setting in config file
 		
 		Option()
 		{
@@ -140,6 +145,7 @@ namespace KioSword
 			m_value = m_config_value;
 			m_propagate_value = m_config_value;*/
 			
+			// Search for short name
 			QMap<QString, QString>::const_iterator it = params.find(m_qsShortName);
 			if (it != params.end())
 			{
@@ -147,6 +153,7 @@ namespace KioSword
 				found = true;
 			}
 			if (!found) {
+				// Search for long name
 				it = params.find(m_qsLongName);
 				if (it != params.end())
 				{

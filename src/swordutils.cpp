@@ -50,6 +50,10 @@ namespace KioSword {
 		return false;
 	}
 	
+	
+	/** Checks if the VerseKey represents a single chapter
+	 *
+	 */
 	bool isSingleChapter(const VerseKey *vk) {
 		if (!vk) return false;
 		
@@ -68,6 +72,13 @@ namespace KioSword {
 		return false;
 	}
 	
+	
+	/** Gets the text direction of the given module, used for 
+	 * inserting into HTML
+	 * 
+	 * @param module Module to test
+	 * @return "ltr" or "rtl"
+	 */
 	const char* textDirection(SWModule* module)
 	{
 		return (module->Direction(-1) == (int)sword::DIRECTION_LTR ? "ltr" : "rtl");
