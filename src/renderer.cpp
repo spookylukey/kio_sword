@@ -190,10 +190,9 @@ namespace KioSword
 		return output;
 	}
 	
-	/* Return a sorted list of all module names 
+	/** Return a sorted list of all module names 
 	*
 	*/
-	
 	QStringList Renderer::moduleList() {
 		QStringList output;
 		ModMap::iterator it;

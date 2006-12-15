@@ -383,24 +383,45 @@ namespace KioSword
 		finished();
 	}
 	
-	
-	QString settingsBooleanOptionRow(const QString &description, const QString& name, const QString& shortname, bool value) {
-		static const QString boolean_option_row(
-					"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</nobr></td><td>%7</td><td>%2, %8</td></tr>");
-		QString output = boolean_option_row
-				.arg(description)
-				.arg(shortname)
-				.arg(shortname)
-				.arg(shortname)
-				.arg(value ? "checked" : "")
-				.arg(i18n("On"))
-				.arg(value ? "" : "checked")
-				.arg(i18n("Off"))
-				.arg(i18n("Boolean"))
-				.arg(name);
+	/** Returns a string representing notes about an option for the settings page
+	 */
+	template <class T>
+	QString optionNotes(const Option<T>& option)
+	{
+		QString output;
+		if (!option.m_propagate)
+		{
+			output += "<sup>1</sup>";
+		}
+		if (option.m_configName.isNull())
+		{
+			if (output.length() > 0)
+			{
+				output += "<sup>,</sup>";
+			}
+			output += "<sup>2</sup>";
+		}
 		return output;
 	}
 	
+	
+	/** HTML for a boolean option */
+	QString settingsBooleanOptionRow(const QString& description, const Option<bool>& option) {
+		static const QString boolean_option_row(
+					"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</nobr></td><td>%7</td><td>%2, %8</td></tr>");
+		return boolean_option_row
+				.arg(description + optionNotes(option))
+				.arg(option.m_qsShortName)
+				.arg(option.m_qsShortName)
+				.arg(option.m_qsShortName)
+				.arg(option() ? "checked" : "")
+				.arg(i18n("On"))
+				.arg(option() ? "" : "checked")
+				.arg(i18n("Off"))
+				.arg(i18n("Boolean"))
+				.arg(option.m_qsLongName);
+	}
+		
 	QString SwordProtocol::settingsForm() {
 		QString output;
 		QStringList modules;
@@ -429,15 +450,16 @@ namespace KioSword
 				.arg(i18n("URL parameter"));
 		
 		output += separator_row.arg(i18n("Formatting options"));
-		output += settingsBooleanOptionRow(i18n("Display verse numbers for Bible modules"), 	m_options.verseNumbers.m_qsLongName, m_options.verseNumbers.m_qsShortName, m_options.verseNumbers());
-		output += settingsBooleanOptionRow(i18n("Insert line breaks between Bible verses"), 	m_options.verseLineBreaks.m_qsLongName, m_options.verseLineBreaks.m_qsShortName, m_options.verseLineBreaks());
-		output += settingsBooleanOptionRow(i18n("Include footnotes."), 				m_options.footnotes.m_qsLongName, m_options.footnotes.m_qsShortName, m_options.footnotes());
-		output += settingsBooleanOptionRow(i18n("Words of Christ in red."), 			m_options.redWords.m_qsLongName, m_options.redWords.m_qsShortName, m_options.redWords());
-		output += settingsBooleanOptionRow(i18n("Display strongs numbers (for Bibles that include them)."), m_options.strongs.m_qsLongName, m_options.strongs.m_qsShortName, m_options.strongs());
-		output += settingsBooleanOptionRow(i18n("Display morphological tags (for Bibles that include them)."), m_options.morph.m_qsLongName, m_options.morph.m_qsShortName, m_options.morph());
+		output += settingsBooleanOptionRow(i18n("Display verse numbers for Bible modules"), m_options.verseNumbers);
+		output += settingsBooleanOptionRow(i18n("Insert line breaks between Bible verses"), m_options.verseLineBreaks);
+		output += settingsBooleanOptionRow(i18n("Include footnotes."), m_options.footnotes);
+		output += settingsBooleanOptionRow(i18n("Words of Christ in red."), m_options.redWords);
+		output += settingsBooleanOptionRow(i18n("Display strongs numbers (for Bibles that include them)."), m_options.strongs);
+		output += settingsBooleanOptionRow(i18n("Display morphological tags (for Bibles that include them)."), m_options.morph);
 		
 		output += separator_row.arg(i18n("Language"));
 		
+		// Locale
 		QStringList locales = m_renderer.availableLocales();
 		temp = "";
 		for (int i = 0; i < locales.size(); i++)
@@ -454,21 +476,21 @@ namespace KioSword
 					.arg(temp)
 					.arg(m_options.locale.m_qsShortName + ", " + m_options.locale.m_qsLongName);
 		
-		output += settingsBooleanOptionRow(i18n("Use Hebrew cantillation."), 			m_options.cantillation.m_qsLongName, m_options.cantillation.m_qsShortName, m_options.cantillation());
-		output += settingsBooleanOptionRow(i18n("Show Hebrew vowel points."), 			m_options.hebrewVowelPoints.m_qsLongName, m_options.hebrewVowelPoints.m_qsShortName, m_options.hebrewVowelPoints());
-		output += settingsBooleanOptionRow(i18n("Show Greek accents."), 			m_options.greekAccents.m_qsLongName, m_options.greekAccents.m_qsShortName, m_options.greekAccents());
+		output += settingsBooleanOptionRow(i18n("Use Hebrew cantillation."), m_options.cantillation);
+		output += settingsBooleanOptionRow(i18n("Show Hebrew vowel points."), m_options.hebrewVowelPoints);
+		output += settingsBooleanOptionRow(i18n("Show Greek accents."), m_options.greekAccents);
 		
 		output += separator_row.arg(i18n("Navigation options"));
-		output += settingsBooleanOptionRow(i18n("Display the whole book when a Bible book is selected, instead of an index of the chapters"),
-									m_options.wholeBook.m_qsLongName, m_options.wholeBook.m_qsShortName, m_options.wholeBook());
+		output += settingsBooleanOptionRow(i18n("Display the whole book when a Bible book is selected, instead of an index of the chapters"), 
+							m_options.wholeBook);
 		output += settingsBooleanOptionRow(i18n("Display the booklist for bibles if no book is requested"),	
-									m_options.doBibleIndex.m_qsLongName, m_options.doBibleIndex.m_qsShortName, m_options.doBibleIndex());
+							m_options.doBibleIndex);
 		output += settingsBooleanOptionRow(i18n("Display an index for dictionaries if no entry is requested"),	
-									m_options.doDictIndex.m_qsLongName, m_options.doDictIndex.m_qsShortName, m_options.doDictIndex());
+							m_options.doDictIndex);
 		output += settingsBooleanOptionRow(i18n("Display an index for other books if no entry is request"),	
-									m_options.doOtherIndex.m_qsLongName, m_options.doOtherIndex.m_qsShortName, m_options.doOtherIndex());
-		output += settingsBooleanOptionRow(i18n("Display a full index for books that have a multiple level index, instead of just the first level"),	
-									m_options.doFullTreeIndex.m_qsLongName, m_options.doFullTreeIndex.m_qsShortName, m_options.doFullTreeIndex());
+							m_options.doOtherIndex);
+		output += settingsBooleanOptionRow(i18n("Display a full index for books that have a multiple level index, instead of just the first level"),
+							m_options.doFullTreeIndex);
 		
 		
 		output += separator_row.arg(i18n("Default modules"));
@@ -511,9 +533,15 @@ namespace KioSword
 	
 		output += separator_row.arg(i18n("Other options"));
 		output += settingsBooleanOptionRow(i18n("Make formatting options propagate.  This makes kio-sword remember formatting settings that you have set, by propagating them in the links.  (Some navigation options are always excluded from this behaviour)."),
-									m_options.propagate.m_qsLongName, m_options.propagate.m_qsShortName, m_options.propagate());
+				m_options.propagate);
 		
-		output += QString("</table>"
+		output += QString("</table>");
+		
+		output += i18n("<p>Notes:<br/>"
+				"1) These options never propagate<br/>"
+				"2) These options are never saved<br/></p>");
+		
+		output += QString(
 				"<br><input type='hidden' name='module' value='%1'>"    	// redirection path
 				"<input type='hidden' name='query' value='%2'>"	    	    	// redirection path
 				"<input type='submit' name='testsettings' value='%3'>&nbsp;"	// "Test settings"
@@ -521,10 +549,11 @@ namespace KioSword
 				"</form>")
 				.arg(m_previous.module)
 				.arg(m_previous.query)
-				.arg("Test settings")
-				.arg("Save settings");
+				.arg(i18n("Test settings"))
+				.arg(i18n("Save settings"));
 		
-		output += i18n("<hr><p>To further customise the appearance of the kio-sword page, you can make your own modified "
+		output += i18n("<hr><h1>Stylesheet</h1>"
+				"<p>To further customise the appearance of the kio-sword page, you can make your own modified "
 				"version of the style sheet. "
 				"Simply copy the file '%1kio_sword/kio_sword.css' to $HOME/.kde/share/apps/kio_sword/ and modify it as desired. You may want to use the 'simplepage' option above to make the most of this.</p>")
 					.arg(KGlobal::dirs()->findResourceDir("data", "kio_sword/kio_sword.css")); // FIXME - this must always return the system dir, not users dir.
