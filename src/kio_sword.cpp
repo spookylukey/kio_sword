@@ -421,6 +421,27 @@ namespace KioSword
 				.arg(i18n("Boolean"))
 				.arg(option.m_qsLongName);
 	}
+	/**  */
+	
+	/** HTML for a general option row
+	 * 
+	 * @param description User visible description of option
+	 * @param option option metadata
+	 * @param optionList HTML containing the <option>s
+	 * @return 
+	 */
+	QString settingsGeneralOptionRow(const QString& description, const Option<QString>& option, 
+					 const QString& optionList)
+	{
+		static const QString general_option_row(
+					"<tr><td>%1</td><td colspan='2'><select name='%2'>%3</select></td><td>%4, %5</td></tr>");
+		return general_option_row
+			.arg(description + optionNotes(option))
+			.arg(option.m_qsLongName)
+			.arg(optionList)
+			.arg(option.m_qsShortName)
+			.arg(option.m_qsLongName);
+	}
 		
 	QString SwordProtocol::settingsForm() {
 		QString output;
@@ -431,8 +452,6 @@ namespace KioSword
 		static const QString separator_row(
 					"<tr><td class='settingscategory' colspan='4'>%1</td></tr>");
 	
-		static const QString general_option_row(
-					"<tr><td>%1</td><td colspan='2'><select name='%2'>%3</select></td><td>%4</td></tr>");
 					
 		// Start output
 		output += i18n("<h1>Settings</h1>"
@@ -469,13 +488,9 @@ namespace KioSword
 					.arg(locales[i])
 					.arg((m_options.locale() == locales[i]) ? "selected" : "");
 		}
+		output += settingsGeneralOptionRow(i18n("Locale"), m_options.locale, temp);
 		
-		output += general_option_row
-					.arg(i18n("Locale"))
-					.arg(m_options.locale.m_qsShortName)
-					.arg(temp)
-					.arg(m_options.locale.m_qsShortName + ", " + m_options.locale.m_qsLongName);
-		
+		// Formatting options
 		output += settingsBooleanOptionRow(i18n("Use Hebrew cantillation."), m_options.cantillation);
 		output += settingsBooleanOptionRow(i18n("Show Hebrew vowel points."), m_options.hebrewVowelPoints);
 		output += settingsBooleanOptionRow(i18n("Show Greek accents."), m_options.greekAccents);
@@ -493,6 +508,7 @@ namespace KioSword
 							m_options.doFullTreeIndex);
 		
 		
+		// Default modules
 		output += separator_row.arg(i18n("Default modules"));
 		modules = m_renderer.moduleList();
 		
@@ -524,13 +540,10 @@ namespace KioSword
 						.arg(*it)
 						.arg(((*it) == dm_options[i]() ? "selected" : ""));
 			}
-			output += general_option_row
-					.arg(dm_desc[i])
-					.arg(dm_options[i].m_qsLongName)
-					.arg(temp)
-					.arg(dm_options[i].m_qsLongName);
+			output += settingsGeneralOptionRow(dm_desc[i], dm_options[i], temp);
 		}
 	
+		// Misc options
 		output += separator_row.arg(i18n("Other options"));
 		output += settingsBooleanOptionRow(i18n("Make formatting options propagate.  This makes kio-sword remember formatting settings that you have set, by propagating them in the links.  (Some navigation options are always excluded from this behaviour)."),
 				m_options.propagate);

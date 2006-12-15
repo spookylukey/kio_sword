@@ -60,11 +60,11 @@ namespace KioSword
 		doDictIndex.setup	(false, 	QString::null, "di", "dictindex", false);
 		doFullTreeIndex.setup	(false, 	"FullTreeIndex", "fi", "fullindex", false);
 		doOtherIndex.setup	(false, 	QString::null, "oi", "otherindex", false);
-		defaultBible.setup		("", 	"DefaultBible", "", "defaultbible", true);
-		defaultGreekStrongs.setup	("", 	"DefaultGreekStrongs", "", "defaultgreekstrongs", true);
-		defaultHebrewStrongs.setup	("", 	"DefaultHebrewStrongs", "", "defaulthebrewstrongs", true);
-		defaultGreekMorph.setup		("", 	"DefaultGreekMorph", "", "defaultgreekmorph", true);
-		defaultHebrewMorph.setup	("", 	"DefaultHebrewMorph", "", "defaulthebrewmorph", true);
+		defaultBible.setup		("", 	"DefaultBible", "dfb", "defaultbible", true);
+		defaultGreekStrongs.setup	("", 	"DefaultGreekStrongs", "dfgs", "defaultgreekstrongs", true);
+		defaultHebrewStrongs.setup	("", 	"DefaultHebrewStrongs", "dfhs", "defaulthebrewstrongs", true);
+		defaultGreekMorph.setup		("", 	"DefaultGreekMorph", "dfgm", "defaultgreekmorph", true);
+		defaultHebrewMorph.setup	("", 	"DefaultHebrewMorph", "dfhm", "defaulthebrewmorph", true);
 		locale.setup		("",		"Locale", "l", "locale", true);
 	
 		m_optionList.push_back(&propagate);
