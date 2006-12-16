@@ -76,9 +76,9 @@ namespace KioSword {
 		url.addPath(path);
 		mergeOptionsToURL(url, &options);
 		if (htmlEncodeOutput)
-			return htmlEncode(url.url());
+			return htmlEncode(url.url(0, 106));  // return as utf-8
 		else
-			return url.url();
+			return url.url(0, 106);  // return as utf-8
 	}
 	
 	/** 
@@ -107,9 +107,9 @@ namespace KioSword {
 		url.addQueryItem(page, "");
 		mergeOptionsToURL(url, &options);
 		if (htmlEncodeOutput)
-			return htmlEncode(url.url());
+			return htmlEncode(url.url(0, 106));  // return as utf-8
 		else
-			return url.url();
+			return url.url(0, 106);  // return as utf-8
 	}
 	
 	QString swordUrlForSettings(const QString& path, const SwordOptions& options, bool htmlEncodeOutput)
@@ -119,12 +119,22 @@ namespace KioSword {
 		url.setProtocol(SWORD_PROTOCOL);
 		url.addPath("/");
 		url.addQueryItem("settings", "");
-		url.addQueryItem("previouspath", path);
+		
+		// Up to KDE 3.5.2 at least, there is a bug in KURL::url which
+		// doesn't take into account the encoding_hint for the query items,
+		// so we can't use addQueryItem for anything which has non-ascii chars
+		//   url.addQueryItem("previouspath", path);
 		mergeOptionsToURL(url, &options);
+		output = url.url(0, 106);   // return as utf-8
+		
+		// Add 'previouspath' manually
+		output += ( (url.queryItems().count() > 0) ? "&" : "?");
+		output += "previouspath=" + KURL::encode_string(path, 106);
+		
 		if (htmlEncodeOutput)
-			return htmlEncode(url.url());
+			return htmlEncode(output);
 		else
-			return url.url();
+			return output;
 	}
 	
 	/** Get a URL for doing a search */
@@ -166,9 +176,9 @@ namespace KioSword {
 		url.addQueryItem("query", searchQuery);
 		mergeOptionsToURL(url, options);
 		if (htmlEncodeOutput)
-			return htmlEncode(url.url());
+			return htmlEncode(url.url(0, 106));  // return as utf-8
 		else
-			return url.url();
+			return url.url(0, 106);  // return as utf-8
 	}
 	
 	/** truncate a string to len chars, adding an ellipsis if necessary */
