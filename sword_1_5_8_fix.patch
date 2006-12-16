@@ -164,3 +164,15 @@ Index: sword_1_5_8_fix.patch
 -  	
 -  	QStringList Renderer::availableLocales()
 -  	{
+Index: configure.in.in
+===================================================================
+--- configure.in.in	(revision 122)
++++ configure.in.in	(working copy)
+@@ -4,6 +4,6 @@
+ AC_C_BIGENDIAN
+ AC_CHECK_KDEMAXPATHLEN
+ 
+-AC_CHECK_SWORD(1.5.7, [$ac_use_static])
++AC_CHECK_SWORD(1.5.8, [$ac_use_static])
+ 
+ AC_CONFIG_FILES([ src/data/kio_sword.css ])
