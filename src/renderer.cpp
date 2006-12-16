@@ -41,6 +41,7 @@
 #include <rtfhtml.h>
 #include <encfiltmgr.h>
 #include <localemgr.h>
+#include <regex.h>
 
 
 // KDE
@@ -421,7 +422,7 @@ namespace KioSword
 				.arg(stypename);
 				
 		
-		lk = module->search(query.utf8(), stype);
+		lk = module->search(query.utf8(), stype, REG_ICASE);
 		if (lk.Count() == 0) {
 			output += "<p>" +i18n("No matches returned.");
 		} else {
