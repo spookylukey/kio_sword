@@ -1,6 +1,6 @@
 /***************************************************************************
     File:         utils.cpp
-    Project:      kio-sword -- An ioslave for SWORD and KDE
+    Project:      Kio-Sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004-2005 Luke Plant
     Description:  Misc utility functions that don't belong anywhere else
  ***************************************************************************/
@@ -48,6 +48,11 @@ namespace KioSword {
 		}
 	}
 	
+	static void mergeOptionsToURL(KURL& url, const SwordOptions& options)
+	{
+		return mergeOptionsToURL(url, &options);
+	}
+		
 	static QString htmlEncode(const QString& text)
 	{
 		QString output = text;
@@ -56,6 +61,21 @@ namespace KioSword {
 			.replace("<", "&lt;")
 			.replace(">", "&gt;")
 			.replace("\"", "&quot;");
+	}
+	
+	/** Returns options that need to be propagated as HTML for a form */
+	QString optionsAsHiddenFields(const SwordOptions& options)
+	{
+		QString output;
+		QMap<QString, QString> items = options.getQueryStringParams();
+		QMap<QString, QString>::const_iterator it;
+		QMap<QString, QString>::const_iterator it_end = items.end();
+		for(it = items.begin(); it != it_end; ++it) {
+			output += QString("<input type=\"hidden\" name=\"%1\" value=\"%2\">")
+					.arg(it.key())
+					.arg(htmlEncode(it.data()));
+		}
+		return output;
 	}
 	
 	/**
@@ -74,7 +94,7 @@ namespace KioSword {
 		if (path.at(0) != '/')
 			url.addPath("/");
 		url.addPath(path);
-		mergeOptionsToURL(url, &options);
+		mergeOptionsToURL(url, options);
 		if (htmlEncodeOutput)
 			return htmlEncode(url.url(0, 106));  // return as utf-8
 		else
@@ -105,7 +125,7 @@ namespace KioSword {
 		url.setProtocol(SWORD_PROTOCOL);
 		url.addPath("/");
 		url.addQueryItem(page, "");
-		mergeOptionsToURL(url, &options);
+		mergeOptionsToURL(url, options);
 		if (htmlEncodeOutput)
 			return htmlEncode(url.url(0, 106));  // return as utf-8
 		else
@@ -124,7 +144,7 @@ namespace KioSword {
 		// doesn't take into account the encoding_hint for the query items,
 		// so we can't use addQueryItem for anything which has non-ascii chars
 		//   url.addQueryItem("previouspath", path);
-		mergeOptionsToURL(url, &options);
+		mergeOptionsToURL(url, options);
 		output = url.url(0, 106);   // return as utf-8
 		
 		// Add 'previouspath' manually

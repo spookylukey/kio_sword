@@ -56,7 +56,7 @@ namespace KioSword {
 		
 		QString helpPage();
 		QString pageLinks(const SwordOptions& options);
-		QString searchForm();
+		QString searchForm(const SwordOptions& options);
 		QString settingsForm();
 		
 		typedef enum { 	QUERY, 

@@ -1,6 +1,6 @@
 /***************************************************************************
     File:         swordoptions.h
-    Project:      kio-sword -- An ioslave for SWORD and KDE
+    Project:      Kio-Sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004-2005 Luke Plant
  ***************************************************************************/
 

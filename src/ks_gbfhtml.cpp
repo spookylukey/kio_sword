@@ -1,6 +1,6 @@
 /***************************************************************************
     File:         ks_gbfhtml.cpp
-    Project:      kio-sword -- An ioslave for SWORD and KDE
+    Project:      Kio-Sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004-2005 Luke Plant
                   and CrossWire Bible Society 2003
                   (file based on gbfhtmlhref.cpp and osiscgi.cpp)
@@ -172,7 +172,7 @@ namespace KioSword {
 				buf += "\">";
 			}
 			
-			// FIXME - modify for kio-sword
+			// FIXME - modify for Kio-Sword
 			else if (!strcmp(tag.getName(), "RF")) {
 				SWBuf type = tag.getAttribute("type");
 				SWBuf footnoteNumber = tag.getAttribute("swordFootnote");

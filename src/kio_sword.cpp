@@ -1,6 +1,6 @@
 /***************************************************************************
     File:         kio_sword.cpp
-    Project:      kio-sword  -- An ioslave for SWORD and KDE
+    Project:      Kio-Sword  -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004-2005 Luke Plant
  
     File info:    
@@ -218,7 +218,7 @@ namespace KioSword
 			
 			case SEARCH_FORM:
 				tmplt->setTitle(i18n("Search - Kio-Sword"));
-				tmplt->setContent(searchForm());
+				tmplt->setContent(searchForm(m_options));
 				break;
 						
 			case SEARCH_QUERY:
@@ -546,7 +546,7 @@ namespace KioSword
 	
 		// Misc options
 		output += separator_row.arg(i18n("Other options"));
-		output += settingsBooleanOptionRow(i18n("Make formatting options propagate.  This makes kio-sword remember formatting settings that you have set, by propagating them in the links.  (Some navigation options are always excluded from this behaviour)."),
+		output += settingsBooleanOptionRow(i18n("Make formatting options propagate.  This makes Kio-Sword remember formatting settings that you have set, by propagating them in the links.  (Some navigation options are always excluded from this behaviour)."),
 				m_options.propagate);
 		
 		output += QString("</table>");
@@ -567,7 +567,7 @@ namespace KioSword
 				.arg(i18n("Save settings"));
 		
 		output += i18n("<hr><h1>Stylesheet</h1>"
-				"<p>To further customise the appearance of the kio-sword page, you can make your own modified "
+				"<p>To further customise the appearance of the Kio-Sword page, you can make your own modified "
 				"version of the style sheet. "
 				"Simply copy the file '%1kio_sword/kio_sword.css' to $HOME/.kde/share/apps/kio_sword/ and modify it as desired. You may want to use the 'simplepage' option above to make the most of this.</p>")
 					.arg(KGlobal::dirs()->findResourceDir("data", "kio_sword/kio_sword.css")); // FIXME - this must always return the system dir, not users dir.
@@ -616,7 +616,7 @@ namespace KioSword
 		return help_page;
 	}
 	
-	QString SwordProtocol::searchForm() {
+	QString SwordProtocol::searchForm(const SwordOptions& options) {
 		static const QString search_form_tmpl(
 			"<h1 class='searchform'>%1</h1>"			// title
 			"<div class='searchform'>"
@@ -645,7 +645,7 @@ namespace KioSword
 			"</form>"
 			"</div>");
 			
-		if (search_form.isEmpty()) {
+		if (search_form.isEmpty()) { // avoid calculating this twice
 			QStringList modules = m_renderer.moduleList();
 			QString temp;
 			QStringList::Iterator it;
@@ -668,6 +668,9 @@ namespace KioSword
 					.arg(i18n("Regular expression"))
 					.arg(i18n("Search"));
 		}
-		return search_form;
+		// search_form is generated once, but we need to modify
+		// form each time to include propagated values
+		QString output(search_form);
+		return output.replace("</form>", optionsAsHiddenFields(options) + "</form>");
 	}
 }

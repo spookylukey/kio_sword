@@ -1,6 +1,6 @@
 /***************************************************************************
     File:         ks_osishtml.cpp
-    Project:      kio-sword -- An ioslave for SWORD and KDE
+    Project:      Kio-Sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004-2005 Luke Plant
                   and CrossWire Bible Society 2003
                   (file based on osishtmlhref.cpp and osiscgi.cpp)
@@ -149,7 +149,7 @@ namespace KioSword {
 			}
 	
 			// <note> tag
-			// FIXME - needs to be modified for kio-sword
+			// FIXME - needs to be modified for Kio-Sword
 			else if (!strcmp(tag.getName(), "note")) {
 				if (!tag.isEndTag()) {
 					if (!tag.isEmpty()) {
@@ -191,7 +191,7 @@ namespace KioSword {
 				}
 			}
 	
-			// FIXME - needs to be modified for kio-sword
+			// FIXME - needs to be modified for Kio-Sword
 			// <reference> tag
 			else if (!strcmp(tag.getName(), "reference")) {
 				if ((!tag.isEndTag()) && (!tag.isEmpty())) {
@@ -308,7 +308,7 @@ namespace KioSword {
 				}
 			}
 	
-			// FIXME - remove for kio-sword?
+			// FIXME - remove for Kio-Sword?
 			// image
 			else if (!strcmp(tag.getName(), "figure")) {
 				const char *src = tag.getAttribute("src");

@@ -1,6 +1,6 @@
 /***************************************************************************
     File:         utils.h
-    Project:      kio-sword -- An ioslave for SWORD and KDE
+    Project:      Kio-Sword -- An ioslave for SWORD and KDE
     Copyright:    Copyright (C) 2004-2005 Luke Plant
  ***************************************************************************/
 
@@ -42,6 +42,7 @@ namespace KioSword {
 	extern const char* GREEKMORPH_STR;
 	extern const char* HEBREWMORPH_STR;
 	
+	QString optionsAsHiddenFields(const SwordOptions& options);
 	QString swordUrl(const QString& path, const SwordOptions& options, bool htmlEncodeOutput = true);
 	QString swordUrl(const QString& module, const QString& ref, const SwordOptions& options, bool htmlEncodeOutput = true);
 	QString swordUrlForPage(const QString& page, const SwordOptions& options, bool htmlEncodeOutput = true);
