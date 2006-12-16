@@ -2,7 +2,7 @@ body {
 	background-color: #d0d0d0;
 	margin: 0px; 
 	padding: 0px;
-	line-height: 1.2em;
+	line-height: 1.5em;
 }
 
 
@@ -17,9 +17,9 @@ div.content
 	margin: 0px;
 	background: #ffffff;
 	border: solid #808080 1px;
-	background-image: url('file://@prefix@/share/apps/kio_sword/swordvertical.png');
-	background-repeat: no-repeat;
-	background-position: 50% 50%;
+	/* background-image: url('file://@prefix@/share/apps/kio_sword/swordvertical.png'); 
+	   background-repeat: no-repeat;
+	   background-position: 50% 50%; */
 }
 
 

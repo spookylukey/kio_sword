@@ -411,7 +411,7 @@ namespace KioSword
 	/** HTML for a boolean option */
 	QString settingsBooleanOptionRow(const QString& description, const Option<bool>& option) {
 		static const QString boolean_option_row(
-					"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</nobr></td><td>%7</td><td>%2, %8</td></tr>");
+					"<tr><td>%1</td><td><nobr><input type='radio' name='%2' value='1' %3>%4 &nbsp;&nbsp;<input type='radio'  name='%2' value='0' %5>%6</nobr></td><td>%2, %7</td></tr>");
 		return boolean_option_row
 				.arg(description + optionNotes(option))
 				.arg(option.m_qsShortName)
@@ -421,7 +421,6 @@ namespace KioSword
 				.arg(i18n("On"))
 				.arg(option() ? "" : "checked")
 				.arg(i18n("Off"))
-				.arg(i18n("Boolean"))
 				.arg(option.m_qsLongName);
 	}
 	/**  */
@@ -437,7 +436,7 @@ namespace KioSword
 					 const QString& optionList)
 	{
 		static const QString general_option_row(
-					"<tr><td>%1</td><td colspan='2'><select name='%2'>%3</select></td><td>%4, %5</td></tr>");
+					"<tr><td>%1</td><td><select name='%2'>%3</select></td><td>%4, %5</td></tr>");
 		return general_option_row
 			.arg(description + optionNotes(option))
 			.arg(option.m_qsLongName)
@@ -453,7 +452,7 @@ namespace KioSword
 		QString temp;
 				
 		static const QString separator_row(
-					"<tr><td class='settingscategory' colspan='4'>%1</td></tr>");
+					"<tr><td class='settingscategory' colspan='3'>%1</td></tr>");
 	
 					
 		// Start output
@@ -465,10 +464,9 @@ namespace KioSword
 		output += QString(
 				"<form action='sword:/' method='GET'>"
 				"<table class='settings' border=0 cellspacing=0>"
-				"  <tr><th>%1</th><th>%2</th><th>%3</th><th>%4</th></tr>")
+				"  <tr><th>%1</th><th>%2</th><th>%4</th></tr>")
 				.arg(i18n("Description"))
 				.arg(i18n("Value"))
-				.arg(i18n("Type"))
 				.arg(i18n("URL parameter"));
 		
 		output += separator_row.arg(i18n("Formatting options"));
