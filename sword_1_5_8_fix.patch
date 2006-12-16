@@ -1,8 +1,8 @@
 Index: src/renderer.cpp
 ===================================================================
---- src/renderer.cpp	(revision 100)
+--- src/renderer.cpp	(revision 113)
 +++ src/renderer.cpp	(working copy)
-@@ -125,7 +125,7 @@
+@@ -149,7 +149,7 @@
  		else
  			setGlobalOption("Variants", "Primary Readings");
  			
@@ -11,7 +11,7 @@ Index: src/renderer.cpp
  	}
  	
  	/** Return an HTML hyperlinked list of all modules,
-@@ -447,7 +447,7 @@
+@@ -470,7 +470,7 @@
  			return;
  		
  		// FIXME - why do I need this call to setLocale()?
@@ -20,7 +20,7 @@ Index: src/renderer.cpp
  		
  		modtextdir = textDirection(module);
  			
-@@ -820,7 +820,7 @@
+@@ -834,7 +834,7 @@
  		
  		if (!vk)
  			return output;
@@ -29,7 +29,7 @@ Index: src/renderer.cpp
  			
  		module->setSkipConsecutiveLinks(true);
  		vk->AutoNormalize(1);
-@@ -1000,7 +1000,7 @@
+@@ -1014,7 +1014,7 @@
  	
  	QStringList Renderer::availableLocales()
  	{
@@ -38,3 +38,45 @@ Index: src/renderer.cpp
  		list<SWBuf>::const_iterator it;
  		list<SWBuf>::const_iterator it_end = locales.end();
  		QStringList output;
+Index: sword_1_5_8_fix.patch
+===================================================================
+--- sword_1_5_8_fix.patch	(revision 113)
++++ sword_1_5_8_fix.patch	(working copy)
+@@ -1,8 +1,8 @@
+ Index: src/renderer.cpp
+ ===================================================================
+---- src/renderer.cpp	(revision 100)
++--- src/renderer.cpp	(revision 113)
+ +++ src/renderer.cpp	(working copy)
+-@@ -125,7 +125,7 @@
++@@ -149,7 +149,7 @@
+  		else
+  			setGlobalOption("Variants", "Primary Readings");
+  			
+@@ -11,7 +11,7 @@
+  	}
+  	
+  	/** Return an HTML hyperlinked list of all modules,
+-@@ -447,7 +447,7 @@
++@@ -470,7 +470,7 @@
+  			return;
+  		
+  		// FIXME - why do I need this call to setLocale()?
+@@ -20,7 +20,7 @@
+  		
+  		modtextdir = textDirection(module);
+  			
+-@@ -820,7 +820,7 @@
++@@ -834,7 +834,7 @@
+  		
+  		if (!vk)
+  			return output;
+@@ -29,7 +29,7 @@
+  			
+  		module->setSkipConsecutiveLinks(true);
+  		vk->AutoNormalize(1);
+-@@ -1000,7 +1000,7 @@
++@@ -1014,7 +1014,7 @@
+  	
+  	QStringList Renderer::availableLocales()
+  	{
