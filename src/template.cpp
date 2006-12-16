@@ -52,7 +52,7 @@ namespace KioSword {
 	
 	// static HTML fragments -------------------------------------------------------------------------------------------------------
 	static const QString &html_page(QString("") + 
-					"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\""
+					"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" "       // make W3C valid
 					"\"http://www.w3.org/TR/html4/strict.dtd\">\n"
 					"<html><head>\n"
 					"<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>\n"

@@ -307,7 +307,10 @@ namespace KioSword
 		
 		m_options.readFromQueryString(url.queryItems(KURL::CaseInsensitiveKeys));
 		
-		QMap<QString, QString> items = url.queryItems(KURL::CaseInsensitiveKeys);
+		// URLs will be encoded in UTF-8 since they are sometimes 
+		// generated from the search form, and the browser will 
+		// encode in UTF-8 since the whole page has UTF-8 charset
+		QMap<QString, QString> items = url.queryItems(KURL::CaseInsensitiveKeys, 106); 
 		QMap<QString, QString>::const_iterator it;
 		QMap<QString, QString>::const_iterator it_end = items.end();
 		QString val;

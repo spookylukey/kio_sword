@@ -421,7 +421,7 @@ namespace KioSword
 				.arg(stypename);
 				
 		
-		lk = module->search(query.local8Bit(), stype);
+		lk = module->search(query.utf8(), stype);
 		if (lk.Count() == 0) {
 			output += "<p>" +i18n("No matches returned.");
 		} else {
@@ -429,7 +429,7 @@ namespace KioSword
 			output += "<ul>";
 			for (int i = 0; i < lk.Count(); ++i) {
 				QString ref;
-				ref = QString::fromLocal8Bit(lk.getElement(i)->getText());
+				ref = QString::fromUtf8(lk.getElement(i)->getText());
 				if (modtype == BIBLE) {
 					module->setKey(lk.getElement(i));
 					output += QString("<li><a href=\"%3\">%1</a>: %2</li>")
@@ -689,7 +689,7 @@ namespace KioSword
 			doindex = true;
 		} else {
 			tk->Error(); // clear
-			tk->setText(ref.local8Bit());  // FIXME ? local8Bit or utf8
+			tk->setText(ref.utf8());
 			doindex = false;
 			if (tk->Error()) {
 				output += "<p class=\"error\">" + i18n("Couldn't find section '%1'.").arg(ref) + "</p>";
@@ -699,14 +699,14 @@ namespace KioSword
 				QString link;
 				output += renderText(module);
 				if (tk->previousSibling()) {
-					link = QString::fromLocal8Bit(module->KeyText()); // FIXME ? local8Bit or utf8
+					link = QString::fromUtf8(module->KeyText()); // FIXME ? local8Bit or utf8
 					navlinks += makePrevLink(shorten(link.section('/', -1, -1), 20),
 								 swordUrl(modname, link, options));
 					tk->nextSibling();
 				}
 				SWKey *saved = tk->clone();
 				if (tk->parent()) {
-					link = QString::fromLocal8Bit(module->KeyText());
+					link = QString::fromUtf8(module->KeyText());
 					navlinks += makeTreeUpLink(i18n("Up:"),
 							shorten(link.section('/', -1, -1), 20),
 							swordUrl(modname, link, options));
@@ -714,7 +714,7 @@ namespace KioSword
 				}
 				delete saved;
 				if (tk->nextSibling()) {
-					link = QString::fromLocal8Bit(module->KeyText());
+					link = QString::fromUtf8(module->KeyText());
 					navlinks += makeNextLink(shorten(link.section('/', -1, -1), 20),
 								 swordUrl(modname, link, options));
 					tk->previousSibling();
@@ -767,7 +767,7 @@ namespace KioSword
 			doindex = true;
 		} else {
 			skey->Error(); // clear
-			skey->setText(ref.local8Bit()); // FIXME?
+			skey->setText(ref.utf8());
 			doindex = false;
 			if (skey->Error()) {
 				output += "<p class=\"error\">" + QString(i18n("Couldn't find reference '%1'.")).arg(ref) + "</p>";
@@ -875,7 +875,7 @@ namespace KioSword
 		module->setPosition(sword::TOP);
 		output += "<ul>\n";
 		do {
-			ref = QString::fromLocal8Bit(module->KeyText());
+			ref = QString::fromUtf8(module->KeyText());
 			output += QString("<li><a href=\"%2\">%1</a></li>")
 					.arg(ref)
 					.arg(swordUrl(module->Name(), ref, options));
@@ -913,7 +913,7 @@ namespace KioSword
 		gonext = false;
 		do {
 			if (!gonext) {
-				ref = QString::fromLocal8Bit(module->KeyText());
+				ref = QString::fromUtf8(module->KeyText());
 				output += QString("<li><a href=\"%2\">%1</a>\n")
 						.arg(ref.section('/', -1))
 						.arg(swordUrl(module->Name(), ref, options));
