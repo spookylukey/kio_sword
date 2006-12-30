@@ -1,3 +1,32 @@
+2006-12-17	Version 0.3
+	o Fixed a bug which caused dead links when browsing Bibles with
+	  non-English locales where Bible book names contains non-ascii
+	  characters 
+	o Fixed a bug with 'Test settings' where previous URL contained 
+	  non-ascii characters
+	o Fixed a bug which caused searching for non-ascii characters to
+	  fail 
+	o Changed documentation license for the sake of Debian
+	o Other small improvements and code cleanups
+
+2006-01-06	Version 0.2
+	o Better support for Bibles in RTL languages (Arabic, Hebrew)
+	o Supports localised names for books of the Bible
+	o New, simplified page design using cleaner and better HTML (no tables, 
+	  semantic HTML)
+	o Settings propagate in URLs, so you can turn a setting on and it stays
+	  on (and this works even if multiple kio_sword processes are spawned)
+	o Access keys for navigation and toggling formatting settings
+	o Title of the page is meaningful (much better for browsing history in
+	  Konqueror)
+	o New shortcut for Bible verses: e.g. sword:John 3:16 (note there is no
+	  forward slash after "sword:") to go to your default Bible
+	o Lots of cleaning up of the code, including a new system for settings
+	  and output of HTML, using namespaces nicely and naming classes 
+	  sensibly :-)
+	o Search page pre-selects the default Bible as the module to search
+	o Fixed various bugs
+
 2004-06-05	Version 0.1
 
 	o  removed nulls in HTML output
