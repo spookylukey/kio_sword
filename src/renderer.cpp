@@ -847,9 +847,11 @@ namespace KioSword
 		output += "<ul>\n";
 		while (vk->Testament() == testament) {
 			while (vk->Book() == book && !module->Error()) {
-				output += QString("<li><a href=\"%2\">%1</a>\n")
-					.arg(vk->getBookName())
-					.arg(swordUrl(module->Name(), vk->getBookName(), options));
+				if (module->getRawEntryBuf().length() > 0) {
+					output += QString("<li><a href=\"%2\">%1</a>\n")
+						.arg(vk->getBookName())
+						.arg(swordUrl(module->Name(), vk->getBookName(), options));
+				};
 				vk->Book(++book);
 			};
 			// Move to new testament, if not there already.
