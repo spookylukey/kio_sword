@@ -4,6 +4,16 @@
 
 Copyright (C) 2004-2006 Luke Plant <L.Plant.98@cantab.net>
 
+
+This project is 'dead', meaning:
+
+* It has not been updated for KDE 4, and the sole developer has no plans to do so.
+* Old versions are not being maintained in any way.
+
+It is kept here only for historical interest (!). If anyone wishes to take this
+project on, please contact the author above.
+
+
 Installation
 ============
 See file INSTALL.
@@ -28,19 +38,7 @@ License
 GNU General Public License v2 or later. See file COPYING 
 for details.
 
-Feedback
-========
-Comments, feature requests, bug reports are all welcome - please 
-e-mail the author (e-mail above).  For bug reports,
-please include:
- o  version of KDE
- o  version of Sword
- o  operating system
- o  locale information (the output of 'locale' if
-    available, or the contents of LANG, LC_ALL etc)
- o  the full error message if one was printed.
-
 Website
 =======
 http://lukeplant.me.uk/kio-sword/
- 
+
